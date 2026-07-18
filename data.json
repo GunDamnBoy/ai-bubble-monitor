@@ -14,26 +14,28 @@
     "FRED 10Y",
     "FRED FED",
     "FRED JOBS",
-    "multpl CAPE",
-    "slickcharts Mag7",
-    "EDGAR quarterly"
-   ],
-   "fail": [
     "px NVDA",
     "px SOXX",
     "px SPY",
     "px 2330.TW",
-    "px ^TWII"
-   ]
+    "calc nvda",
+    "calc soxmom",
+    "calc tsmc",
+    "px ^TWII",
+    "multpl CAPE",
+    "slickcharts Mag7",
+    "EDGAR quarterly"
+   ],
+   "fail": []
   }
  },
- "composite": 55.1,
+ "composite": 54.1,
  "dims": {
-  "D1": 59.9,
+  "D1": 60.2,
   "D2": 0.0,
   "D3": 72.2,
   "D4": 65.9,
-  "D5": 58.6,
+  "D5": 48.4,
   "D6": 60.0
  },
  "dimMeta": {
@@ -168,9 +170,9 @@
    "id": "nvdape",
    "dim": "D1",
    "name": "NVIDIA 本益比（TTM）",
-   "value": 31.76,
-   "disp": "31.8×",
-   "score": 25.9,
+   "value": 32.14,
+   "disp": "32.1×",
+   "score": 26.7,
    "zone": "green",
    "anchors": [
     [
@@ -191,7 +193,7 @@
     ]
    ],
    "dir": "越高越熱",
-   "asof": "2026-07-16",
+   "asof": "2026-07-17",
    "fresh": "ok",
    "src": "Google Finance / stockanalysis",
    "url": "https://stockanalysis.com/stocks/nvda/",
@@ -532,10 +534,10 @@
    "id": "soxmom",
    "dim": "D5",
    "name": "半導體相對動能（SOXX−SPY，3個月）",
-   "value": 57.0,
-   "disp": "+57pp",
-   "score": 97.2,
-   "zone": "red",
+   "value": 22.6,
+   "disp": "+23pp",
+   "score": 61.6,
+   "zone": "yellow",
    "anchors": [
     [
      0,
@@ -555,7 +557,7 @@
     ]
    ],
    "dir": "越高越熱",
-   "asof": "2026-07-16",
+   "asof": "2026-07-17",
    "fresh": "ok",
    "src": "ETFdb / stockanalysis",
    "url": "https://etfdb.com/etf/SOXX/",
@@ -566,9 +568,9 @@
    "id": "nvda200",
    "dim": "D5",
    "name": "NVIDIA 距 200 日均線乖離",
-   "value": 7.9,
-   "disp": "+7.9%",
-   "score": 17.4,
+   "value": 5.4,
+   "disp": "+5.4%",
+   "score": 11.9,
    "zone": "green",
    "anchors": [
     [
@@ -589,7 +591,7 @@
     ]
    ],
    "dir": "越高越熱",
-   "asof": "2026-07-16",
+   "asof": "2026-07-17",
    "fresh": "ok",
    "src": "stockanalysis.com",
    "url": "https://stockanalysis.com/stocks/nvda/statistics/",
@@ -717,37 +719,37 @@
   }
  ],
  "tw": {
-  "heat": 80.8,
+  "heat": 61.2,
   "items": [
    {
     "id": "tsmc_pe",
     "name": "台積電本益比（TTM）",
-    "value": 32.72,
-    "disp": "32.7×",
-    "score": 89.3,
+    "value": 30.34,
+    "disp": "30.3×",
+    "score": 78.0,
     "note": "歷史區間約 15-28×，目前 32.7× 高於區間上緣（Forward ~22.8×）。市場已把 AI 超級週期充分定價——EPS 若不再上修，估值沒有安全墊。",
     "src": "Google Finance / stockanalysis",
-    "asof": "2026-07-16"
+    "asof": "2026-07-17"
    },
    {
     "id": "tsmc_200dma",
     "name": "台積電距 200 日均線",
-    "value": 44.0,
-    "disp": "+44.0%",
-    "score": 90.1,
+    "value": 24.1,
+    "disp": "+24.1%",
+    "score": 53.6,
     "note": "2,470 vs 200DMA 1,715——乖離幅度遠超美股龍頭（NVDA 僅 +7.9%），台股 AI 主升段的動能已呈拋物線。",
     "src": "stockanalysis.com",
-    "asof": "2026-07-16"
+    "asof": "2026-07-17"
    },
    {
     "id": "tsmc_52w",
     "name": "台積電一年漲幅",
-    "value": 132.68,
-    "disp": "+132.7%",
-    "score": 90.5,
+    "value": 110.09,
+    "disp": "+110.1%",
+    "score": 78.1,
     "note": "52 週區間 1,115→2,535。一年翻 2.3 倍，波動放大（52週低點到高點 2.3×）。",
     "src": "Google Finance",
-    "asof": "2026-07-16"
+    "asof": "2026-07-17"
    },
    {
     "id": "odm_pe",
@@ -762,9 +764,9 @@
    {
     "id": "twii_pos",
     "name": "加權指數位於 52 週區間位置",
-    "value": 94.5,
-    "disp": "94.5%",
-    "score": 81.8,
+    "value": 80.0,
+    "disp": "80.0%",
+    "score": 44.4,
     "note": "46,781 點，距歷史高點 48,219 僅 3%；52 週低點 22,190（一年內指數曾腰斬後翻倍）。台股對美國 AI 資本開支週期的 β 遠大於 1——若美方進入第三階段出現信用事件，台股供應鏈是重災首選。",
     "src": "Yahoo Finance",
     "asof": "2026-07-17"
@@ -1072,16 +1074,16 @@
   },
   {
    "date": "2026-07-18",
-   "composite": 55.1,
+   "composite": 54.1,
    "dims": {
-    "D1": 59.9,
+    "D1": 60.2,
     "D2": 0.0,
     "D3": 72.2,
     "D4": 65.9,
-    "D5": 58.6,
+    "D5": 48.4,
     "D6": 60.0
    },
-   "tw": 80.8
+   "tw": 61.2
   }
  ],
  "params": {

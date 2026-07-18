@@ -15,24 +15,24 @@
     "FRED FED",
     "FRED JOBS",
     "multpl CAPE",
-    "slickcharts Mag7"
+    "slickcharts Mag7",
+    "EDGAR quarterly"
    ],
    "fail": [
-    "stooq nvda.us",
-    "stooq soxx.us",
-    "stooq spy.us",
-    "stooq 2330.tw",
-    "stooq TWII",
-    "EDGAR quarterly"
+    "px NVDA",
+    "px SOXX",
+    "px SPY",
+    "px 2330.TW",
+    "px ^TWII"
    ]
   }
  },
- "composite": 54.9,
+ "composite": 55.1,
  "dims": {
   "D1": 59.9,
   "D2": 0.0,
-  "D3": 71.9,
-  "D4": 65.6,
+  "D3": 72.2,
+  "D4": 65.9,
   "D5": 58.6,
   "D6": 60.0
  },
@@ -327,20 +327,20 @@
     ]
    ],
    "dir": "越高越熱",
-   "asof": "2026Q1（10-Q/10-K）",
+   "asof": "2026Q1",
    "fresh": "ok",
    "src": "SEC EDGAR XBRL",
    "url": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany",
    "note": "八季一路走高：42.9%→75.3%；最新單季已達 94.0%（與中金測算一致）。Epoch AI 獨立模型推估 2026Q3 前後整體突破 100%——屆時經營現金流將完全不夠花，全面依賴外部融資。",
    "qual": false,
-   "sub": "最新單季 94.0%｜Epoch AI 推估 2026Q3 交叉 100%"
+   "sub": "最新單季 94.0%"
   },
   {
    "id": "fcf",
    "dim": "D3",
    "name": "五大雲廠自由現金流（TTM 年減率）",
    "value": -29.1,
-   "disp": "−29.1%",
+   "disp": "-29.1%",
    "score": 57.7,
    "zone": "yellow",
    "anchors": [
@@ -368,15 +368,15 @@
    "url": "https://data.sec.gov/",
    "note": "TTM FCF 從 $223B 縮至 $158B；最新單季只剩 $9.5B、年減 78%。獲利豐厚的巨頭正在把現金流全數換成資料中心。",
    "qual": false,
-   "sub": "單季 FCF $9.5B（年減 77.6%）"
+   "sub": "單季 FCF $9.5B（年增 -77.6%）"
   },
   {
    "id": "dnagap",
    "dim": "D3",
    "name": "折舊成長 vs 營收成長缺口",
-   "value": 34.4,
-   "disp": "+34.4pp",
-   "score": 99.1,
+   "value": 35.9,
+   "disp": "+35.9pp",
+   "score": 100.0,
    "zone": "red",
    "anchors": [
     [
@@ -408,9 +408,9 @@
    "id": "debt",
    "dim": "D4",
    "name": "五大雲廠長期債務（年增率）",
-   "value": 77.8,
-   "disp": "+77.8%",
-   "score": 98.6,
+   "value": 87.4,
+   "disp": "+87.4%",
+   "score": 100.0,
    "zone": "red",
    "anchors": [
     [
@@ -911,8 +911,6 @@
   ],
   "debt": {
    "labels": [
-    "2023Q4",
-    "2024Q1",
     "2024Q2",
     "2024Q3",
     "2024Q4",
@@ -923,8 +921,6 @@
     "2026Q1"
    ],
    "values": [
-    219.9,
-    217.0,
     204.1,
     214.7,
     208.3,
@@ -1076,12 +1072,12 @@
   },
   {
    "date": "2026-07-18",
-   "composite": 54.9,
+   "composite": 55.1,
    "dims": {
     "D1": 59.9,
     "D2": 0.0,
-    "D3": 71.9,
-    "D4": 65.6,
+    "D3": 72.2,
+    "D4": 65.9,
     "D5": 58.6,
     "D6": 60.0
    },

@@ -1,19 +1,40 @@
 {
  "meta": {
   "version": 1,
-  "built": "2026-07-17",
-  "builtTime": "2026-07-17 09:30 (台北時間)",
+  "built": "2026-07-18",
+  "builtTime": "2026-07-18（GitHub Actions 自動更新）",
   "nextUpdate": "每交易日自動更新（GitHub Actions）｜質化指標每週覆核",
-  "artifactId": "ai-bubble-monitor"
+  "artifactId": "ai-bubble-monitor",
+  "lastAutoRun": {
+   "date": "2026-07-18",
+   "ok": [
+    "FRED HY",
+    "FRED IG",
+    "FRED VIX",
+    "FRED 10Y",
+    "FRED FED",
+    "FRED JOBS",
+    "multpl CAPE",
+    "slickcharts Mag7"
+   ],
+   "fail": [
+    "stooq nvda.us",
+    "stooq soxx.us",
+    "stooq spy.us",
+    "stooq 2330.tw",
+    "stooq TWII",
+    "EDGAR quarterly"
+   ]
+  }
  },
- "composite": 55.5,
+ "composite": 54.9,
  "dims": {
-  "D1": 62.5,
+  "D1": 59.9,
   "D2": 0.0,
   "D3": 71.9,
-  "D4": 65.8,
+  "D4": 65.6,
   "D5": 58.6,
-  "D6": 56.7
+  "D6": 60.0
  },
  "dimMeta": {
   "D1": {
@@ -79,10 +100,10 @@
    "id": "cape",
    "dim": "D1",
    "name": "Shiller CAPE（標普500）",
-   "value": 42.18,
-   "disp": "42.2×",
-   "score": 84.2,
-   "zone": "red",
+   "value": 41.52,
+   "disp": "41.5×",
+   "score": 79.0,
+   "zone": "orange",
    "anchors": [
     [
      25,
@@ -102,7 +123,7 @@
     ]
    ],
    "dir": "越高越熱",
-   "asof": "2026-07-15",
+   "asof": "2026-07-18",
    "fresh": "ok",
    "src": "multpl.com",
    "url": "https://www.multpl.com/shiller-pe",
@@ -113,9 +134,9 @@
    "id": "mag7",
    "dim": "D1",
    "name": "Mag7 佔標普500市值比重",
-   "value": 33.89,
-   "disp": "33.9%",
-   "score": 77.4,
+   "value": 33.42,
+   "disp": "33.4%",
+   "score": 74.8,
    "zone": "orange",
    "anchors": [
     [
@@ -136,7 +157,7 @@
     ]
    ],
    "dir": "越高越熱",
-   "asof": "2026-07-16",
+   "asof": "2026-07-18",
    "fresh": "ok",
    "src": "SlickCharts",
    "url": "https://www.slickcharts.com/sp500",
@@ -423,7 +444,7 @@
    "name": "美高收益債利差（HY OAS）",
    "value": 2.71,
    "disp": "2.71%",
-   "score": 13.3,
+   "score": 12.5,
    "zone": "green",
    "anchors": [
     [
@@ -448,13 +469,13 @@
     ]
    ],
    "dir": "3個月走闊幅度（bp）越大越熱",
-   "asof": "2026-07-15",
+   "asof": "2026-07-16",
    "fresh": "ok",
    "src": "FRED (ICE BofA)",
    "url": "https://fred.stlouisfed.org/series/BAMLH0A0HYM2",
    "note": "3個月變化 −14bp（收斂）、絕對水位處於歷史低檔。目前信用市場對 AI 債務零風險定價——這既是「尚未觸發」的訊號，也是自滿的燃料。觸發線：3個月內走闊 +80bp。",
    "qual": false,
-   "sub": "IG OAS 0.79%（同創低檔）"
+   "sub": "IG OAS 0.78%"
   },
   {
    "id": "vc",
@@ -581,7 +602,7 @@
    "name": "VIX 恐慌指數",
    "value": 16.73,
    "disp": "16.7",
-   "score": 50,
+   "score": 50.0,
    "zone": "yellow",
    "anchors": null,
    "dir": "13-18＝自滿區（非單調）",
@@ -614,12 +635,12 @@
    "dim": "D6",
    "name": "聯準會政策狀態",
    "value": 3.63,
-   "disp": "3.63%（年降 70bp）",
+   "disp": "3.63%（年變動 -70bp）",
    "score": 60,
    "zone": "yellow",
    "anchors": null,
    "dir": "寬鬆＋資產新高＝加溫",
-   "asof": "2026-06",
+   "asof": "2026-06-01",
    "fresh": "ok",
    "src": "FRED FEDFUNDS",
    "url": "https://fred.stlouisfed.org/series/FEDFUNDS",
@@ -631,8 +652,8 @@
    "dim": "D6",
    "name": "美債 10 年期殖利率",
    "value": 4.57,
-   "disp": "4.57%（3個月 +31bp）",
-   "score": 55,
+   "disp": "4.57%（3個月 +25bp）",
+   "score": 58.5,
    "zone": "yellow",
    "anchors": [
     [
@@ -664,9 +685,9 @@
    "id": "itjobs",
    "dim": "D6",
    "name": "美國資訊業就業（YoY）",
-   "value": -3.0,
-   "disp": "−3.0%",
-   "score": 55,
+   "value": -3.1,
+   "disp": "-3.1%",
+   "score": 61.4,
    "zone": "yellow",
    "anchors": [
     [
@@ -687,7 +708,7 @@
     ]
    ],
    "dir": "背景指標（因果雙向）",
-   "asof": "2026-06",
+   "asof": "2026-06-01",
    "fresh": "ok",
    "src": "FRED USINFO (BLS)",
    "url": "https://fred.stlouisfed.org/series/USINFO",
@@ -918,20 +939,19 @@
   "spreads": {
    "hy": {
     "now": 2.71,
-    "m3": 2.85,
-    "y1": 2.93,
-    "asof": "2026-07-15"
+    "m3": 2.86,
+    "y1": 2.89,
+    "asof": "2026-07-16"
    },
    "ig": {
-    "now": 0.79,
+    "now": 0.78,
     "m3": 0.81,
     "y1": 0.81,
-    "asof": "2026-07-15"
+    "asof": "2026-07-16"
    },
    "us10y": {
     "now": 4.57,
-    "m3": 4.29,
-    "y1": 4.46,
+    "m3": 4.32,
     "asof": "2026-07-16"
    },
    "vix": {
@@ -941,12 +961,12 @@
    "fedfunds": {
     "now": 3.63,
     "y1": 4.33,
-    "asof": "2026-06"
+    "asof": "2026-06-01"
    },
    "usinfo": {
-    "now": 2774,
-    "y1": 2861,
-    "asof": "2026-06"
+    "now": 2774.0,
+    "y1": 2863.0,
+    "asof": "2026-06-01"
    }
   }
  },
@@ -1053,6 +1073,23 @@
     "D6": 56.7
    },
    "tw": 80.8
+  },
+  {
+   "date": "2026-07-18",
+   "composite": 54.9,
+   "dims": {
+    "D1": 59.9,
+    "D2": 0.0,
+    "D3": 71.9,
+    "D4": 65.6,
+    "D5": 58.6,
+    "D6": 60.0
+   },
+   "tw": 80.8
   }
- ]
+ ],
+ "params": {
+  "nvda_eps": 6.31,
+  "tsmc_eps": 75.49
+ }
 }

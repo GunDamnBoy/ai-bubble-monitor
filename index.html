@@ -1,0 +1,1701 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI 泡沫監控儀表板</title>
+<style>
+:root{color-scheme:light;
+  --surface-1:#fcfcfb; --page:#f9f9f7; --ink-1:#0b0b0b; --ink-2:#52514e; --muted:#898781;
+  --grid:#e1e0d9; --axis:#c3c2b7; --border:rgba(11,11,11,.10);
+  --s1:#2a78d6; --s2:#008300; --seq-150:#b7d3f6; --seq-300:#6da7ec;
+  --good:#0ca30c; --warn:#fab219; --serious:#ec835a; --crit:#d03b3b; --up-good:#006300;
+}
+:root[data-theme="dark"]{color-scheme:dark;
+  --surface-1:#1a1a19; --page:#0d0d0d; --ink-1:#ffffff; --ink-2:#c3c2b7; --muted:#898781;
+  --grid:#2c2c2a; --axis:#383835; --border:rgba(255,255,255,.10);
+  --s1:#3987e5; --s2:#008300; --seq-150:#184f95; --seq-300:#1c5cab; --up-good:#0ca30c;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){color-scheme:dark;
+    --surface-1:#1a1a19; --page:#0d0d0d; --ink-1:#ffffff; --ink-2:#c3c2b7; --muted:#898781;
+    --grid:#2c2c2a; --axis:#383835; --border:rgba(255,255,255,.10);
+    --s1:#3987e5; --s2:#008300; --seq-150:#184f95; --seq-300:#1c5cab; --up-good:#0ca30c;}
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,-apple-system,"Segoe UI","PingFang TC","Microsoft JhengHei",sans-serif;
+  background:var(--page);color:var(--ink-1);font-size:14px;line-height:1.65;padding:20px 16px 60px}
+.wrap{max-width:1080px;margin:0 auto}
+a{color:var(--s1);text-decoration:none} a:hover{text-decoration:underline}
+h1{font-size:21px;font-weight:700;letter-spacing:.3px}
+h2{font-size:16px;font-weight:700;margin:0 0 12px}
+h3{font-size:14px;font-weight:700}
+.sub{color:var(--ink-2);font-size:12.5px}
+.mut{color:var(--muted);font-size:12px}
+.card{background:var(--surface-1);border:1px solid var(--border);border-radius:12px;padding:18px 20px;margin-bottom:14px}
+.hdr{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.btn{background:var(--surface-1);border:1px solid var(--border);border-radius:8px;color:var(--ink-2);
+  padding:5px 12px;font-size:12.5px;cursor:pointer;font-family:inherit}
+.btn:hover{color:var(--ink-1)}
+/* tabs */
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin:16px 0 14px}
+.tab{border:1px solid var(--border);background:var(--surface-1);color:var(--ink-2);border-radius:99px;
+  padding:6px 15px;font-size:13px;cursor:pointer;font-family:inherit}
+.tab.on{background:var(--ink-1);color:var(--page);border-color:var(--ink-1);font-weight:600}
+section.pane{display:none} section.pane.on{display:block}
+/* hero */
+.heroRow{display:flex;gap:26px;align-items:flex-start;flex-wrap:wrap}
+.heroNum{font-size:56px;font-weight:650;line-height:1.05}
+.heroNum small{font-size:20px;color:var(--muted);font-weight:500}
+.chip{display:inline-flex;align-items:center;gap:6px;border-radius:99px;padding:2px 10px;font-size:12px;font-weight:600;border:1px solid var(--border)}
+.chip .dot{width:8px;height:8px;border-radius:50%}
+.meterWrap{flex:1;min-width:280px}
+.zoneBar{position:relative;height:14px;border-radius:7px;overflow:hidden;display:flex;margin:8px 0 4px}
+.zoneBar div{height:100%}
+.zoneTicks{display:flex;justify-content:space-between;font-size:10.5px;color:var(--muted)}
+.marker{position:absolute;top:-4px;width:3px;height:22px;background:var(--ink-1);border-radius:2px;box-shadow:0 0 0 2px var(--surface-1)}
+/* dimension rows */
+.dimRow{display:grid;grid-template-columns:150px 1fr 44px;gap:12px;align-items:center;padding:7px 0;border-bottom:1px solid var(--grid)}
+.dimRow:last-child{border-bottom:0}
+.dimName{font-size:13px;font-weight:600}
+.dimName .mut{font-weight:400}
+.meter{position:relative;height:10px;border-radius:5px;overflow:hidden}
+.meter .track{position:absolute;inset:0}
+.meter .fill{position:absolute;left:0;top:0;bottom:0;border-radius:5px}
+.dimScore{font-size:13px;font-weight:650;text-align:right;font-variant-numeric:tabular-nums}
+/* stage stepper */
+.stepper{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:12px 0 4px}
+.step{border:1px solid var(--border);border-radius:10px;padding:10px 12px;position:relative;background:var(--surface-1)}
+.step.active{border-color:var(--warn);border-width:2px}
+.step.done{opacity:.75}
+.step .n{font-size:11px;color:var(--muted);font-weight:600}
+.step .nm{font-size:13px;font-weight:700;margin:2px 0}
+.step .ds{font-size:11.5px;color:var(--ink-2);line-height:1.5}
+.chk{display:grid;gap:6px;margin-top:12px}
+.chkRow{display:grid;grid-template-columns:20px 1fr;gap:8px;font-size:12.5px;align-items:baseline}
+.chkRow .evi{color:var(--ink-2);font-size:11.5px}
+/* cards grid */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.tile{border:1px solid var(--border);border-radius:10px;padding:12px 14px;background:var(--surface-1)}
+.tile .lb{font-size:11.5px;color:var(--ink-2)}
+.tile .v{font-size:22px;font-weight:650;margin:2px 0}
+.tile .d{font-size:11.5px;color:var(--muted)}
+.delta-up{color:var(--crit)} .delta-dn{color:var(--up-good)}
+@media(max-width:820px){.grid2,.grid3{grid-template-columns:1fr}.stepper{grid-template-columns:1fr 1fr}.dimRow{grid-template-columns:110px 1fr 40px}}
+/* indicator cards */
+.icard{border:1px solid var(--border);border-radius:10px;padding:14px 16px;background:var(--surface-1);display:flex;flex-direction:column;gap:6px}
+.icard .top{display:flex;justify-content:space-between;gap:10px;align-items:baseline}
+.icard .nm{font-size:13px;font-weight:700}
+.icard .val{font-size:20px;font-weight:650}
+.strip{position:relative;height:8px;border-radius:4px;overflow:visible;display:flex;margin:4px 0 2px}
+.strip div{height:100%}
+.strip .mk{position:absolute;top:-3px;width:2.5px;height:14px;background:var(--ink-1);border-radius:2px;box-shadow:0 0 0 1.5px var(--surface-1)}
+.icard .note{font-size:12px;color:var(--ink-2)}
+.icard .meta{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);gap:8px;flex-wrap:wrap}
+.stale{color:var(--serious);font-weight:600}
+.dimSection{margin-bottom:18px}
+.dimSection .cards{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:8px}
+@media(max-width:820px){.dimSection .cards{grid-template-columns:1fr}}
+/* charts */
+.chart{position:relative}
+.chart svg{width:100%;height:auto;display:block}
+.chart .legend{display:flex;gap:16px;font-size:12px;color:var(--ink-2);margin-bottom:4px;flex-wrap:wrap}
+.legend .sw{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+.tooltip{position:absolute;pointer-events:none;background:var(--ink-1);color:var(--page);border-radius:8px;
+  padding:7px 10px;font-size:11.5px;line-height:1.5;opacity:0;transition:opacity .12s;z-index:9;white-space:nowrap;
+  font-variant-numeric:tabular-nums}
+/* tables */
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+th{text-align:left;color:var(--muted);font-weight:600;padding:6px 8px;border-bottom:1px solid var(--axis);white-space:nowrap}
+td{padding:6px 8px;border-bottom:1px solid var(--grid);vertical-align:top}
+td.num{font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap}
+details{margin-top:10px} summary{cursor:pointer;font-size:13px;color:var(--ink-2);font-weight:600}
+/* eval tab */
+.verdict{display:inline-block;border-radius:99px;padding:1px 10px;font-size:11.5px;font-weight:700;margin-right:6px}
+.v-ok{background:color-mix(in srgb,var(--good) 15%,transparent);color:var(--up-good)}
+.v-part{background:color-mix(in srgb,var(--warn) 20%,transparent);color:#8a6100}
+:root[data-theme="dark"] .v-part{color:var(--warn)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .v-part{color:var(--warn)}}
+.v-fix{background:color-mix(in srgb,var(--crit) 14%,transparent);color:var(--crit)}
+.evalItem{border-left:3px solid var(--grid);padding:2px 0 2px 14px;margin:14px 0}
+.evalItem p{margin:5px 0;font-size:13px}
+.evalItem .q{color:var(--ink-2);font-size:12.5px}
+ul.tight{padding-left:18px;font-size:13px} ul.tight li{margin:4px 0}
+.foot{margin-top:24px;color:var(--muted);font-size:11.5px;line-height:1.7}
+.flag{font-size:12px;padding:10px 14px;border-radius:10px;background:color-mix(in srgb,var(--warn) 10%,transparent);border:1px solid color-mix(in srgb,var(--warn) 35%,transparent);margin-top:10px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="hdr">
+    <div>
+      <h1>AI 泡沫監控儀表板</h1>
+      <div class="sub" id="metaLine"></div>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center">
+      <span class="mut" id="nextUpd"></span>
+      <button class="btn" id="themeBtn" title="切換深淺色">◐ 自動</button>
+    </div>
+  </div>
+
+  <nav class="tabs" id="tabs">
+    <button class="tab on" data-t="t1">總覽</button>
+    <button class="tab" data-t="t2">指標與數據</button>
+    <button class="tab" data-t="t3">台灣供應鏈</button>
+    <button class="tab" data-t="t4">框架評估</button>
+    <button class="tab" data-t="t5">方法論與更新</button>
+  </nav>
+
+  <!-- ============ TAB 1 總覽 ============ -->
+  <section class="pane on" id="t1">
+    <div class="card">
+      <div class="heroRow">
+        <div>
+          <div class="sub">綜合泡沫溫度</div>
+          <div class="heroNum" id="heroNum"></div>
+          <div id="heroChip" style="margin-top:4px"></div>
+        </div>
+        <div class="meterWrap">
+          <div class="sub" style="display:flex;justify-content:space-between"><span>溫度區間</span><span class="mut">0＝冰點　100＝極端狂熱</span></div>
+          <div class="zoneBar" id="zoneBar"></div>
+          <div class="zoneTicks"><span>0</span><span>25</span><span>45</span><span>65</span><span>84</span><span>100</span></div>
+          <div class="mut" id="zoneLabels" style="margin-top:2px"></div>
+          <div id="dimRows" style="margin-top:14px"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid2">
+      <div class="card">
+        <h2>泡沫階段定位<span class="mut" style="font-weight:400">　網路泡沫融資階段類比</span></h2>
+        <div class="stepper" id="stepper"></div>
+        <div class="sub" id="stageNote" style="margin-top:8px"></div>
+        <h3 style="margin-top:14px">第三階段檢查清單<span class="mut" style="font-weight:400" id="chkCount"></span></h3>
+        <div class="chk" id="checklist"></div>
+      </div>
+      <div class="card">
+        <h2>本期焦點事件</h2>
+        <div id="events"></div>
+        <h3 style="margin-top:14px">信用與宏觀溫度計</h3>
+        <div class="tiles" id="creditTiles" style="margin-top:8px"></div>
+      </div>
+    </div>
+
+    <div class="grid2">
+      <div class="card">
+        <h2>五大雲廠：資本開支 vs 營運現金流<span class="mut" style="font-weight:400">　TTM，$B</span></h2>
+        <div class="chart" id="chartCapex"></div>
+      </div>
+      <div class="card">
+        <h2>Capex／OCF 比率<span class="mut" style="font-weight:400">　單季，%</span></h2>
+        <div class="chart" id="chartRatio"></div>
+      </div>
+    </div>
+    <div class="grid2">
+      <div class="card">
+        <h2>五大雲廠：自由現金流<span class="mut" style="font-weight:400">　單季，$B</span></h2>
+        <div class="chart" id="chartFcf"></div>
+      </div>
+      <div class="card">
+        <h2>五大雲廠：長期債務<span class="mut" style="font-weight:400">　$B</span></h2>
+        <div class="chart" id="chartDebt"></div>
+        <div class="mut" id="debtNote"></div>
+      </div>
+    </div>
+    <div class="card">
+      <h2>綜合溫度歷史軌跡</h2>
+      <div class="chart" id="chartHist"></div>
+      <div class="mut" id="histNote"></div>
+    </div>
+  </section>
+
+  <!-- ============ TAB 2 指標 ============ -->
+  <section class="pane" id="t2">
+    <div class="card">
+      <div class="sub">21 項指標依六維度分組。每張卡片：目前值、溫度帶位置（▎為目前位置，綠→黃→橘→紅）、資料時點與來源。標示「資料延遲」者為來源停更或低頻披露，以最後可得值評分。</div>
+    </div>
+    <div id="indSections"></div>
+    <div class="card">
+      <details open>
+        <summary>指標總表（表格檢視）</summary>
+        <div style="overflow-x:auto;margin-top:8px"><table id="indTable"></table></div>
+      </details>
+    </div>
+  </section>
+
+  <!-- ============ TAB 3 台灣 ============ -->
+  <section class="pane" id="t3">
+    <div class="card">
+      <div class="heroRow">
+        <div>
+          <div class="sub">台股 AI 供應鏈過熱度</div>
+          <div class="heroNum" id="twHero"></div>
+          <div id="twChip" style="margin-top:4px"></div>
+        </div>
+        <div class="meterWrap">
+          <div class="zoneBar" id="twZoneBar"></div>
+          <div class="zoneTicks"><span>0</span><span>25</span><span>45</span><span>65</span><span>84</span><span>100</span></div>
+          <div class="sub" style="margin-top:10px">獨立於美國綜合溫度計計算（美國框架監測「泡沫是否形成」；台灣面板監測「若破裂，曝險有多大」）。台股供應鏈的動能與估值指標目前<b>顯著熱於美國核心</b>——但請注意其中的結構：過熱集中在台積電的估值重評與指數動能，ODM 環節估值仍溫和。</div>
+        </div>
+      </div>
+    </div>
+    <div class="dimSection"><div class="cards" id="twCards"></div></div>
+    <div class="card">
+      <h2>解讀</h2>
+      <ul class="tight">
+        <li><b>台積電 32.7×（TTM）已高於其歷史區間上緣（15-28×）</b>，且距 200 日線 +44%、一年 +133%——三項動能/估值指標全數紅燈。支撐面：Forward P/E 約 22.8×，代表市場預期 EPS 未來一年再成長四成；只要 AI 資本開支不減速，估值可以被盈利消化。</li>
+        <li><b>風險傳導路徑</b>：美國第三階段（弱資質主體融資惡化）→ 雲廠資本開支下修 → 台積電 CoWoS/先進製程訂單 → ODM 組裝廠。台股是美國 AI 資本開支週期的高 β 下游，歷史上（2000、2022）修正幅度大於美股。</li>
+        <li><b>觀察哨</b>：本儀表板的第三階段檢查清單每點亮一項，台灣面板的實質風險就上升一級——即使台股自身指標未變。</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ============ TAB 4 框架評估 ============ -->
+  <section class="pane" id="t4">
+    <div class="card">
+      <h2>原文框架：中金《如何監測AI泡沫？》（刘刚、杨萱庭，2026-07-14）</h2>
+      <p style="font-size:13px">文章提出<b>四維監測體系</b>：①需求端（Token 用量、付費率、單位成本）②現金流（ARR、FCF、Capex/OCF）③融資來源（發債、VC、CDS、ROIC vs WACC）④外部約束（就業、數據中心審批、政策）。結論：「整體尚未呈現全面泡沫化特徵」，處於網路泡沫「第一階段向第二階段轉換期」，關鍵風險訊號為「融資行為擴散至高槓桿、負現金流、商業模式未驗證的公司」。</p>
+      <p style="font-size:13px;margin-top:8px"><b>總評：方法論方向正確、執行有六個結構性弱點。</b>把泡沫問題從「是／否」的口水戰變成「四個可監測維度＋階段定位」是文章最大的貢獻，融資結構視角（誰在出錢）尤其正確——與 Kindleberger–Minsky 泡沫五階段、高盛五警訊框架一致。我們用 SEC EDGAR 原始數據獨立驗證了其核心測算：<b>2026Q1 五大雲廠單季 Capex/OCF = 94.0%、FCF 單季 −77.6% 至 $9.5B——與文章數字完全吻合</b>，代表其現金流維度紮實可信。但以下六點需要修正，修正結果已內建於本儀表板。</p>
+    </div>
+
+    <div class="card">
+      <h2>六項評估與修正</h2>
+
+      <div class="evalItem">
+        <p><span class="verdict v-fix">重大缺口</span><b>① 完全沒有估值與價格維度</b></p>
+        <p class="q">泡沫的定義是「價格相對基本面的偏離」。只監測基本面（需求、現金流）與資金面（融資），等於用單腳量泡沫——1999 年的需求與營收也是真實成長的，出問題的是價格。</p>
+        <p><b>修正：</b>新增 D1 估值維度（權重 25%）：CAPE 42.2×（達 2000 峰值 95%）、Mag7 佔比 33.9%（超過 2000 年前十大的 25-27%）、NVDA P/E 31.8×。有趣的是，補上估值維度後反而出現<b>反泡沫證據</b>：龍頭本益比僅 31.8×（2000 年 Cisco 為 130×+），本輪由真實盈利支撐。這種「集中度極端、但龍頭不貴」的矛盾結構，正是不做估值維度會完全漏掉的資訊。</p>
+      </div>
+
+      <div class="evalItem">
+        <p><span class="verdict v-part">部分合理</span><b>② 需求端指標有樣本偏誤與計價陷阱</b></p>
+        <p class="q">Token 量暴增≠收入（量漲價跌可互相抵銷，且大量推理是補貼/免費的）；OpenRouter 樣本偏開發者與開源流量，大企業直連 Azure/Bedrock 不經該平台。我們核實：文章稱中國模型佔 56%，OpenRouter 實測週量中國系約 32%——口徑差距大。文章引用付費率 47%→55%，Ramp 實際最後披露為 50.6%（4月），且 Ramp 自 6 月起停止發布整體付費率，該指標面臨斷檔。</p>
+        <p><b>修正：</b>需求維度保留但降權至 15%，定位為「反證維度」（綠燈＝泡沫論的反證）；所有第三方平台數據標註樣本偏誤與時效；變現檢驗改以「已披露 AI 原生收入 vs 資本開支」缺口為錨（目前五大廠年化 Capex ~$594B vs OpenAI+Anthropic 合計 ARR ~$72-94B——中間的巨大缺口要靠雲廠自家 AI 收入與未來成長填補，此即 Sequoia「$600B 之問」的 2026 版）。</p>
+      </div>
+
+      <div class="evalItem">
+        <p><span class="verdict v-fix">邏輯瑕疵</span><b>③ ROIC（21%）＞WACC（12%）→「仍有加槓桿空間」是偷換概念</b></p>
+        <p class="q">21% 的 ROIC 是廣告、電商、軟體授權等<b>存量業務</b>的回報，不是 AI 增量資本開支的邊際回報。用全公司 ROIC 論證 AI 擴張合理，等於用舊引擎的油耗替新引擎背書。</p>
+        <p><b>修正：</b>改用<b>邊際指標</b>：折舊成長 vs 營收成長缺口。實測五家平均折舊年增 55.6% vs 營收年增 21.2%，缺口 +34.4pp、紅燈——增量資本的回報正在被稀釋，「折舊牆」將在未來 2-3 年持續壓縮 EPS。這是文章框架抓不到、但比 ROIC 更誠實的訊號。</p>
+      </div>
+
+      <div class="evalItem">
+        <p><span class="verdict v-fix">關鍵遺漏</span><b>④ 循環融資（供應商融資）未被系統化監測</b></p>
+        <p class="q">2000 年泡沫破裂的放大器正是 Lucent/Nortel 的 vendor financing——供應商借錢給客戶買自己的設備，營收與資本邊界消失。本輪：NVIDIA 2026 前四個月對客戶與供應鏈股權投資 >$40B（OpenAI 累計 $30B、CoreWeave、Marvell、Corning⋯），每筆綁定商業合約；Bloomberg 已製作「AI 循環交易圖譜」。文章僅在 CDS 處輕輕帶過。</p>
+        <p><b>修正：</b>列為 D4 維度的獨立紅旗指標（目前評分 80／紅），每週追蹤新增循環交易事件。</p>
+      </div>
+
+      <div class="evalItem">
+        <p><span class="verdict v-part">部分合理</span><b>⑤ 外部約束維度太事件化、因果模糊</b></p>
+        <p class="q">IT 就業減少 45 萬，是「AI 替代→利潤改善」（利多）還是「需求萎縮前兆」（利空）？文章未處理因果方向。數據中心取消案例（62/1592）與韓國稅案屬事件性資訊，難以持續量化監控。</p>
+        <p><b>修正：</b>降權至 5%、定位為背景指標；可量化部分改用 FRED 就業序列（USINFO，YoY −3.0%）與利率；電力/審批約束改以事件流追蹤（本期：紐約州首個州級暫停令、2026 前四個月 >75 案 $130B 被擋）。</p>
+      </div>
+
+      <div class="evalItem">
+        <p><span class="verdict v-part">偏保守</span><b>⑥ 階段判斷「第一→第二階段轉換」低估了進度</b></p>
+        <p class="q">我們核實的證據：2026 前五個月五巨頭發債 ~$159B 已超 2025 全年（$121B）；五大廠長期債務一年 +77.8%（$209B→$372B，AMZN 單季 +$53B、GOOGL 一年 7 倍）；OpenAI 與 Anthropic 已先後保密申請 IPO；Oracle CDS 創歷史新高。「外部公開市場融資主導」的第二階段不是「即將進入」，而是<b>已全面展開</b>。</p>
+        <p><b>修正：</b>本儀表板將階段定位為「第 2 階段後段（2.6／4）」，並把文章自己提出的關鍵訊號（融資擴散至弱資質主體）操作化為<b>六項第三階段檢查清單</b>逐週打勾——目前點亮 2.5／6。</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>與其他權威框架對照</h2>
+      <ul class="tight">
+        <li><b>高盛五警訊</b>（科技投資/GDP 見頂、企業利潤下滑、企業債務攀升、Fed 寬鬆、信用利差走闊）：本儀表板覆蓋其中 4.5 項——目前狀態：投資佔比快速上升中（未見頂）、利潤仍成長、債務紅燈、Fed 寬鬆中（亮）、利差未走闊（未亮）。</li>
+        <li><b>Kindleberger–Minsky 五階段</b>（錯置→信用擴張→狂熱→獲利了結→恐慌）：信用擴張階段的特徵（發債紀錄、循環融資）已齊備，「狂熱」的散戶面特徵（IPO 首日暴漲潮）尚未出現——OpenAI IPO 將是最重要的試金石。</li>
+        <li><b>arXiv 2606.01575 多方法評估</b>（DCF、爆炸性根檢驗、LPPL、情緒 ML、Capex 漏斗）結論：「真實技術革命伴隨局部泡沫動態」——與本儀表板 55/100（過熱警戒、而非全面泡沫）的讀數一致；其強調的「私募估值集中、資本回收期不確定」對應本框架 D4 紅燈。</li>
+      </ul>
+      <div class="flag"><b>目前綜合判讀（2026-07-17）：</b>溫度 55／100，「過熱警戒」區中段。結構是「真實的需求（D2 全綠）＋極端的融資行為（D4 紅）＋成形中的折舊牆（D3 黃紅）＋分化的價格動能（D5）」。這不是 2000 年式的全面估值泡沫，而是一場<b>資產負債表泡沫的醞釀</b>：出資結構正快速從現金流轉向債務。最重要的前瞻哨點不是股價，是第三階段檢查清單——尤其是 HY 利差（+80bp/3M 觸發線）與 OpenAI IPO 的定價行為。</div>
+    </div>
+  </section>
+
+  <!-- ============ TAB 5 方法論 ============ -->
+  <section class="pane" id="t5">
+    <div class="card">
+      <h2>計分方法</h2>
+      <p style="font-size:13px">每項指標以<b>分段線性函數</b>將原始值映射為 0-100 溫度分（錨點對照 2000 年網路泡沫類比值與歷史分位），質化指標（VC 集中度、循環融資、金絲雀信用、敘事熱度、Fed 狀態）依公開評分準則人工評定並附證據。維度分＝維度內指標平均；綜合溫度＝維度加權平均。溫度區間：0-25 冷靜期、25-45 健康擴張、45-65 過熱警戒、65-84 泡沫化進行、84-100 極端狂熱。</p>
+      <div style="overflow-x:auto;margin-top:10px"><table id="wTable"></table></div>
+    </div>
+    <div class="card">
+      <h2>資料來源與自動更新</h2>
+      <p style="font-size:13px">本儀表板由 Claude 排程任務<b>每週一 09:00（台北時間）</b>自動更新：重新抓取下表全部來源 → 重算指標與綜合溫度 → 更新本頁並附加歷史快照 → 推播摘要通知。全部來源皆為公開、免費、無需 API 金鑰。</p>
+      <div style="overflow-x:auto;margin-top:10px"><table id="srcTable"></table></div>
+      <h3 style="margin-top:14px">誠實聲明（已知局限）</h3>
+      <ul class="tight">
+        <li>市場報價來自公開網頁快照，可能延遲一至數個交易日；財報數據（EDGAR XBRL）為精確值但存在申報時滯（季報後 ~4-5 週）。</li>
+        <li>OpenRouter/Ramp 為樣本平台數據，方向可參考、水平不可與全市場直接類比；Ramp 已停發整體付費率、OpenAI ARR 自 S-1 保密申請後無新披露——停更指標以最後可得值評分並標註「資料延遲」。</li>
+        <li>CDS、私募信貸、未上市公司財務屬付費/非公開數據，以新聞報導與質化評分替代，信度低於量化指標。</li>
+        <li>五項質化指標（約佔綜合權重 18%）含人工判斷；評分準則公開於卡片說明，歡迎挑戰。</li>
+        <li>泡沫無法被精準預測。本儀表板的目標是「監測結構惡化的速度與順序」，不是擇時工具。</li>
+      </ul>
+      <h3 style="margin-top:14px">歷史快照</h3>
+      <div style="overflow-x:auto;margin-top:6px"><table id="histTable"></table></div>
+    </div>
+    <div class="foot">
+      框架依據：中金《如何監測AI泡沫？》（華爾街見聞 2026-07-14）之四維體系，經本儀表板評估修正為六維 21 指標。
+      主要參考：Goldman Sachs "AI: In a Bubble" 與五警訊、Epoch AI hyperscaler capex 數據、arXiv:2606.01575 多方法泡沫評估、Crunchbase Q2'26 報告、Bloomberg AI 循環交易圖譜。
+      財報數據直接取自 SEC EDGAR XBRL（10-Q/10-K）。本頁內容為數據監測與研究整理，不構成投資建議。
+    </div>
+  </section>
+</div>
+
+<script type="application/json" id="dashboard-data">
+{
+ "meta": {
+  "version": 1,
+  "built": "2026-07-17",
+  "builtTime": "2026-07-17 09:30 (台北時間)",
+  "nextUpdate": "每週一 09:00 自動更新",
+  "artifactId": "ai-bubble-monitor"
+ },
+ "composite": 55.5,
+ "dims": {
+  "D1": 62.5,
+  "D2": 0.0,
+  "D3": 71.9,
+  "D4": 65.8,
+  "D5": 58.6,
+  "D6": 56.7
+ },
+ "dimMeta": {
+  "D1": {
+   "name": "估值與集中度",
+   "w": 0.25,
+   "note": "原文缺失的維度（本框架新增）"
+  },
+  "D2": {
+   "name": "需求與變現",
+   "w": 0.15,
+   "note": "反證維度：綠＝基本面真實"
+  },
+  "D3": {
+   "name": "現金流與資本開支",
+   "w": 0.25,
+   "note": "原文第二維，EDGAR 全自動"
+  },
+  "D4": {
+   "name": "融資與信用",
+   "w": 0.2,
+   "note": "原文第三維＋循環融資紅旗"
+  },
+  "D5": {
+   "name": "市場動能與情緒",
+   "w": 0.1,
+   "note": "本框架新增（價格動態）"
+  },
+  "D6": {
+   "name": "宏觀與外部約束",
+   "w": 0.05,
+   "note": "原文第四維，降權修正"
+  }
+ },
+ "zones": [
+  {
+   "max": 25,
+   "label": "冷靜期",
+   "color": "good"
+  },
+  {
+   "max": 45,
+   "label": "健康擴張",
+   "color": "good"
+  },
+  {
+   "max": 65,
+   "label": "過熱警戒",
+   "color": "warning"
+  },
+  {
+   "max": 84,
+   "label": "泡沫化進行",
+   "color": "serious"
+  },
+  {
+   "max": 100,
+   "label": "極端狂熱",
+   "color": "critical"
+  }
+ ],
+ "indicators": [
+  {
+   "id": "cape",
+   "dim": "D1",
+   "name": "Shiller CAPE（標普500）",
+   "value": 42.18,
+   "disp": "42.2×",
+   "score": 84.2,
+   "zone": "red",
+   "anchors": [
+    [
+     25,
+     0
+    ],
+    [
+     32,
+     33
+    ],
+    [
+     40,
+     67
+    ],
+    [
+     44.19,
+     100
+    ]
+   ],
+   "dir": "越高越熱",
+   "asof": "2026-07-15",
+   "fresh": "ok",
+   "src": "multpl.com",
+   "url": "https://www.multpl.com/shiller-pe",
+   "note": "歷史均值 17.4×、2000年網路泡沫峰值 44.2×（1999/12）。目前 42.2× 已達峰值的 95%——估值面最刺眼的單一數字。",
+   "qual": false
+  },
+  {
+   "id": "mag7",
+   "dim": "D1",
+   "name": "Mag7 佔標普500市值比重",
+   "value": 33.89,
+   "disp": "33.9%",
+   "score": 77.4,
+   "zone": "orange",
+   "anchors": [
+    [
+     20,
+     0
+    ],
+    [
+     25,
+     33
+    ],
+    [
+     32,
+     67
+    ],
+    [
+     38,
+     100
+    ]
+   ],
+   "dir": "越高越熱",
+   "asof": "2026-07-16",
+   "fresh": "ok",
+   "src": "SlickCharts",
+   "url": "https://www.slickcharts.com/sp500",
+   "note": "前十大合計 38.1%。2000年泡沫頂點前十大約 25-27%——目前集中度超過當年，指數與七家公司的 AI 資本開支決策深度綁定。",
+   "qual": false
+  },
+  {
+   "id": "nvdape",
+   "dim": "D1",
+   "name": "NVIDIA 本益比（TTM）",
+   "value": 31.76,
+   "disp": "31.8×",
+   "score": 25.9,
+   "zone": "green",
+   "anchors": [
+    [
+     20,
+     0
+    ],
+    [
+     35,
+     33
+    ],
+    [
+     55,
+     67
+    ],
+    [
+     90,
+     100
+    ]
+   ],
+   "dir": "越高越熱",
+   "asof": "2026-07-16",
+   "fresh": "ok",
+   "src": "Google Finance / stockanalysis",
+   "url": "https://stockanalysis.com/stocks/nvda/",
+   "note": "對照 2000 年 Cisco 峰值 130×+。31.8×（Forward 20.8×）顯示本輪龍頭由真實盈利支撐——這是與 2000 年最大的不同，也是「尚未全面泡沫化」的核心證據。",
+   "qual": false
+  },
+  {
+   "id": "cloudrev",
+   "dim": "D2",
+   "name": "三大雲業務營收年增率",
+   "value": 43.7,
+   "disp": "平均 +43.7%",
+   "score": 0,
+   "zone": "green",
+   "anchors": [
+    [
+     5,
+     100
+    ],
+    [
+     15,
+     67
+    ],
+    [
+     25,
+     33
+    ],
+    [
+     40,
+     0
+    ]
+   ],
+   "dir": "越低越熱（減速＝變現失靈）",
+   "asof": "2026-04-30",
+   "fresh": "ok",
+   "src": "CNBC / 各公司財報",
+   "url": "https://www.cnbc.com/2026/04/30/google-microsoft-and-amazon-all-report-cloud-beats-in-earnings.html",
+   "note": "2026Q1：GCP +63%、Azure +40%、AWS +28%（另 OCI +93%）。需求端仍在加速——泡沫的反證。若此數開始連續減速而資本開支未減，才是真正的裂縫。",
+   "qual": false
+  },
+  {
+   "id": "ramp",
+   "dim": "D2",
+   "name": "美國企業 AI 付費採用率（Ramp）",
+   "value": 50.6,
+   "disp": "50.6%",
+   "score": 0,
+   "zone": "green",
+   "anchors": [
+    [
+     -2,
+     100
+    ],
+    [
+     0,
+     50
+    ],
+    [
+     1,
+     33
+    ],
+    [
+     3,
+     0
+    ]
+   ],
+   "dir": "趨勢向下＝轉熱（錨定：每季變化 pp）",
+   "asof": "2026-04（6月起 Ramp 停發整體值）",
+   "fresh": "stale",
+   "src": "Ramp AI Index",
+   "url": "https://ramp.com/data/ai-index",
+   "note": "1月 46.8% → 4月 50.6%，持續上升。注意：文章引用的 55% 與 Ramp 實際披露（50.6%）有出入，且 Ramp 6 月起不再發布整體付費率，此指標面臨斷檔，改以趨勢方向評分。",
+   "qual": false
+  },
+  {
+   "id": "tokens",
+   "dim": "D2",
+   "name": "OpenRouter Token 用量（3個月成長）",
+   "value": 200,
+   "disp": "約 3 倍/3個月",
+   "score": 0,
+   "zone": "green",
+   "anchors": [
+    [
+     -20,
+     100
+    ],
+    [
+     0,
+     67
+    ],
+    [
+     15,
+     33
+    ],
+    [
+     50,
+     0
+    ]
+   ],
+   "dir": "轉負＝需求退潮",
+   "asof": "2026-05（第三方彙整）",
+   "fresh": "stale",
+   "src": "OpenRouter / 第三方追蹤",
+   "url": "https://openrouter.ai/rankings",
+   "note": "2月 >30T/月 → 5月 ~100T/月。樣本偏誤警告：OpenRouter 反映開發者/API 聚合流量，非全球 AI 用量；大企業直連 Azure/Bedrock 不經此平台。文章稱中國模型佔 56%，OpenRouter 實測約 32%——口徑差異大，方向可參考、水平不可比。",
+   "qual": false
+  },
+  {
+   "id": "capexocf",
+   "dim": "D3",
+   "name": "五大雲廠 Capex／營運現金流（TTM）",
+   "value": 75.3,
+   "disp": "75.3%",
+   "score": 59.0,
+   "zone": "yellow",
+   "anchors": [
+    [
+     40,
+     0
+    ],
+    [
+     60,
+     33
+    ],
+    [
+     80,
+     67
+    ],
+    [
+     110,
+     100
+    ]
+   ],
+   "dir": "越高越熱",
+   "asof": "2026Q1（10-Q/10-K）",
+   "fresh": "ok",
+   "src": "SEC EDGAR XBRL",
+   "url": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany",
+   "note": "八季一路走高：42.9%→75.3%；最新單季已達 94.0%（與中金測算一致）。Epoch AI 獨立模型推估 2026Q3 前後整體突破 100%——屆時經營現金流將完全不夠花，全面依賴外部融資。",
+   "qual": false,
+   "sub": "最新單季 94.0%｜Epoch AI 推估 2026Q3 交叉 100%"
+  },
+  {
+   "id": "fcf",
+   "dim": "D3",
+   "name": "五大雲廠自由現金流（TTM 年減率）",
+   "value": -29.1,
+   "disp": "−29.1%",
+   "score": 57.7,
+   "zone": "yellow",
+   "anchors": [
+    [
+     10,
+     0
+    ],
+    [
+     0,
+     33
+    ],
+    [
+     -40,
+     67
+    ],
+    [
+     -80,
+     100
+    ]
+   ],
+   "dir": "越負越熱",
+   "asof": "2026Q1",
+   "fresh": "ok",
+   "src": "SEC EDGAR XBRL",
+   "url": "https://data.sec.gov/",
+   "note": "TTM FCF 從 $223B 縮至 $158B；最新單季只剩 $9.5B、年減 78%。獲利豐厚的巨頭正在把現金流全數換成資料中心。",
+   "qual": false,
+   "sub": "單季 FCF $9.5B（年減 77.6%）"
+  },
+  {
+   "id": "dnagap",
+   "dim": "D3",
+   "name": "折舊成長 vs 營收成長缺口",
+   "value": 34.4,
+   "disp": "+34.4pp",
+   "score": 99.1,
+   "zone": "red",
+   "anchors": [
+    [
+     0,
+     0
+    ],
+    [
+     5,
+     33
+    ],
+    [
+     15,
+     67
+    ],
+    [
+     35,
+     100
+    ]
+   ],
+   "dir": "越大越熱",
+   "asof": "2026Q1",
+   "fresh": "ok",
+   "src": "SEC EDGAR XBRL",
+   "url": "https://data.sec.gov/",
+   "note": "五家平均折舊年增 55.6% vs 營收年增 21.2%。這是「AI 增量資本回報被稀釋」的最直接證據——比文章引用的整體 ROIC>WACC 更誠實（後者混入了廣告/電商存量業務的回報）。折舊牆已成形，未來 2-3 年將持續壓縮 EPS。",
+   "qual": false
+  },
+  {
+   "id": "debt",
+   "dim": "D4",
+   "name": "五大雲廠長期債務（年增率）",
+   "value": 77.8,
+   "disp": "+77.8%",
+   "score": 98.6,
+   "zone": "red",
+   "anchors": [
+    [
+     0,
+     0
+    ],
+    [
+     10,
+     33
+    ],
+    [
+     30,
+     67
+    ],
+    [
+     80,
+     100
+    ]
+   ],
+   "dir": "越高越熱",
+   "asof": "2026Q1",
+   "fresh": "ok",
+   "src": "SEC EDGAR XBRL",
+   "url": "https://data.sec.gov/",
+   "note": "一年內 $209B→$372B。AMZN 單季 +$53B、GOOGL 一年 7 倍。2026 前五個月五巨頭發債 ~$159B，已超 2025 全年 $121B——資本開支的資金來源正從「內部現金流」切換到「公開債市」，正是網路泡沫第二階段的定義性特徵。",
+   "qual": false
+  },
+  {
+   "id": "hyoas",
+   "dim": "D4",
+   "name": "美高收益債利差（HY OAS）",
+   "value": 2.71,
+   "disp": "2.71%",
+   "score": 13.3,
+   "zone": "green",
+   "anchors": [
+    [
+     -30,
+     0
+    ],
+    [
+     0,
+     25
+    ],
+    [
+     30,
+     50
+    ],
+    [
+     80,
+     75
+    ],
+    [
+     150,
+     100
+    ]
+   ],
+   "dir": "3個月走闊幅度（bp）越大越熱",
+   "asof": "2026-07-15",
+   "fresh": "ok",
+   "src": "FRED (ICE BofA)",
+   "url": "https://fred.stlouisfed.org/series/BAMLH0A0HYM2",
+   "note": "3個月變化 −14bp（收斂）、絕對水位處於歷史低檔。目前信用市場對 AI 債務零風險定價——這既是「尚未觸發」的訊號，也是自滿的燃料。觸發線：3個月內走闊 +80bp。",
+   "qual": false,
+   "sub": "IG OAS 0.79%（同創低檔）"
+  },
+  {
+   "id": "vc",
+   "dim": "D4",
+   "name": "VC 融資規模與 AI 集中度",
+   "value": 70,
+   "disp": "AI 佔 Q2 VC >70%",
+   "score": 65,
+   "zone": "yellow",
+   "anchors": null,
+   "dir": "質化評分（0-100）",
+   "asof": "2026-07-02",
+   "fresh": "ok",
+   "src": "Crunchbase News",
+   "url": "https://news.crunchbase.com/venture/global-startup-exits-ipo-ma-soar-ai-q2-h1-2026/",
+   "note": "2026 H1 全球 VC $510B 創歷史紀錄、Q2 $205B 中 AI 佔 >70%（北美 80%）；Anthropic $65B 輪（投後 $965B）為史上最大。規模已達 2000 年級別，但資金集中於頭部盈利路徑較清晰者、尚未擴散到長尾——中金「未廣泛擴散」的判斷成立，此為與 1999 全民撒錢的關鍵差異。",
+   "qual": true
+  },
+  {
+   "id": "circular",
+   "dim": "D4",
+   "name": "循環融資強度（供應商融資）",
+   "value": 40,
+   "disp": ">$40B／4個月",
+   "score": 80,
+   "zone": "orange",
+   "anchors": null,
+   "dir": "質化評分（0-100）",
+   "asof": "2026-05-09",
+   "fresh": "ok",
+   "src": "CNBC / Bloomberg",
+   "url": "https://www.cnbc.com/2026/05/09/nvidia-embraces-ai-investor-topping-40-billion-in-equity-bets-2026.html",
+   "note": "NVIDIA 2026 前四個月股權投資 >$40B（對 OpenAI 累計 $30B、CoreWeave 再注 $2B、供應鏈 Marvell/Lumentum/Coherent/Corning 各 $2-3B），且每筆綁定商業合約。這是 2000 年 Lucent/Nortel 供應商融資的放大版——營收與資本的邊界模糊化，文章未給予足夠權重，本框架列為獨立紅旗。",
+   "qual": true
+  },
+  {
+   "id": "weakcredit",
+   "dim": "D4",
+   "name": "弱資質信用單點（金絲雀）",
+   "value": 198,
+   "disp": "ORCL 5Y CDS ~198bp",
+   "score": 72,
+   "zone": "orange",
+   "anchors": null,
+   "dir": "質化評分（0-100）",
+   "asof": "2026-07-08",
+   "fresh": "ok",
+   "src": "Real Investment Advice / 市場報導",
+   "url": "https://realinvestmentadvice.com/resources/blog/oracle-and-coreweave-cds-spreads-widening-omen-or-jitters/",
+   "note": "Oracle：CDS 4月創歷史新高 ~198bp、長債 $124.7B、FY26 FCF −$23.7B、股債觀點嚴重分歧；CoreWeave CDS 曾達 ~665bp。第三階段是否啟動，就看這類主體的融資condition是否惡化並擴散。",
+   "qual": true
+  },
+  {
+   "id": "soxmom",
+   "dim": "D5",
+   "name": "半導體相對動能（SOXX−SPY，3個月）",
+   "value": 57.0,
+   "disp": "+57pp",
+   "score": 97.2,
+   "zone": "red",
+   "anchors": [
+    [
+     0,
+     0
+    ],
+    [
+     10,
+     33
+    ],
+    [
+     25,
+     67
+    ],
+    [
+     60,
+     100
+    ]
+   ],
+   "dir": "越高越熱",
+   "asof": "2026-07-16",
+   "fresh": "ok",
+   "src": "ETFdb / stockanalysis",
+   "url": "https://etfdb.com/etf/SOXX/",
+   "note": "SOXX 3個月 +71% vs SPY +14%——4月崩跌後的拋物線式修復，一年報酬 +116~148%。這種「深跌後急拉」的價格動態正是泡沫後期特徵（爆炸性動態檢驗會亮燈的形狀）。注意 7/14-16 已連續回檔 ~4%。",
+   "qual": false
+  },
+  {
+   "id": "nvda200",
+   "dim": "D5",
+   "name": "NVIDIA 距 200 日均線乖離",
+   "value": 7.9,
+   "disp": "+7.9%",
+   "score": 17.4,
+   "zone": "green",
+   "anchors": [
+    [
+     0,
+     0
+    ],
+    [
+     15,
+     33
+    ],
+    [
+     30,
+     67
+    ],
+    [
+     50,
+     100
+    ]
+   ],
+   "dir": "越高越熱",
+   "asof": "2026-07-16",
+   "fresh": "ok",
+   "src": "stockanalysis.com",
+   "url": "https://stockanalysis.com/stocks/nvda/statistics/",
+   "note": "龍頭本身並不狂熱（一年僅 +21.5%，與大盤持平）。過熱集中在記憶體/HBM、客製 ASIC、電力等第二梯隊——「縮圈」不是縮向 NVDA，而是輪動到補漲板塊，結構比 2000 年單點集中更分散、也更難用單一股票判讀。",
+   "qual": false
+  },
+  {
+   "id": "vix",
+   "dim": "D5",
+   "name": "VIX 恐慌指數",
+   "value": 16.73,
+   "disp": "16.7",
+   "score": 50,
+   "zone": "yellow",
+   "anchors": null,
+   "dir": "13-18＝自滿區（非單調）",
+   "asof": "2026-07-16",
+   "fresh": "ok",
+   "src": "CBOE / Google Finance",
+   "url": "https://www.google.com/finance/quote/VIX:INDEXCBOE",
+   "note": "低波動＋高估值＋緊利差＝典型的「風平浪靜甲板」。VIX <13 為極端自滿、>35 為壓力引爆，目前 16.7 落在自滿偏高區。",
+   "qual": true
+  },
+  {
+   "id": "narrative",
+   "dim": "D5",
+   "name": "泡沫敘事熱度",
+   "value": 4,
+   "disp": "第 4 級／5 級",
+   "score": 70,
+   "zone": "orange",
+   "anchors": null,
+   "dir": "質化評分（1-5 級）",
+   "asof": "2026-07-14",
+   "fresh": "ok",
+   "src": "綜合媒體監測",
+   "url": "https://www.notus.org/economy/treasury-internal-report-warning-dangers-ai-bubble",
+   "note": "7月上中旬三重疊加：美財政部內部報告警告 AI 系統性風險（7/6）、IBM 財測暴雷歸因 AI 排擠（7/14、盤前 −17%）、Bloomberg 循環交易圖譜成主流敘事。警戒升溫但尚未一面倒——Yardeni 等反方（「泡沫在盈利預估不在股價」）仍活躍。",
+   "qual": true
+  },
+  {
+   "id": "fed",
+   "dim": "D6",
+   "name": "聯準會政策狀態",
+   "value": 3.63,
+   "disp": "3.63%（年降 70bp）",
+   "score": 60,
+   "zone": "yellow",
+   "anchors": null,
+   "dir": "寬鬆＋資產新高＝加溫",
+   "asof": "2026-06",
+   "fresh": "ok",
+   "src": "FRED FEDFUNDS",
+   "url": "https://fred.stlouisfed.org/series/FEDFUNDS",
+   "note": "高盛五訊號之四：1998-99 正是降息給泡沫最後一腳油門。目前 Fed 一年內降息 70bp、資產價格同步創高——歷史組合重現。",
+   "qual": true
+  },
+  {
+   "id": "us10y",
+   "dim": "D6",
+   "name": "美債 10 年期殖利率",
+   "value": 4.57,
+   "disp": "4.57%（3個月 +31bp）",
+   "score": 55,
+   "zone": "yellow",
+   "anchors": [
+    [
+     3.5,
+     20
+    ],
+    [
+     4.2,
+     40
+    ],
+    [
+     4.8,
+     70
+    ],
+    [
+     5.5,
+     100
+    ]
+   ],
+   "dir": "走升壓縮長久期投資",
+   "asof": "2026-07-16",
+   "fresh": "ok",
+   "src": "US Treasury",
+   "url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates",
+   "note": "3個月 +31bp。AI 是超長久期資產（回收期 5-10 年），利率走升同時侵蝕估值與債務融資成本——若突破 5% 將是外部約束的硬觸發。",
+   "qual": false
+  },
+  {
+   "id": "itjobs",
+   "dim": "D6",
+   "name": "美國資訊業就業（YoY）",
+   "value": -3.0,
+   "disp": "−3.0%",
+   "score": 55,
+   "zone": "yellow",
+   "anchors": [
+    [
+     2,
+     0
+    ],
+    [
+     0,
+     33
+    ],
+    [
+     -3,
+     60
+    ],
+    [
+     -6,
+     100
+    ]
+   ],
+   "dir": "背景指標（因果雙向）",
+   "asof": "2026-06",
+   "fresh": "ok",
+   "src": "FRED USINFO (BLS)",
+   "url": "https://fred.stlouisfed.org/series/USINFO",
+   "note": "2,774k 人、一年減 87k。注意因果模糊：既可能是「AI 替代→利潤改善」（利多），也可能是需求萎縮前兆。列為背景參考，低權重——這是對原文「外部約束」維度的修正之一。",
+   "qual": false
+  }
+ ],
+ "tw": {
+  "heat": 80.8,
+  "items": [
+   {
+    "id": "tsmc_pe",
+    "name": "台積電本益比（TTM）",
+    "value": 32.72,
+    "disp": "32.7×",
+    "score": 89.3,
+    "note": "歷史區間約 15-28×，目前 32.7× 高於區間上緣（Forward ~22.8×）。市場已把 AI 超級週期充分定價——EPS 若不再上修，估值沒有安全墊。",
+    "src": "Google Finance / stockanalysis",
+    "asof": "2026-07-16"
+   },
+   {
+    "id": "tsmc_200dma",
+    "name": "台積電距 200 日均線",
+    "value": 44.0,
+    "disp": "+44.0%",
+    "score": 90.1,
+    "note": "2,470 vs 200DMA 1,715——乖離幅度遠超美股龍頭（NVDA 僅 +7.9%），台股 AI 主升段的動能已呈拋物線。",
+    "src": "stockanalysis.com",
+    "asof": "2026-07-16"
+   },
+   {
+    "id": "tsmc_52w",
+    "name": "台積電一年漲幅",
+    "value": 132.68,
+    "disp": "+132.7%",
+    "score": 90.5,
+    "note": "52 週區間 1,115→2,535。一年翻 2.3 倍，波動放大（52週低點到高點 2.3×）。",
+    "src": "Google Finance",
+    "asof": "2026-07-16"
+   },
+   {
+    "id": "odm_pe",
+    "name": "AI 伺服器供應鏈本益比",
+    "value": 17.8,
+    "disp": "平均 17.8×",
+    "score": 52.1,
+    "note": "鴻海 17.4×、廣達 18.3×、緯穎 17.8×——組裝/ODM 環節估值仍溫和，過熱集中在台積電的估值重評與股價動能，而非全供應鏈。",
+    "src": "Google Finance",
+    "asof": "2026-07-16"
+   },
+   {
+    "id": "twii_pos",
+    "name": "加權指數位於 52 週區間位置",
+    "value": 94.5,
+    "disp": "94.5%",
+    "score": 81.8,
+    "note": "46,781 點，距歷史高點 48,219 僅 3%；52 週低點 22,190（一年內指數曾腰斬後翻倍）。台股對美國 AI 資本開支週期的 β 遠大於 1——若美方進入第三階段出現信用事件，台股供應鏈是重災首選。",
+    "src": "Yahoo Finance",
+    "asof": "2026-07-17"
+   }
+  ]
+ },
+ "charts": {
+  "aggQ": [
+   {
+    "q": "2023Q3",
+    "capex": 38.3,
+    "ocf": 109.8,
+    "fcf": 71.5,
+    "ratio": 34.9
+   },
+   {
+    "q": "2023Q4",
+    "capex": 44.1,
+    "ocf": 99.8,
+    "fcf": 55.7,
+    "ratio": 44.2
+   },
+   {
+    "q": "2024Q1",
+    "capex": 46.0,
+    "ocf": 104.5,
+    "fcf": 58.5,
+    "ratio": 44.0
+   },
+   {
+    "q": "2024Q2",
+    "capex": 55.6,
+    "ocf": 114.6,
+    "fcf": 58.9,
+    "ratio": 48.6
+   },
+   {
+    "q": "2024Q3",
+    "capex": 61.2,
+    "ocf": 123.0,
+    "fcf": 61.8,
+    "ratio": 49.7
+   },
+   {
+    "q": "2024Q4",
+    "capex": 76.3,
+    "ocf": 136.3,
+    "fcf": 60.0,
+    "ratio": 56.0
+   },
+   {
+    "q": "2025Q1",
+    "capex": 77.8,
+    "ocf": 120.2,
+    "fcf": 42.4,
+    "ratio": 64.7
+   },
+   {
+    "q": "2025Q2",
+    "capex": 97.3,
+    "ocf": 134.6,
+    "fcf": 37.3,
+    "ratio": 72.3
+   },
+   {
+    "q": "2025Q3",
+    "capex": 105.8,
+    "ocf": 167.1,
+    "fcf": 61.4,
+    "ratio": 63.3
+   },
+   {
+    "q": "2025Q4",
+    "capex": 130.7,
+    "ocf": 180.9,
+    "fcf": 50.2,
+    "ratio": 72.2
+   },
+   {
+    "q": "2026Q1",
+    "capex": 148.4,
+    "ocf": 157.9,
+    "fcf": 9.5,
+    "ratio": 94.0
+   }
+  ],
+  "ttm": [
+   {
+    "q": "2024Q2",
+    "capex": 184.0,
+    "ocf": 428.7,
+    "fcf": 244.7,
+    "ratio": 42.9
+   },
+   {
+    "q": "2024Q3",
+    "capex": 206.9,
+    "ocf": 441.9,
+    "fcf": 235.0,
+    "ratio": 46.8
+   },
+   {
+    "q": "2024Q4",
+    "capex": 239.1,
+    "ocf": 478.4,
+    "fcf": 239.3,
+    "ratio": 50.0
+   },
+   {
+    "q": "2025Q1",
+    "capex": 270.9,
+    "ocf": 494.1,
+    "fcf": 223.2,
+    "ratio": 54.8
+   },
+   {
+    "q": "2025Q2",
+    "capex": 312.6,
+    "ocf": 514.1,
+    "fcf": 201.5,
+    "ratio": 60.8
+   },
+   {
+    "q": "2025Q3",
+    "capex": 357.2,
+    "ocf": 558.2,
+    "fcf": 201.0,
+    "ratio": 64.0
+   },
+   {
+    "q": "2025Q4",
+    "capex": 411.6,
+    "ocf": 602.8,
+    "fcf": 191.2,
+    "ratio": 68.3
+   },
+   {
+    "q": "2026Q1",
+    "capex": 482.2,
+    "ocf": 640.5,
+    "fcf": 158.3,
+    "ratio": 75.3
+   }
+  ],
+  "debt": {
+   "labels": [
+    "2023Q4",
+    "2024Q1",
+    "2024Q2",
+    "2024Q3",
+    "2024Q4",
+    "2025Q1",
+    "2025Q2",
+    "2025Q3",
+    "2025Q4",
+    "2026Q1"
+   ],
+   "values": [
+    219.9,
+    217.0,
+    204.1,
+    214.7,
+    208.3,
+    209.2,
+    228.6,
+    221.9,
+    291.7,
+    372.0
+   ],
+   "note": "五大雲廠合計長期債務（$B）。ORCL 為年度值前向填補、GOOGL 2024 前僅年度揭露。"
+  },
+  "spreads": {
+   "hy": {
+    "now": 2.71,
+    "m3": 2.85,
+    "y1": 2.93,
+    "asof": "2026-07-15"
+   },
+   "ig": {
+    "now": 0.79,
+    "m3": 0.81,
+    "y1": 0.81,
+    "asof": "2026-07-15"
+   },
+   "us10y": {
+    "now": 4.57,
+    "m3": 4.29,
+    "y1": 4.46,
+    "asof": "2026-07-16"
+   },
+   "vix": {
+    "now": 16.73,
+    "asof": "2026-07-16"
+   },
+   "fedfunds": {
+    "now": 3.63,
+    "y1": 4.33,
+    "asof": "2026-06"
+   },
+   "usinfo": {
+    "now": 2774,
+    "y1": 2861,
+    "asof": "2026-06"
+   }
+  }
+ },
+ "stage": {
+  "current": 2.6,
+  "label": "第二階段後段（外部公開市場融資主導）",
+  "stages": [
+   {
+    "n": 1,
+    "name": "內部現金流驅動",
+    "desc": "資本開支由自有現金流支應（2023-2025 上半）",
+    "done": true
+   },
+   {
+    "n": 2,
+    "name": "外部公開融資",
+    "desc": "發債/增發成為主要資金來源＝目前位置（發債創紀錄、FCF 壓縮、IPO 排隊）",
+    "done": false,
+    "active": true
+   },
+   {
+    "n": 3,
+    "name": "擴散至弱資質",
+    "desc": "高槓桿、負現金流、未驗證商業模式主體大額融資；供應商融資氾濫",
+    "done": false
+   },
+   {
+    "n": 4,
+    "name": "信用事件與退潮",
+    "desc": "利差急闊、再融資失敗、資本開支斷崖",
+    "done": false
+   }
+  ],
+  "checklist": [
+   {
+    "item": "負現金流主體大額發債常態化",
+    "state": 0.5,
+    "evi": "Oracle FY26 FCF −$23.7B＋CDS 歷史新高；CoreWeave 高槓桿擴張——已有個案、尚未擴散成面"
+   },
+   {
+    "item": "供應商融資（循環交易）規模化",
+    "state": 1,
+    "evi": "NVIDIA 4 個月 >$40B 投資客戶與供應鏈、綁定商業合約；Bloomberg 循環交易圖譜"
+   },
+   {
+    "item": "信用利差趨勢性走闊（HY 3個月 +80bp）",
+    "state": 0,
+    "evi": "HY OAS 2.71%、3個月反收斂 24bp——未觸發"
+   },
+   {
+    "item": "AI 巨頭 IPO 潮與首日暴漲",
+    "state": 0.5,
+    "evi": "OpenAI（6/9）與 Anthropic（6/1）已保密申請 IPO——供給端就緒、尚未定價"
+   },
+   {
+    "item": "私募信貸/表外融資佔比激增",
+    "state": 0.5,
+    "evi": "數據中心私募信貸持續擴張（需人工追蹤，公開數據有限）"
+   },
+   {
+    "item": "弱資質主體信用事件",
+    "state": 0,
+    "evi": "尚無"
+   }
+  ],
+  "note": "點亮 2.5／6。中金 7/14 判斷「第一→第二階段轉換」偏保守：發債與 IPO 證據顯示第二階段已全面展開，正確的問題是「距第三階段多遠」。"
+ },
+ "events": [
+  {
+   "d": "07-14",
+   "t": "IBM Q2 預告營收 $17.2B 遠遜預期，歸因 AI 硬體排擠其他 IT 支出——首個「AI 排擠效應」財報受害者，盤前 −17%"
+  },
+  {
+   "d": "07-14",
+   "t": "紐約州簽署全美首個州級行政命令：>50MW 超大規模數據中心環評暫停一年"
+  },
+  {
+   "d": "07-06",
+   "t": "NOTUS 披露美國財政部內部報告：警告 AI 具類 dot-com 系統性風險（集中度、私募信貸依賴、電力瓶頸）"
+  },
+  {
+   "d": "06-09",
+   "t": "OpenAI 保密提交 S-1；Anthropic 亦於 6/1 保密申請 IPO——對照 1995 年 Netscape 時刻"
+  },
+  {
+   "d": "05-29",
+   "t": "Anthropic 官方確認 run-rate 營收突破 $47B（2025 底 $9B）；5/28 完成 $65B 融資、投後 $965B"
+  },
+  {
+   "d": "07-02",
+   "t": "Crunchbase：2026 H1 全球 VC $510B 創紀錄，Q2 AI 佔比 >70%"
+  }
+ ],
+ "history": [
+  {
+   "date": "2026-07-17",
+   "composite": 55.5,
+   "dims": {
+    "D1": 62.5,
+    "D2": 0.0,
+    "D3": 71.9,
+    "D4": 65.8,
+    "D5": 58.6,
+    "D6": 56.7
+   },
+   "tw": 80.8
+  }
+ ]
+}
+</script>
+<script type="application/json" id="update-spec">
+{
+ "purpose": "本區塊供未來的 Claude 排程更新工作階段機器讀取。更新流程：device_stage_files 以 artifact_ids 取得本頁 → 讀取 #dashboard-data → 依下列來源重抓數值 → 改寫 #dashboard-data（值、asof、fresh、score、質化評分與 note 中的時效性內容、events、stage.checklist、history 附加一筆）→ update_artifact。除非使用者要求，不改動 anchors、權重、HTML 與 JS。",
+ "rules": [
+  "絕不編造數字：抓不到的來源沿用舊值並將 fresh 設為 stale、asof 不變",
+  "量化指標分數 = 對 anchors 做分段線性內插（與頁內 JS pwScore 相同）；質化指標依 rubric 人工評分並更新 note 證據",
+  "vix 為非單調特例：>=35→95、28-35→67-95 線性、18-28→33、13-18→50、<13→70",
+  "綜合溫度 = Σ 維度權重 × 維度內指標平均；zones 分界 33/67/84",
+  "history 僅附加不修改；meta.built 與 builtTime 更新為當次日期",
+  "重大變化（任一指標跨區、檢查清單新點亮、綜合溫度 ±5）須在推播摘要中明示"
+ ],
+ "sources": {
+  "cape": {"url": "https://www.multpl.com/shiller-pe", "how": "WebFetch 讀目前值"},
+  "sp500pe": {"url": "https://www.multpl.com/s-p-500-pe-ratio", "how": "WebFetch"},
+  "mag7": {"url": "https://www.slickcharts.com/sp500", "how": "WebFetch 前10權重，Mag7=NVDA+AAPL+MSFT+AMZN+GOOGL+GOOG+META+TSLA"},
+  "quotes": {"url": "https://www.google.com/finance/quote/{SYM}", "how": "WebFetch；NVDA/MSFT/AMZN/GOOGL/META/ORCL/SOXX/SPY/2330.TW 等；Yahoo 常為過期快取，優先 Google Finance 收盤值並核對日期", "alt": "https://stockanalysis.com/stocks/{sym}/statistics/ 取 200DMA/52wChange/FwdPE"},
+  "soxx_perf": {"url": "https://etfdb.com/etf/SOXX/", "how": "WebFetch 3M/YTD/1Y，與 https://stockanalysis.com/etf/soxx/ 交叉"},
+  "fred": {"url": "https://fred.stlouisfed.org/data/{SERIES}", "how": "WebFetch 最近觀測值；SERIES=BAMLH0A0HYM2, BAMLC0A0CM, FEDFUNDS, USINFO, VIXCLS；DGS10 改用 https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve"},
+  "edgar": {"url": "https://data.sec.gov/api/xbrl/companyconcept/{CIK}/us-gaap/{CONCEPT}.json", "how": "WebFetch 抽取 units.USD 列；CIK: MSFT 0000789019, AMZN 0001018724, GOOGL 0001652044, META 0001326801, ORCL 0001341439；CONCEPT: capex=PaymentsToAcquirePropertyPlantAndEquipment(AMZN 用 PaymentsToAcquireProductiveAssets), ocf=NetCashProvidedByUsedInOperatingActivities, dep=Depreciation 或 DepreciationDepletionAndAmortization, rev=RevenueFromContractWithCustomerExcludingAssessedTax(GOOGL 新期間用 Revenues), debt=LongTermDebtNoncurrent(ORCL 用 LongTermNotesPayable)；注意 10-Q 現金流為 YTD 需差分、MSFT 財年 7/1 起、ORCL 財年 6/1 起；新一季五家到齊才更新 capexocf/fcf/dnagap/debt 並在 charts.aggQ/ttm/debt 附加一筆",
+  "ramp": {"url": "https://ramp.com/data/ai-index", "how": "WebFetch＋WebSearch 'Ramp AI index adoption'；若持續停更維持 stale"},
+  "tokens": {"url": "https://openrouter.ai/rankings", "how": "動態頁多半抓不到；WebSearch 'OpenRouter monthly tokens' 取第三方彙整，標 stale/中信度"},
+  "arr": {"how": "WebSearch OpenAI/Anthropic ARR 最新報導（信度標註）"},
+  "vc": {"url": "https://news.crunchbase.com/", "how": "季度更新：WebSearch Crunchbase 季報新聞稿"},
+  "circular": {"how": "WebSearch 'Nvidia investment OpenAI CoreWeave vendor financing' 近30天，更新事件與評分"},
+  "weakcredit": {"how": "WebSearch 'Oracle CDS' 'CoreWeave CDS spread' 近30天"},
+  "narrative": {"how": "WebSearch 'AI bubble' 近14天主流財經媒體，1-5 級評分：1 無人談論…3 廣泛討論分歧…5 恐慌共識"},
+  "datacenter_policy": {"how": "WebSearch 'data center moratorium cancelled' 近30天，更新 events"}
+ },
+ "qual_rubrics": {
+  "vc": "0-33: AI佔VC<40%且無巨型輪；33-67: 佔比40-65%或單輪>$20B；67-84: 佔比>65%＋$50B級輪次；84+: 擴散至無收入初創普遍高估值",
+  "circular": "0-33: 零星小額；33-67: 龍頭對客戶投資年化<$20B；67-84: >$40B/年或綁定合約常態化；84+: 供應商融資成為需求主要來源",
+  "weakcredit": "0-33: 無異常；33-67: 個別CDS走闊；67-84: 指標性公司CDS創高或FCF大幅轉負；84+: 再融資失敗/違約事件",
+  "narrative_map": "1級=10, 2級=30, 3級=50, 4級=70, 5級=90",
+  "fed": "緊縮中=30；中性=45；寬鬆＋資產價格創高=60；QE級寬鬆＋狂熱=80"
+ },
+ "trigger_note": "排程任務每週一 09:00 Asia/Taipei 觸發；推播摘要格式：綜合溫度（±變化）、跨區指標、檢查清單變化、本週焦點 2-3 條。"
+}
+</script>
+<script>
+function boot(DATA){
+"use strict";
+const $ = id => document.getElementById(id);
+const ZC = {green:"var(--good)", yellow:"var(--warn)", orange:"var(--serious)", red:"var(--crit)"};
+const ZL = {green:"綠・低溫", yellow:"黃・警戒", orange:"橘・偏熱", red:"紅・過熱"};
+const zoneOf = s => s<33?"green":(s<67?"yellow":(s<84?"orange":"red"));
+const esc = t => String(t).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const fmt1 = v => Number(v).toLocaleString("en-US",{maximumFractionDigits:1});
+
+/* ---------- meta / theme / tabs ---------- */
+$("metaLine").textContent = `資料截至 ${DATA.meta.built}（建置：${DATA.meta.builtTime}）　v${DATA.meta.version}`;
+$("nextUpd").textContent = DATA.meta.nextUpdate;
+const themes = [["","◐ 自動"],["light","☀ 淺色"],["dark","● 深色"]]; let ti = 0;
+$("themeBtn").onclick = () => { ti = (ti+1)%3;
+  themes[ti][0] ? document.documentElement.setAttribute("data-theme", themes[ti][0])
+                : document.documentElement.removeAttribute("data-theme");
+  $("themeBtn").textContent = themes[ti][1]; drawCharts(); };
+document.querySelectorAll(".tab").forEach(b => b.onclick = () => {
+  document.querySelectorAll(".tab").forEach(x => x.classList.toggle("on", x===b));
+  document.querySelectorAll(".pane").forEach(p => p.classList.toggle("on", p.id===b.dataset.t));
+});
+
+/* ---------- chips / meters ---------- */
+function chip(zone, extra){ return `<span class="chip"><span class="dot" style="background:${ZC[zone]}"></span>${ZL[zone]}${extra?"　"+esc(extra):""}</span>`; }
+function zoneBarHTML(score){
+  const segs = [[0,25,"good",.30],[25,45,"good",.16],[45,65,"warn",.30],[65,84,"serious",.30],[84,100,"crit",.32]];
+  return segs.map(([a,b,c,o]) => `<div style="width:${b-a}%;background:color-mix(in srgb,var(--${c}) ${o*100}%,var(--surface-1))"></div>`).join("")
+    + `<span class="marker" style="left:calc(${score}% - 1.5px)"></span>`;
+}
+function meterHTML(score){
+  const c = ZC[zoneOf(score)];
+  return `<div class="meter"><div class="track" style="background:color-mix(in srgb,${c} 14%,var(--surface-1))"></div>
+    <div class="fill" style="width:${Math.max(score,2)}%;background:${c}"></div></div>`;
+}
+function stripHTML(score){
+  const segs = [[33,"good"],[34,"warn"],[17,"serious"],[16,"crit"]];
+  return `<div class="strip">` + segs.map(([w,c]) => `<div style="width:${w}%;background:color-mix(in srgb,var(--${c}) 30%,var(--surface-1))"></div>`).join("")
+    + `<span class="mk" style="left:calc(${Math.min(score,99)}% - 1px)"></span></div>`;
+}
+
+/* ---------- hero ---------- */
+const comp = DATA.composite, compZone = zoneOf(comp);
+const zlabel = DATA.zones.find(z => comp <= z.max).label;
+$("heroNum").innerHTML = `${comp}<small>／100</small>`;
+$("heroChip").innerHTML = chip(compZone, zlabel) + `　<span class="mut">台股供應鏈 ${DATA.tw.heat}／100</span>`;
+$("zoneBar").innerHTML = zoneBarHTML(comp);
+$("zoneLabels").textContent = "冷靜期｜健康擴張｜過熱警戒｜泡沫化進行｜極端狂熱";
+$("dimRows").innerHTML = Object.entries(DATA.dimMeta).map(([k,m]) => {
+  const s = DATA.dims[k];
+  return `<div class="dimRow"><div class="dimName">${esc(m.name)} <span class="mut">${Math.round(m.w*100)}%</span></div>
+    ${meterHTML(s)}<div class="dimScore" style="color:${ZC[zoneOf(s)]}">${s}</div></div>`;
+}).join("");
+
+/* ---------- stage / checklist / events / tiles ---------- */
+$("stepper").innerHTML = DATA.stage.stages.map(s =>
+  `<div class="step ${s.active?"active":""} ${s.done?"done":""}">
+     <div class="n">階段 ${s.n}${s.active?"　◀ 目前":""}${s.done?"　✓":""}</div>
+     <div class="nm">${esc(s.name)}</div><div class="ds">${esc(s.desc)}</div></div>`).join("");
+$("stageNote").textContent = DATA.stage.note;
+const lit = DATA.stage.checklist.reduce((a,c) => a+c.state, 0);
+$("chkCount").textContent = `　點亮 ${lit}／${DATA.stage.checklist.length}`;
+$("checklist").innerHTML = DATA.stage.checklist.map(c => {
+  const ic = c.state===1?`<span style="color:var(--crit);font-weight:700">●</span>`
+           : c.state===0.5?`<span style="color:var(--serious);font-weight:700">◐</span>`
+           : `<span style="color:var(--muted)">○</span>`;
+  return `<div class="chkRow">${ic}<div><b>${esc(c.item)}</b><div class="evi">${esc(c.evi)}</div></div></div>`;
+}).join("");
+$("events").innerHTML = DATA.events.map(e =>
+  `<div style="display:grid;grid-template-columns:44px 1fr;gap:8px;padding:5px 0;border-bottom:1px solid var(--grid);font-size:12.5px">
+     <span class="mut" style="font-variant-numeric:tabular-nums">${esc(e.d)}</span><span>${esc(e.t)}</span></div>`).join("");
+const sp = DATA.charts.spreads;
+const dl = (v, unit, goodDown) => { if (v===undefined||v===null) return "";
+  const cls = (v>0) === !goodDown ? "delta-up" : "delta-dn"; const sg = v>0?"+":"−";
+  return `<span class="${cls}">${sg}${Math.abs(v)}${unit}</span>`; };
+$("creditTiles").innerHTML = [
+  {lb:"高收益債利差 HY OAS", v:sp.hy.now+"%", d:`3個月 ${dl(Math.round((sp.hy.now-sp.hy.m3)*100),"bp")}　1年 ${dl(Math.round((sp.hy.now-sp.hy.y1)*100),"bp")}`},
+  {lb:"投資級利差 IG OAS", v:sp.ig.now+"%", d:`3個月 ${dl(Math.round((sp.ig.now-sp.ig.m3)*100),"bp")}　歷史低檔`},
+  {lb:"美債 10 年殖利率", v:sp.us10y.now+"%", d:`3個月 ${dl(Math.round((sp.us10y.now-sp.us10y.m3)*100),"bp")}`},
+  {lb:"VIX", v:sp.vix.now, d:"13-18＝自滿區"},
+  {lb:"聯邦基金利率", v:sp.fedfunds.now+"%", d:`1年 ${dl(Math.round((sp.fedfunds.now-sp.fedfunds.y1)*100),"bp",true)}（降息中）`},
+  {lb:"美資訊業就業", v:fmt1(sp.usinfo.now)+"k", d:`1年 ${dl(+(100*(sp.usinfo.now/sp.usinfo.y1-1)).toFixed(1),"%",false)}`},
+].map(t => `<div class="tile"><div class="lb">${t.lb}</div><div class="v">${t.v}</div><div class="d">${t.d}</div></div>`).join("");
+
+/* ---------- generic charts ---------- */
+const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+function niceTicks(lo, hi, n=4){
+  if (lo === hi){ lo -= 1; hi += 1; }
+  const span = hi-lo, step0 = Math.pow(10, Math.floor(Math.log10(span/n)));
+  const err = span/n/step0, step = step0*(err>=7.5?10:err>=3.5?5:err>=1.5?2:1);
+  const t0 = Math.ceil(lo/step)*step, out = [];
+  for (let t=t0; t<=hi+1e-9; t+=step) out.push(+t.toFixed(10));
+  return out;
+}
+function makeTip(host){ const d = document.createElement("div"); d.className = "tooltip"; host.appendChild(d); return d; }
+
+function lineChart(hostId, labels, series, opts={}){
+  const host = $(hostId); if (!host) return; host.innerHTML = "";
+  const W = 520, H = opts.h||230, L = 48, R = 52, T = 14, B = 26;
+  const all = series.flatMap(s => s.data).concat(opts.ref!=null?[opts.ref]:[]);
+  let lo = Math.min(...all), hi = Math.max(...all);
+  if (opts.zero) lo = Math.min(0, lo);
+  const pad = (hi-lo)*0.08 || 1; lo -= (opts.zero&&lo===0)?0:pad; hi += pad;
+  const ticks = niceTicks(lo, hi); lo = Math.min(lo, ticks[0]); hi = Math.max(hi, ticks[ticks.length-1]);
+  const X = i => L + (W-L-R) * (labels.length===1 ? 0.5 : i/(labels.length-1));
+  const Y = v => T + (H-T-B) * (1 - (v-lo)/(hi-lo));
+  let g = "";
+  ticks.forEach(t => { g += `<line x1="${L}" x2="${W-R}" y1="${Y(t)}" y2="${Y(t)}" stroke="var(--grid)" stroke-width="1"/>
+    <text x="${L-7}" y="${Y(t)+3.5}" text-anchor="end" font-size="10" fill="var(--muted)" style="font-variant-numeric:tabular-nums">${fmt1(t)}</text>`; });
+  const xEvery = Math.ceil(labels.length/6);
+  labels.forEach((lb,i) => { if (i%xEvery===0 || i===labels.length-1)
+    g += `<text x="${X(i)}" y="${H-7}" text-anchor="middle" font-size="9.5" fill="var(--muted)">${esc(lb)}</text>`; });
+  if (opts.ref != null)
+    g += `<line x1="${L}" x2="${W-R}" y1="${Y(opts.ref)}" y2="${Y(opts.ref)}" stroke="var(--crit)" stroke-width="1" opacity=".55"/>
+      <text x="${W-R}" y="${Y(opts.ref)-4}" text-anchor="end" font-size="9.5" fill="var(--crit)">${esc(opts.refLabel||opts.ref)}</text>`;
+  series.forEach(s => {
+    const pts = s.data.map((v,i) => `${X(i)},${Y(v)}`).join(" ");
+    if (s.area && s.data.length>1) g += `<polygon points="${X(0)},${Y(Math.max(lo,0))} ${pts} ${X(s.data.length-1)},${Y(Math.max(lo,0))}" fill="${s.color}" opacity=".10"/>`;
+    if (s.data.length>1) g += `<polyline points="${pts}" fill="none" stroke="${s.color}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`;
+    s.data.forEach((v,i) => { const last = i===s.data.length-1;
+      if (last || s.data.length===1 || opts.dots)
+        g += `<circle cx="${X(i)}" cy="${Y(v)}" r="4.5" fill="${s.color}" stroke="var(--surface-1)" stroke-width="2"/>`; });
+    const lv = s.data[s.data.length-1];
+    g += `<text x="${X(s.data.length-1)+7}" y="${Y(lv)+3.5}" font-size="11" font-weight="600" fill="var(--ink-2)" style="font-variant-numeric:tabular-nums">${fmt1(lv)}${opts.unit||""}</text>`;
+  });
+  g += `<line id="xh" x1="0" x2="0" y1="${T}" y2="${H-B}" stroke="var(--axis)" stroke-width="1" opacity="0"/>`;
+  if (series.length > 1)
+    host.innerHTML = `<div class="legend">${series.map(s => `<span><span class="sw" style="background:${s.color}"></span>${esc(s.name)}</span>`).join("")}</div>`;
+  host.innerHTML += `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(opts.aria||"折線圖")}">${g}</svg>`;
+  const svg = host.querySelector("svg"), tip = makeTip(host), xh = svg.querySelector("#xh");
+  svg.addEventListener("mousemove", ev => {
+    const r = svg.getBoundingClientRect(), mx = (ev.clientX-r.left)*(W/r.width);
+    let bi = 0, bd = 1e9;
+    labels.forEach((_,i) => { const d = Math.abs(X(i)-mx); if (d<bd){ bd=d; bi=i; } });
+    xh.setAttribute("x1", X(bi)); xh.setAttribute("x2", X(bi)); xh.setAttribute("opacity", ".6");
+    tip.style.opacity = 1;
+    tip.innerHTML = `<b>${esc(labels[bi])}</b><br>` + series.map(s => `${esc(s.name)}：${fmt1(s.data[bi])}${opts.unit||""}`).join("<br>");
+    const hr = host.getBoundingClientRect();
+    tip.style.left = Math.min(ev.clientX-hr.left+14, hr.width-tip.offsetWidth-4) + "px";
+    tip.style.top = (ev.clientY-hr.top-10) + "px";
+  });
+  svg.addEventListener("mouseleave", () => { tip.style.opacity = 0; xh.setAttribute("opacity","0"); });
+}
+
+function barChart(hostId, labels, data, opts={}){
+  const host = $(hostId); if (!host) return; host.innerHTML = "";
+  const W = 520, H = opts.h||230, L = 48, R = 14, T = 14, B = 26;
+  let lo = Math.min(0, ...data), hi = Math.max(0, ...data);
+  const ticks = niceTicks(lo, hi + (hi-lo)*0.06);
+  lo = Math.min(lo, ticks[0]); hi = Math.max(hi, ticks[ticks.length-1]);
+  const slot = (W-L-R)/labels.length, bw = Math.min(24, slot*0.62);
+  const X = i => L + slot*i + slot/2, Y = v => T + (H-T-B)*(1-(v-lo)/(hi-lo));
+  let g = "";
+  ticks.forEach(t => { g += `<line x1="${L}" x2="${W-R}" y1="${Y(t)}" y2="${Y(t)}" stroke="var(--grid)" stroke-width="1"/>
+    <text x="${L-7}" y="${Y(t)+3.5}" text-anchor="end" font-size="10" fill="var(--muted)" style="font-variant-numeric:tabular-nums">${fmt1(t)}</text>`; });
+  const xEvery = Math.ceil(labels.length/6);
+  labels.forEach((lb,i) => { if (i%xEvery===0 || i===labels.length-1)
+    g += `<text x="${X(i)}" y="${H-7}" text-anchor="middle" font-size="9.5" fill="var(--muted)">${esc(lb)}</text>`; });
+  const mx = Math.max(...data), mn = Math.min(...data);
+  data.forEach((v,i) => {
+    const y0 = Y(0), y1 = Y(v), top = Math.min(y0,y1), hgt = Math.max(Math.abs(y0-y1),1), x = X(i)-bw/2;
+    const r = Math.min(4, hgt);
+    const path = v >= 0
+      ? `M${x},${y0} L${x},${top+r} Q${x},${top} ${x+r},${top} L${x+bw-r},${top} Q${x+bw},${top} ${x+bw},${top+r} L${x+bw},${y0} Z`
+      : `M${x},${y0} L${x+bw},${y0} L${x+bw},${top+hgt-r} Q${x+bw},${top+hgt} ${x+bw-r},${top+hgt} L${x+r},${top+hgt} Q${x},${top+hgt} ${x},${top+hgt-r} Z`;
+    g += `<path d="${path}" fill="${opts.color||"var(--s1)"}" data-i="${i}" class="bar"/>`;
+    if (v===mx || v===mn || i===data.length-1)
+      g += `<text x="${X(i)}" y="${(v>=0?top-5:top+hgt+11)}" text-anchor="middle" font-size="10" font-weight="600" fill="var(--ink-2)" style="font-variant-numeric:tabular-nums">${fmt1(v)}</text>`;
+  });
+  g += `<line x1="${L}" x2="${W-R}" y1="${Y(0)}" y2="${Y(0)}" stroke="var(--axis)" stroke-width="1"/>`;
+  host.innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(opts.aria||"長條圖")}">${g}</svg>`;
+  const svg = host.querySelector("svg"), tip = makeTip(host);
+  svg.addEventListener("mousemove", ev => {
+    const r = svg.getBoundingClientRect(), mx2 = (ev.clientX-r.left)*(W/r.width);
+    const i = Math.max(0, Math.min(labels.length-1, Math.floor((mx2-L)/slot)));
+    tip.style.opacity = 1; tip.innerHTML = `<b>${esc(labels[i])}</b><br>${fmt1(data[i])}${opts.unit||""}`;
+    const hr = host.getBoundingClientRect();
+    tip.style.left = Math.min(ev.clientX-hr.left+14, hr.width-tip.offsetWidth-4)+"px";
+    tip.style.top = (ev.clientY-hr.top-10)+"px";
+  });
+  svg.addEventListener("mouseleave", () => tip.style.opacity = 0);
+}
+
+function drawCharts(){
+  const ttm = DATA.charts.ttm, aq = DATA.charts.aggQ, dbt = DATA.charts.debt;
+  lineChart("chartCapex", ttm.map(r=>r.q),
+    [{name:"資本開支 Capex", color:"var(--s1)", data:ttm.map(r=>r.capex)},
+     {name:"營運現金流 OCF", color:"var(--s2)", data:ttm.map(r=>r.ocf)}],
+    {aria:"五大雲廠 TTM 資本開支與營運現金流", zero:false});
+  lineChart("chartRatio", aq.map(r=>r.q),
+    [{name:"Capex/OCF", color:"var(--s1)", data:aq.map(r=>r.ratio), area:true}],
+    {ref:100, refLabel:"100%＝現金流全數投入", unit:"%", aria:"單季資本開支佔營運現金流比率"});
+  barChart("chartFcf", aq.map(r=>r.q), aq.map(r=>r.fcf), {unit:"B", aria:"五大雲廠單季自由現金流"});
+  lineChart("chartDebt", dbt.labels, [{name:"長期債務", color:"var(--s1)", data:dbt.values}], {aria:"五大雲廠長期債務合計"});
+  $("debtNote").textContent = dbt.note;
+  const h = DATA.history;
+  lineChart("chartHist", h.map(x=>x.date), [{name:"綜合溫度", color:"var(--s1)", data:h.map(x=>x.composite), dots:h.length<=20}], {h:170, aria:"綜合溫度歷史"});
+  $("histNote").textContent = h.length<3 ? `目前累積 ${h.length} 筆快照（每週一自動附加）——趨勢線將隨時間成形。` : "";
+}
+drawCharts();
+
+/* ---------- indicator cards & table ---------- */
+const DIMS = Object.keys(DATA.dimMeta);
+$("indSections").innerHTML = DIMS.map(dk => {
+  const m = DATA.dimMeta[dk], items = DATA.indicators.filter(i => i.dim===dk);
+  return `<div class="dimSection card">
+    <h2>${esc(m.name)} <span class="mut" style="font-weight:400">權重 ${Math.round(m.w*100)}%・${esc(m.note)}・維度分 ${DATA.dims[dk]}</span></h2>
+    <div class="cards">` + items.map(i => `
+      <div class="icard">
+        <div class="top"><span class="nm">${esc(i.name)}</span>${chip(i.zone)}</div>
+        <div><span class="val">${esc(i.disp)}</span>${i.sub?`<span class="mut">　${esc(i.sub)}</span>`:""}</div>
+        ${stripHTML(i.score)}
+        <div class="note">${esc(i.note)}</div>
+        <div class="meta">
+          <span>${esc(i.dir)}${i.qual?"（質化）":""}</span>
+          <span>${i.fresh==="stale"?`<span class="stale">⚠ 資料延遲</span>　`:""}${esc(i.asof)}・<a href="${esc(i.url)}" target="_blank" rel="noopener">${esc(i.src)}</a></span>
+        </div>
+      </div>`).join("") + `</div></div>`;
+}).join("");
+
+$("indTable").innerHTML = `<tr><th>維度</th><th>指標</th><th>目前值</th><th>溫度分</th><th>燈號</th><th>資料時點</th><th>來源</th></tr>` +
+  DATA.indicators.map(i => `<tr><td>${esc(DATA.dimMeta[i.dim].name)}</td><td>${esc(i.name)}</td>
+    <td class="num">${esc(i.disp)}</td><td class="num">${i.score}</td>
+    <td><span style="color:${ZC[i.zone]};font-weight:700">●</span> ${ZL[i.zone].slice(2)}</td>
+    <td>${esc(i.asof)}${i.fresh==="stale"?" ⚠":""}</td><td><a href="${esc(i.url)}" target="_blank" rel="noopener">${esc(i.src)}</a></td></tr>`).join("");
+
+/* ---------- TW tab ---------- */
+$("twHero").innerHTML = `${DATA.tw.heat}<small>／100</small>`;
+$("twChip").innerHTML = chip(zoneOf(DATA.tw.heat), DATA.zones.find(z => DATA.tw.heat<=z.max).label);
+$("twZoneBar").innerHTML = zoneBarHTML(DATA.tw.heat);
+$("twCards").innerHTML = DATA.tw.items.map(i => `
+  <div class="icard">
+    <div class="top"><span class="nm">${esc(i.name)}</span>${chip(zoneOf(i.score))}</div>
+    <div><span class="val">${esc(i.disp)}</span></div>
+    ${stripHTML(i.score)}
+    <div class="note">${esc(i.note)}</div>
+    <div class="meta"><span></span><span>${esc(i.asof)}・${esc(i.src)}</span></div>
+  </div>`).join("");
+
+/* ---------- method tab tables ---------- */
+$("wTable").innerHTML = `<tr><th>維度</th><th>權重</th><th>指標數</th><th>目前維度分</th><th>定位</th></tr>` +
+  DIMS.map(dk => { const m = DATA.dimMeta[dk], n = DATA.indicators.filter(i=>i.dim===dk).length;
+    return `<tr><td>${esc(m.name)}</td><td class="num">${Math.round(m.w*100)}%</td><td class="num">${n}</td>
+      <td class="num" style="color:${ZC[zoneOf(DATA.dims[dk])]};font-weight:700">${DATA.dims[dk]}</td><td>${esc(m.note)}</td></tr>`; }).join("");
+$("srcTable").innerHTML = `<tr><th>指標</th><th>來源</th><th>更新頻率</th><th>方式</th></tr>` +
+  DATA.indicators.map(i => `<tr><td>${esc(i.name)}</td><td><a href="${esc(i.url)}" target="_blank" rel="noopener">${esc(i.src)}</a></td>
+    <td>${i.id==="capexocf"||i.id==="fcf"||i.id==="dnagap"||i.id==="debt"?"季（財報）":i.qual?"週（質化評估）":"週"}</td>
+    <td>${i.qual?"WebSearch＋評分準則":"自動抓取"}</td></tr>`).join("");
+$("histTable").innerHTML = `<tr><th>日期</th><th>綜合</th>${DIMS.map(d=>`<th>${esc(DATA.dimMeta[d].name.slice(0,2))}</th>`).join("")}<th>台股</th></tr>` +
+  DATA.history.map(h => `<tr><td>${esc(h.date)}</td><td class="num"><b>${h.composite}</b></td>
+    ${DIMS.map(d=>`<td class="num">${h.dims[d]}</td>`).join("")}<td class="num">${h.tw}</td></tr>`).join("");
+}
+(async function(){
+  let d = null;
+  try { const r = await fetch("data.json", {cache: "no-store"}); if (r.ok) d = await r.json(); } catch (e) {}
+  boot(d || JSON.parse(document.getElementById("dashboard-data").textContent));
+})();
+</script>
+</body>
+</html>

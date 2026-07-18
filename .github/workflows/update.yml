@@ -1,0 +1,44 @@
+name: update-and-deploy
+on:
+  schedule:
+    - cron: '30 22 * * 1-5'   # UTC 22:30 週一~五 = 台北 06:30 週二~六（美股收盤後）
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths-ignore: ['data.json']
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+concurrency:
+  group: pages
+  cancel-in-progress: false
+jobs:
+  update-and-deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install requests
+      - name: update data (failures keep old values)
+        run: python scripts/update_data.py || echo "updater errored; deploying previous data"
+      - name: commit refreshed data
+        run: |
+          git config user.name "ai-bubble-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data.json
+          git diff --cached --quiet || git commit -m "data: auto update $(date -u +%F)"
+          git push
+      - uses: actions/configure-pages@v5
+        with:
+          enablement: true
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: '.'
+      - id: deployment
+        uses: actions/deploy-pages@v4

@@ -10,17 +10,19 @@ ROOT = Path(__file__).resolve().parent.parent
 DATA = ROOT / "data.json"
 OFFLINE = "--offline" in sys.argv
 TODAY = (dt.datetime.utcnow() + dt.timedelta(hours=8)).date()   # 台北日期
-UA = {"User-Agent": "ai-bubble-monitor/1.0 (github actions; haonung.chiang@gmail.com)"}
+UA_DEFAULT = "ai-bubble-monitor/1.0 (github actions; haonung.chiang@gmail.com)"
+UA_BROWSER = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36"
+UA_SEC = "Kenny Chiang haonung.chiang@gmail.com"   # SEC 規範：姓名＋聯絡信箱
 LOG = []
 
 def log(m):
     LOG.append(str(m)); print(str(m), flush=True)
 
-def http_get(url):
+def http_get(url, ua=None):
     if OFFLINE:
         raise RuntimeError("offline mode")
     import requests
-    r = requests.get(url, headers=UA, timeout=45)
+    r = requests.get(url, headers={"User-Agent": ua or UA_DEFAULT}, timeout=45)
     r.raise_for_status()
     return r
 
@@ -86,8 +88,32 @@ def stooq(sym, days=620):
         raise RuntimeError(f"stooq {sym}: {len(out)} rows")
     return out
 
-def stooq_stats(sym):
-    rows = stooq(sym)
+def yahoo_chart(sym, rng="2y"):
+    from urllib.parse import quote
+    j = http_get(f"https://query1.finance.yahoo.com/v8/finance/chart/{quote(sym)}?range={rng}&interval=1d",
+                 ua=UA_BROWSER).json()
+    res = j["chart"]["result"][0]
+    ts = res["timestamp"]
+    closes = res["indicators"]["quote"][0]["close"]
+    out = [(dt.datetime.utcfromtimestamp(t).date(), float(c))
+           for t, c in zip(ts, closes) if c]
+    if len(out) < 30:
+        raise RuntimeError(f"yahoo {sym}: {len(out)} rows")
+    return out
+
+def px_stats(ysym, ssym=None):
+    """Yahoo Chart API 為主，Stooq 備援。"""
+    try:
+        return series_stats(yahoo_chart(ysym))
+    except Exception as e1:
+        if ssym:
+            try:
+                return series_stats(stooq(ssym))
+            except Exception as e2:
+                raise RuntimeError(f"yahoo({e1}) & stooq({e2})")
+        raise
+
+def series_stats(rows):
     closes = [c for _, c in rows]
     last_d, last_c = rows[-1]
     st = {"date": last_d, "close": last_c}
@@ -141,10 +167,14 @@ CONCEPTS = {
 
 def edgar_rows(co, concept_names, min_end="2023-06-01"):
     """回傳 [(start|None, end, val)]，同 (start,end) 去重。"""
+    import time
     for name in concept_names:
         try:
-            j = http_get(f"https://data.sec.gov/api/xbrl/companyconcept/CIK{CIK[co]}/us-gaap/{name}.json").json()
-        except Exception:
+            time.sleep(0.2)   # SEC 流量禮儀
+            j = http_get(f"https://data.sec.gov/api/xbrl/companyconcept/CIK{CIK[co]}/us-gaap/{name}.json",
+                         ua=UA_SEC).json()
+        except Exception as ex:
+            log(f"    edgar {co}/{name}: {ex}")
             continue
         rows, seen = [], set()
         for unit in j.get("units", {}).get("USD", []):
@@ -337,25 +367,27 @@ def main():
     attempt("FRED HY", f_hy); attempt("FRED IG", f_ig); attempt("FRED VIX", f_vix)
     attempt("FRED 10Y", f_10y); attempt("FRED FED", f_fed); attempt("FRED JOBS", f_jobs)
 
-    # ---- Stooq ----
+    # ---- 價格（Yahoo 為主、Stooq 備援）----
     S = {}
-    def f_px(sym):
-        def go(): S[sym] = stooq_stats(sym)
+    PX = {"nvda": ("NVDA", "nvda.us"), "soxx": ("SOXX", "soxx.us"),
+          "spy": ("SPY", "spy.us"), "2330": ("2330.TW", "2330.tw")}
+    def f_px(key, ysym, ssym):
+        def go(): S[key] = px_stats(ysym, ssym)
         return go
-    for sym in ["nvda.us", "soxx.us", "spy.us", "2330.tw"]:
-        attempt(f"stooq {sym}", f_px(sym))
+    for key, (ysym, ssym) in PX.items():
+        attempt(f"px {ysym}", f_px(key, ysym, ssym))
     def f_nvda():
-        st = S["nvda.us"]
+        st = S["nvda"]
         pe = st["close"] / params["nvda_eps"]
         upd("nvdape", round(pe, 2), f"{pe:.1f}×", pw(pe, IND["nvdape"]["anchors"]), str(st["date"]))
         dev = (st["close"] / st["dma200"] - 1) * 100
         upd("nvda200", round(dev, 1), f"{dev:+.1f}%", pw(dev, IND["nvda200"]["anchors"]), str(st["date"]))
     def f_sox():
-        mom = S["soxx.us"]["chg3m"] - S["spy.us"]["chg3m"]
+        mom = S["soxx"]["chg3m"] - S["spy"]["chg3m"]
         upd("soxmom", round(mom, 1), f"{mom:+.0f}pp",
-            pw(mom, IND["soxmom"]["anchors"]), str(S["soxx.us"]["date"]))
+            pw(mom, IND["soxmom"]["anchors"]), str(S["soxx"]["date"]))
     def f_tsmc():
-        st = S["2330.tw"]
+        st = S["2330"]
         pe = st["close"] / params["tsmc_eps"]
         for iid, val, disp, anch in [
             ("tsmc_pe", pe, f"{pe:.1f}×", [[15, 0], [22, 33], [28, 67], [35, 100]]),
@@ -367,24 +399,19 @@ def main():
             t["disp"] = disp or f"{val:+.1f}%"
             t["score"] = round(pw(val, anch), 1)
             t["asof"] = str(st["date"])
-    if "nvda.us" in S: attempt("calc nvda", f_nvda)
-    if "soxx.us" in S and "spy.us" in S: attempt("calc soxmom", f_sox)
-    if "2330.tw" in S: attempt("calc tsmc", f_tsmc)
+    if "nvda" in S: attempt("calc nvda", f_nvda)
+    if "soxx" in S and "spy" in S: attempt("calc soxmom", f_sox)
+    if "2330" in S: attempt("calc tsmc", f_tsmc)
     def f_twii():
-        st = None
-        for sym in ["^twii", "^twse"]:
-            try:
-                st = stooq_stats(sym); break
-            except Exception:
-                continue
+        st = px_stats("^TWII", "^twii")
         if st and "pos52w" in st:
             t = TWI["twii_pos"]
             t["value"] = round(st["pos52w"], 1); t["disp"] = f"{st['pos52w']:.1f}%"
             t["score"] = round(pw(st["pos52w"], [[50, 0], [75, 33], [90, 67], [100, 100]]), 1)
             t["asof"] = str(st["date"])
         else:
-            raise RuntimeError("no TWII symbol on stooq")
-    attempt("stooq TWII", f_twii)
+            raise RuntimeError("TWII: no 52w stats")
+    attempt("px ^TWII", f_twii)
 
     # ---- scrapes ----
     def f_cape():

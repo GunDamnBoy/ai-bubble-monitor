@@ -8,25 +8,17 @@ on:
     paths-ignore: ['data.json']
 permissions:
   contents: write
-  pages: write
-  id-token: write
-concurrency:
-  group: pages
-  cancel-in-progress: false
 jobs:
-  update-and-deploy:
+  update:
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - run: pip install requests
+      - run: pip install requests yfinance
       - name: update data (failures keep old values)
-        run: python scripts/update_data.py || echo "updater errored; deploying previous data"
+        run: python scripts/update_data.py
       - name: commit refreshed data
         run: |
           git config user.name "ai-bubble-bot"
@@ -34,11 +26,3 @@ jobs:
           git add data.json
           git diff --cached --quiet || git commit -m "data: auto update $(date -u +%F)"
           git push
-      - uses: actions/configure-pages@v5
-        with:
-          enablement: true
-      - uses: actions/upload-pages-artifact@v3
-        with:
-          path: '.'
-      - id: deployment
-        uses: actions/deploy-pages@v4

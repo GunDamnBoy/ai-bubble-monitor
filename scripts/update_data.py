@@ -101,17 +101,30 @@ def yahoo_chart(sym, rng="2y"):
         raise RuntimeError(f"yahoo {sym}: {len(out)} rows")
     return out
 
+def yf_chart(sym):
+    if OFFLINE:
+        raise RuntimeError("offline mode")
+    import yfinance as yf
+    df = yf.Ticker(sym).history(period="2y", interval="1d", auto_adjust=False)
+    rows = [(idx.date(), float(c)) for idx, c in df["Close"].items() if c and c > 0]
+    if len(rows) < 30:
+        raise RuntimeError(f"yfinance {sym}: {len(rows)} rows")
+    return rows
+
 def px_stats(ysym, ssym=None):
-    """Yahoo Chart API 為主，Stooq 備援。"""
-    try:
-        return series_stats(yahoo_chart(ysym))
-    except Exception as e1:
-        if ssym:
-            try:
-                return series_stats(stooq(ssym))
-            except Exception as e2:
-                raise RuntimeError(f"yahoo({e1}) & stooq({e2})")
-        raise
+    """yfinance（瀏覽器模擬）→ Yahoo Chart 裸 API → Stooq，三層備援。"""
+    errs = []
+    for fn in (lambda: yf_chart(ysym), lambda: yahoo_chart(ysym)):
+        try:
+            return series_stats(fn())
+        except Exception as e:
+            errs.append(str(e)[:80])
+    if ssym:
+        try:
+            return series_stats(stooq(ssym))
+        except Exception as e:
+            errs.append(str(e)[:80])
+    raise RuntimeError(" / ".join(errs))
 
 def series_stats(rows):
     closes = [c for _, c in rows]

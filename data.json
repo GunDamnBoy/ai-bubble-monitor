@@ -2,7 +2,7 @@
  "meta": {
   "version": 1,
   "built": "2026-07-18",
-  "builtTime": "2026-07-18（GitHub Actions 自動更新）",
+  "builtTime": "2026-07-18（GitHub Actions 自動更新）｜焦點事件 2026-07-18 擴充",
   "nextUpdate": "每交易日自動更新（GitHub Actions）｜質化指標每週覆核",
   "artifactId": "ai-bubble-monitor",
   "lastAutoRun": {
@@ -1034,28 +1034,64 @@
  },
  "events": [
   {
-   "d": "07-14",
-   "t": "IBM Q2 預告營收 $17.2B 遠遜預期，歸因 AI 硬體排擠其他 IT 支出——首個「AI 排擠效應」財報受害者，盤前 −17%"
+   "d": "07-17",
+   "t": "Moonshot 發布 Kimi K3——「第二次 DeepSeek 時刻」：中國新模型驚動投資人，引發全球 AI／半導體股大跌",
+   "url": "https://fortune.com/2026/07/17/china-moonshot-kimi-k3-markets-china-ai/"
+  },
+  {
+   "d": "07-17",
+   "t": "Bloomberg：AI 拋售重創槓桿 ETF 與散戶——擁擠交易開始反噬",
+   "url": "https://www.bloomberg.com/news/articles/2026-07-17/ai-upheaval-crushes-retail-traders-crowding-into-leveraged-funds"
+  },
+  {
+   "d": "07-16",
+   "t": "台積電 Q2 純益年增 77.4% 創歷史新高、全年成長展望上修逾 40%——需求端最強反證",
+   "url": "https://www.techtimes.com/articles/320696/20260716/tsmc-posts-record-quarter-ai-chip-demand-pushes-full-year-growth-outlook-past-40.htm"
+  },
+  {
+   "d": "07-16",
+   "t": "Bloomberg：Oracle 因 AI 支出遠超現金流、面臨信用評等下調風險（股價一個月 −33%）",
+   "url": "https://www.bloomberg.com/news/articles/2026-07-16/oracle-risks-falling-behind-in-ai-race-as-spending-binge-bites"
   },
   {
    "d": "07-14",
-   "t": "紐約州簽署全美首個州級行政命令：>50MW 超大規模數據中心環評暫停一年"
+   "t": "IBM 預警 Q2 遜於預期、單日暴跌 25%（上市以來最慘）、市值蒸發 $69B——「AI 排擠效應」首個重大財報受害者",
+   "url": "https://www.cnbc.com/2026/07/14/ibm-warns-second-quarter-earnings-fell-short-of-expectations.html"
+  },
+  {
+   "d": "07-14",
+   "t": "紐約州簽署全美首個州級行政命令：>50MW 超大規模數據中心環評暫停一年",
+   "url": "https://www.cbsnews.com/newyork/news/new-york-data-center-moratorium-kathy-hochul/"
+  },
+  {
+   "d": "07-08",
+   "t": "Oracle 5 年期 CDS 創高後，股票分析師與信用市場對其 AI 豪賭的分歧持續擴大",
+   "url": "https://realinvestmentadvice.com/resources/blog/oracle-and-coreweave-cds-spreads-widening-omen-or-jitters/"
   },
   {
    "d": "07-06",
-   "t": "NOTUS 披露美國財政部內部報告：警告 AI 具類 dot-com 系統性風險（集中度、私募信貸依賴、電力瓶頸）"
-  },
-  {
-   "d": "06-09",
-   "t": "OpenAI 保密提交 S-1；Anthropic 亦於 6/1 保密申請 IPO——對照 1995 年 Netscape 時刻"
-  },
-  {
-   "d": "05-29",
-   "t": "Anthropic 官方確認 run-rate 營收突破 $47B（2025 底 $9B）；5/28 完成 $65B 融資、投後 $965B"
+   "t": "NOTUS 披露美國財政部內部報告：警告 AI 具 dot-com 式系統性風險（集中度、私募信貸、電力瓶頸）",
+   "url": "https://www.notus.org/economy/treasury-internal-report-warning-dangers-ai-bubble"
   },
   {
    "d": "07-02",
-   "t": "Crunchbase：2026 H1 全球 VC $510B 創紀錄，Q2 AI 佔比 >70%"
+   "t": "Bloomberg：Meta 計畫進軍 AI 算力出租，CoreWeave 垃圾債應聲再跌",
+   "url": "https://www.bloomberg.com/news/articles/2026-07-02/coreweave-junk-bonds-slide-further-as-investors-question-ai-boom"
+  },
+  {
+   "d": "07-02",
+   "t": "Crunchbase：2026 上半年全球 VC $510B 創紀錄，Q2 AI 佔比 >70%",
+   "url": "https://news.crunchbase.com/venture/global-startup-exits-ipo-ma-soar-ai-q2-h1-2026/"
+  },
+  {
+   "d": "06-09",
+   "t": "OpenAI 保密提交 S-1（Anthropic 6/1 亦已申請）——本輪的「1995 Netscape 時刻」進入倒數",
+   "url": "https://fortune.com/2026/06/09/openai-files-confidential-s-1-sec-ipo/"
+  },
+  {
+   "d": "05-29",
+   "t": "Anthropic 確認 run-rate 營收突破 $47B；前一日完成 $65B 融資（投後 $965B，史上最大 VC 輪）",
+   "url": "https://simonwillison.net/2026/May/29/anthropic/"
   }
  ],
  "history": [

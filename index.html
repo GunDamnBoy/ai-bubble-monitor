@@ -345,19 +345,42 @@ ul.tight{padding-left:18px;font-size:13px} ul.tight li{margin:4px 0}
 {
  "meta": {
   "version": 1,
-  "built": "2026-07-17",
-  "builtTime": "2026-07-17 09:30 (台北時間)",
-  "nextUpdate": "每週一 09:00 自動更新",
-  "artifactId": "ai-bubble-monitor"
+  "built": "2026-07-18",
+  "builtTime": "2026-07-18（GitHub Actions 自動更新）｜焦點事件 2026-07-18 擴充",
+  "nextUpdate": "每交易日自動更新（GitHub Actions）｜質化指標每週覆核",
+  "artifactId": "ai-bubble-monitor",
+  "lastAutoRun": {
+   "date": "2026-07-18",
+   "ok": [
+    "FRED HY",
+    "FRED IG",
+    "FRED VIX",
+    "FRED 10Y",
+    "FRED FED",
+    "FRED JOBS",
+    "px NVDA",
+    "px SOXX",
+    "px SPY",
+    "px 2330.TW",
+    "calc nvda",
+    "calc soxmom",
+    "calc tsmc",
+    "px ^TWII",
+    "multpl CAPE",
+    "slickcharts Mag7",
+    "EDGAR quarterly"
+   ],
+   "fail": []
+  }
  },
- "composite": 55.5,
+ "composite": 54.1,
  "dims": {
-  "D1": 62.5,
+  "D1": 60.2,
   "D2": 0.0,
-  "D3": 71.9,
-  "D4": 65.8,
-  "D5": 58.6,
-  "D6": 56.7
+  "D3": 72.2,
+  "D4": 65.9,
+  "D5": 48.4,
+  "D6": 60.0
  },
  "dimMeta": {
   "D1": {
@@ -423,10 +446,10 @@ ul.tight{padding-left:18px;font-size:13px} ul.tight li{margin:4px 0}
    "id": "cape",
    "dim": "D1",
    "name": "Shiller CAPE（標普500）",
-   "value": 42.18,
-   "disp": "42.2×",
-   "score": 84.2,
-   "zone": "red",
+   "value": 41.52,
+   "disp": "41.5×",
+   "score": 79.0,
+   "zone": "orange",
    "anchors": [
     [
      25,
@@ -446,7 +469,7 @@ ul.tight{padding-left:18px;font-size:13px} ul.tight li{margin:4px 0}
     ]
    ],
    "dir": "越高越熱",
-   "asof": "2026-07-15",
+   "asof": "2026-07-18",
    "fresh": "ok",
    "src": "multpl.com",
    "url": "https://www.multpl.com/shiller-pe",
@@ -457,9 +480,9 @@ ul.tight{padding-left:18px;font-size:13px} ul.tight li{margin:4px 0}
    "id": "mag7",
    "dim": "D1",
    "name": "Mag7 佔標普500市值比重",
-   "value": 33.89,
-   "disp": "33.9%",
-   "score": 77.4,
+   "value": 33.42,
+   "disp": "33.4%",
+   "score": 74.8,
    "zone": "orange",
    "anchors": [
     [
@@ -480,7 +503,7 @@ ul.tight{padding-left:18px;font-size:13px} ul.tight li{margin:4px 0}
     ]
    ],
    "dir": "越高越熱",
-   "asof": "2026-07-16",
+   "asof": "2026-07-18",
    "fresh": "ok",
    "src": "SlickCharts",
    "url": "https://www.slickcharts.com/sp500",
@@ -491,9 +514,9 @@ ul.tight{padding-left:18px;font-size:13px} ul.tight li{margin:4px 0}
    "id": "nvdape",
    "dim": "D1",
    "name": "NVIDIA 本益比（TTM）",
-   "value": 31.76,
-   "disp": "31.8×",
-   "score": 25.9,
+   "value": 32.14,
+   "disp": "32.1×",
+   "score": 26.7,
    "zone": "green",
    "anchors": [
     [
@@ -514,7 +537,7 @@ ul.tight{padding-left:18px;font-size:13px} ul.tight li{margin:4px 0}
     ]
    ],
    "dir": "越高越熱",
-   "asof": "2026-07-16",
+   "asof": "2026-07-17",
    "fresh": "ok",
    "src": "Google Finance / stockanalysis",
    "url": "https://stockanalysis.com/stocks/nvda/",
@@ -650,20 +673,20 @@ ul.tight{padding-left:18px;font-size:13px} ul.tight li{margin:4px 0}
     ]
    ],
    "dir": "越高越熱",
-   "asof": "2026Q1（10-Q/10-K）",
+   "asof": "2026Q1",
    "fresh": "ok",
    "src": "SEC EDGAR XBRL",
    "url": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany",
    "note": "八季一路走高：42.9%→75.3%；最新單季已達 94.0%（與中金測算一致）。Epoch AI 獨立模型推估 2026Q3 前後整體突破 100%——屆時經營現金流將完全不夠花，全面依賴外部融資。",
    "qual": false,
-   "sub": "最新單季 94.0%｜Epoch AI 推估 2026Q3 交叉 100%"
+   "sub": "最新單季 94.0%"
   },
   {
    "id": "fcf",
    "dim": "D3",
    "name": "五大雲廠自由現金流（TTM 年減率）",
    "value": -29.1,
-   "disp": "−29.1%",
+   "disp": "-29.1%",
    "score": 57.7,
    "zone": "yellow",
    "anchors": [
@@ -691,15 +714,15 @@ ul.tight{padding-left:18px;font-size:13px} ul.tight li{margin:4px 0}
    "url": "https://data.sec.gov/",
    "note": "TTM FCF 從 $223B 縮至 $158B；最新單季只剩 $9.5B、年減 78%。獲利豐厚的巨頭正在把現金流全數換成資料中心。",
    "qual": false,
-   "sub": "單季 FCF $9.5B（年減 77.6%）"
+   "sub": "單季 FCF $9.5B（年增 -77.6%）"
   },
   {
    "id": "dnagap",
    "dim": "D3",
    "name": "折舊成長 vs 營收成長缺口",
-   "value": 34.4,
-   "disp": "+34.4pp",
-   "score": 99.1,
+   "value": 35.9,
+   "disp": "+35.9pp",
+   "score": 100.0,
    "zone": "red",
    "anchors": [
     [
@@ -731,9 +754,9 @@ ul.tight{padding-left:18px;font-size:13px} ul.tight li{margin:4px 0}
    "id": "debt",
    "dim": "D4",
    "name": "五大雲廠長期債務（年增率）",
-   "value": 77.8,
-   "disp": "+77.8%",
-   "score": 98.6,
+   "value": 87.4,
+   "disp": "+87.4%",
+   "score": 100.0,
    "zone": "red",
    "anchors": [
     [
@@ -767,7 +790,7 @@ ul.tight{padding-left:18px;font-size:13px} ul.tight li{margin:4px 0}
    "name": "美高收益債利差（HY OAS）",
    "value": 2.71,
    "disp": "2.71%",
-   "score": 13.3,
+   "score": 12.5,
    "zone": "green",
    "anchors": [
     [
@@ -792,13 +815,13 @@ ul.tight{padding-left:18px;font-size:13px} ul.tight li{margin:4px 0}
     ]
    ],
    "dir": "3個月走闊幅度（bp）越大越熱",
-   "asof": "2026-07-15",
+   "asof": "2026-07-16",
    "fresh": "ok",
    "src": "FRED (ICE BofA)",
    "url": "https://fred.stlouisfed.org/series/BAMLH0A0HYM2",
    "note": "3個月變化 −14bp（收斂）、絕對水位處於歷史低檔。目前信用市場對 AI 債務零風險定價——這既是「尚未觸發」的訊號，也是自滿的燃料。觸發線：3個月內走闊 +80bp。",
    "qual": false,
-   "sub": "IG OAS 0.79%（同創低檔）"
+   "sub": "IG OAS 0.78%"
   },
   {
    "id": "vc",
@@ -855,10 +878,10 @@ ul.tight{padding-left:18px;font-size:13px} ul.tight li{margin:4px 0}
    "id": "soxmom",
    "dim": "D5",
    "name": "半導體相對動能（SOXX−SPY，3個月）",
-   "value": 57.0,
-   "disp": "+57pp",
-   "score": 97.2,
-   "zone": "red",
+   "value": 22.6,
+   "disp": "+23pp",
+   "score": 61.6,
+   "zone": "yellow",
    "anchors": [
     [
      0,
@@ -878,7 +901,7 @@ ul.tight{padding-left:18px;font-size:13px} ul.tight li{margin:4px 0}
     ]
    ],
    "dir": "越高越熱",
-   "asof": "2026-07-16",
+   "asof": "2026-07-17",
    "fresh": "ok",
    "src": "ETFdb / stockanalysis",
    "url": "https://etfdb.com/etf/SOXX/",
@@ -889,9 +912,9 @@ ul.tight{padding-left:18px;font-size:13px} ul.tight li{margin:4px 0}
    "id": "nvda200",
    "dim": "D5",
    "name": "NVIDIA 距 200 日均線乖離",
-   "value": 7.9,
-   "disp": "+7.9%",
-   "score": 17.4,
+   "value": 5.4,
+   "disp": "+5.4%",
+   "score": 11.9,
    "zone": "green",
    "anchors": [
     [
@@ -912,7 +935,7 @@ ul.tight{padding-left:18px;font-size:13px} ul.tight li{margin:4px 0}
     ]
    ],
    "dir": "越高越熱",
-   "asof": "2026-07-16",
+   "asof": "2026-07-17",
    "fresh": "ok",
    "src": "stockanalysis.com",
    "url": "https://stockanalysis.com/stocks/nvda/statistics/",
@@ -925,7 +948,7 @@ ul.tight{padding-left:18px;font-size:13px} ul.tight li{margin:4px 0}
    "name": "VIX 恐慌指數",
    "value": 16.73,
    "disp": "16.7",
-   "score": 50,
+   "score": 50.0,
    "zone": "yellow",
    "anchors": null,
    "dir": "13-18＝自滿區（非單調）",
@@ -958,12 +981,12 @@ ul.tight{padding-left:18px;font-size:13px} ul.tight li{margin:4px 0}
    "dim": "D6",
    "name": "聯準會政策狀態",
    "value": 3.63,
-   "disp": "3.63%（年降 70bp）",
+   "disp": "3.63%（年變動 -70bp）",
    "score": 60,
    "zone": "yellow",
    "anchors": null,
    "dir": "寬鬆＋資產新高＝加溫",
-   "asof": "2026-06",
+   "asof": "2026-06-01",
    "fresh": "ok",
    "src": "FRED FEDFUNDS",
    "url": "https://fred.stlouisfed.org/series/FEDFUNDS",
@@ -975,8 +998,8 @@ ul.tight{padding-left:18px;font-size:13px} ul.tight li{margin:4px 0}
    "dim": "D6",
    "name": "美債 10 年期殖利率",
    "value": 4.57,
-   "disp": "4.57%（3個月 +31bp）",
-   "score": 55,
+   "disp": "4.57%（3個月 +25bp）",
+   "score": 58.5,
    "zone": "yellow",
    "anchors": [
     [
@@ -1008,9 +1031,9 @@ ul.tight{padding-left:18px;font-size:13px} ul.tight li{margin:4px 0}
    "id": "itjobs",
    "dim": "D6",
    "name": "美國資訊業就業（YoY）",
-   "value": -3.0,
-   "disp": "−3.0%",
-   "score": 55,
+   "value": -3.1,
+   "disp": "-3.1%",
+   "score": 61.4,
    "zone": "yellow",
    "anchors": [
     [
@@ -1031,7 +1054,7 @@ ul.tight{padding-left:18px;font-size:13px} ul.tight li{margin:4px 0}
     ]
    ],
    "dir": "背景指標（因果雙向）",
-   "asof": "2026-06",
+   "asof": "2026-06-01",
    "fresh": "ok",
    "src": "FRED USINFO (BLS)",
    "url": "https://fred.stlouisfed.org/series/USINFO",
@@ -1040,37 +1063,37 @@ ul.tight{padding-left:18px;font-size:13px} ul.tight li{margin:4px 0}
   }
  ],
  "tw": {
-  "heat": 80.8,
+  "heat": 61.2,
   "items": [
    {
     "id": "tsmc_pe",
     "name": "台積電本益比（TTM）",
-    "value": 32.72,
-    "disp": "32.7×",
-    "score": 89.3,
+    "value": 30.34,
+    "disp": "30.3×",
+    "score": 78.0,
     "note": "歷史區間約 15-28×，目前 32.7× 高於區間上緣（Forward ~22.8×）。市場已把 AI 超級週期充分定價——EPS 若不再上修，估值沒有安全墊。",
     "src": "Google Finance / stockanalysis",
-    "asof": "2026-07-16"
+    "asof": "2026-07-17"
    },
    {
     "id": "tsmc_200dma",
     "name": "台積電距 200 日均線",
-    "value": 44.0,
-    "disp": "+44.0%",
-    "score": 90.1,
+    "value": 24.1,
+    "disp": "+24.1%",
+    "score": 53.6,
     "note": "2,470 vs 200DMA 1,715——乖離幅度遠超美股龍頭（NVDA 僅 +7.9%），台股 AI 主升段的動能已呈拋物線。",
     "src": "stockanalysis.com",
-    "asof": "2026-07-16"
+    "asof": "2026-07-17"
    },
    {
     "id": "tsmc_52w",
     "name": "台積電一年漲幅",
-    "value": 132.68,
-    "disp": "+132.7%",
-    "score": 90.5,
+    "value": 110.09,
+    "disp": "+110.1%",
+    "score": 78.1,
     "note": "52 週區間 1,115→2,535。一年翻 2.3 倍，波動放大（52週低點到高點 2.3×）。",
     "src": "Google Finance",
-    "asof": "2026-07-16"
+    "asof": "2026-07-17"
    },
    {
     "id": "odm_pe",
@@ -1085,9 +1108,9 @@ ul.tight{padding-left:18px;font-size:13px} ul.tight li{margin:4px 0}
    {
     "id": "twii_pos",
     "name": "加權指數位於 52 週區間位置",
-    "value": 94.5,
-    "disp": "94.5%",
-    "score": 81.8,
+    "value": 80.0,
+    "disp": "80.0%",
+    "score": 44.4,
     "note": "46,781 點，距歷史高點 48,219 僅 3%；52 週低點 22,190（一年內指數曾腰斬後翻倍）。台股對美國 AI 資本開支週期的 β 遠大於 1——若美方進入第三階段出現信用事件，台股供應鏈是重災首選。",
     "src": "Yahoo Finance",
     "asof": "2026-07-17"
@@ -1234,8 +1257,6 @@ ul.tight{padding-left:18px;font-size:13px} ul.tight li{margin:4px 0}
   ],
   "debt": {
    "labels": [
-    "2023Q4",
-    "2024Q1",
     "2024Q2",
     "2024Q3",
     "2024Q4",
@@ -1246,8 +1267,6 @@ ul.tight{padding-left:18px;font-size:13px} ul.tight li{margin:4px 0}
     "2026Q1"
    ],
    "values": [
-    219.9,
-    217.0,
     204.1,
     214.7,
     208.3,
@@ -1262,20 +1281,19 @@ ul.tight{padding-left:18px;font-size:13px} ul.tight li{margin:4px 0}
   "spreads": {
    "hy": {
     "now": 2.71,
-    "m3": 2.85,
-    "y1": 2.93,
-    "asof": "2026-07-15"
+    "m3": 2.86,
+    "y1": 2.89,
+    "asof": "2026-07-16"
    },
    "ig": {
-    "now": 0.79,
+    "now": 0.78,
     "m3": 0.81,
     "y1": 0.81,
-    "asof": "2026-07-15"
+    "asof": "2026-07-16"
    },
    "us10y": {
     "now": 4.57,
-    "m3": 4.29,
-    "y1": 4.46,
+    "m3": 4.32,
     "asof": "2026-07-16"
    },
    "vix": {
@@ -1285,12 +1303,12 @@ ul.tight{padding-left:18px;font-size:13px} ul.tight li{margin:4px 0}
    "fedfunds": {
     "now": 3.63,
     "y1": 4.33,
-    "asof": "2026-06"
+    "asof": "2026-06-01"
    },
    "usinfo": {
-    "now": 2774,
-    "y1": 2861,
-    "asof": "2026-06"
+    "now": 2774.0,
+    "y1": 2863.0,
+    "asof": "2026-06-01"
    }
   }
  },
@@ -1360,28 +1378,64 @@ ul.tight{padding-left:18px;font-size:13px} ul.tight li{margin:4px 0}
  },
  "events": [
   {
-   "d": "07-14",
-   "t": "IBM Q2 預告營收 $17.2B 遠遜預期，歸因 AI 硬體排擠其他 IT 支出——首個「AI 排擠效應」財報受害者，盤前 −17%"
+   "d": "07-17",
+   "t": "Moonshot 發布 Kimi K3——「第二次 DeepSeek 時刻」：中國新模型驚動投資人，引發全球 AI／半導體股大跌",
+   "url": "https://fortune.com/2026/07/17/china-moonshot-kimi-k3-markets-china-ai/"
+  },
+  {
+   "d": "07-17",
+   "t": "Bloomberg：AI 拋售重創槓桿 ETF 與散戶——擁擠交易開始反噬",
+   "url": "https://www.bloomberg.com/news/articles/2026-07-17/ai-upheaval-crushes-retail-traders-crowding-into-leveraged-funds"
+  },
+  {
+   "d": "07-16",
+   "t": "台積電 Q2 純益年增 77.4% 創歷史新高、全年成長展望上修逾 40%——需求端最強反證",
+   "url": "https://www.techtimes.com/articles/320696/20260716/tsmc-posts-record-quarter-ai-chip-demand-pushes-full-year-growth-outlook-past-40.htm"
+  },
+  {
+   "d": "07-16",
+   "t": "Bloomberg：Oracle 因 AI 支出遠超現金流、面臨信用評等下調風險（股價一個月 −33%）",
+   "url": "https://www.bloomberg.com/news/articles/2026-07-16/oracle-risks-falling-behind-in-ai-race-as-spending-binge-bites"
   },
   {
    "d": "07-14",
-   "t": "紐約州簽署全美首個州級行政命令：>50MW 超大規模數據中心環評暫停一年"
+   "t": "IBM 預警 Q2 遜於預期、單日暴跌 25%（上市以來最慘）、市值蒸發 $69B——「AI 排擠效應」首個重大財報受害者",
+   "url": "https://www.cnbc.com/2026/07/14/ibm-warns-second-quarter-earnings-fell-short-of-expectations.html"
+  },
+  {
+   "d": "07-14",
+   "t": "紐約州簽署全美首個州級行政命令：>50MW 超大規模數據中心環評暫停一年",
+   "url": "https://www.cbsnews.com/newyork/news/new-york-data-center-moratorium-kathy-hochul/"
+  },
+  {
+   "d": "07-08",
+   "t": "Oracle 5 年期 CDS 創高後，股票分析師與信用市場對其 AI 豪賭的分歧持續擴大",
+   "url": "https://realinvestmentadvice.com/resources/blog/oracle-and-coreweave-cds-spreads-widening-omen-or-jitters/"
   },
   {
    "d": "07-06",
-   "t": "NOTUS 披露美國財政部內部報告：警告 AI 具類 dot-com 系統性風險（集中度、私募信貸依賴、電力瓶頸）"
-  },
-  {
-   "d": "06-09",
-   "t": "OpenAI 保密提交 S-1；Anthropic 亦於 6/1 保密申請 IPO——對照 1995 年 Netscape 時刻"
-  },
-  {
-   "d": "05-29",
-   "t": "Anthropic 官方確認 run-rate 營收突破 $47B（2025 底 $9B）；5/28 完成 $65B 融資、投後 $965B"
+   "t": "NOTUS 披露美國財政部內部報告：警告 AI 具 dot-com 式系統性風險（集中度、私募信貸、電力瓶頸）",
+   "url": "https://www.notus.org/economy/treasury-internal-report-warning-dangers-ai-bubble"
   },
   {
    "d": "07-02",
-   "t": "Crunchbase：2026 H1 全球 VC $510B 創紀錄，Q2 AI 佔比 >70%"
+   "t": "Bloomberg：Meta 計畫進軍 AI 算力出租，CoreWeave 垃圾債應聲再跌",
+   "url": "https://www.bloomberg.com/news/articles/2026-07-02/coreweave-junk-bonds-slide-further-as-investors-question-ai-boom"
+  },
+  {
+   "d": "07-02",
+   "t": "Crunchbase：2026 上半年全球 VC $510B 創紀錄，Q2 AI 佔比 >70%",
+   "url": "https://news.crunchbase.com/venture/global-startup-exits-ipo-ma-soar-ai-q2-h1-2026/"
+  },
+  {
+   "d": "06-09",
+   "t": "OpenAI 保密提交 S-1（Anthropic 6/1 亦已申請）——本輪的「1995 Netscape 時刻」進入倒數",
+   "url": "https://fortune.com/2026/06/09/openai-files-confidential-s-1-sec-ipo/"
+  },
+  {
+   "d": "05-29",
+   "t": "Anthropic 確認 run-rate 營收突破 $47B；前一日完成 $65B 融資（投後 $965B，史上最大 VC 輪）",
+   "url": "https://simonwillison.net/2026/May/29/anthropic/"
   }
  ],
  "history": [
@@ -1397,8 +1451,25 @@ ul.tight{padding-left:18px;font-size:13px} ul.tight li{margin:4px 0}
     "D6": 56.7
    },
    "tw": 80.8
+  },
+  {
+   "date": "2026-07-18",
+   "composite": 54.1,
+   "dims": {
+    "D1": 60.2,
+    "D2": 0.0,
+    "D3": 72.2,
+    "D4": 65.9,
+    "D5": 48.4,
+    "D6": 60.0
+   },
+   "tw": 61.2
   }
- ]
+ ],
+ "params": {
+  "nvda_eps": 6.31,
+  "tsmc_eps": 75.49
+ }
 }
 </script>
 <script type="application/json" id="update-spec">
@@ -1410,6 +1481,7 @@ ul.tight{padding-left:18px;font-size:13px} ul.tight li{margin:4px 0}
   "vix 為非單調特例：>=35→95、28-35→67-95 線性、18-28→33、13-18→50、<13→70",
   "綜合溫度 = Σ 維度權重 × 維度內指標平均；zones 分界 33/67/84",
   "history 僅附加不修改；meta.built 與 builtTime 更新為當次日期",
+  "events：8-12 條、近 7 天新聞優先、由新到舊排序；每條 {\"d\":\"MM-DD\",\"t\":\"…\",\"url\":\"原始新聞連結\"}——url 必填（找得到原文才收錄，優先主流媒體），可保留 1-2 條結構性里程碑（如 IPO 申請）",
   "重大變化（任一指標跨區、檢查清單新點亮、綜合溫度 ±5）須在推播摘要中明示"
  ],
  "sources": {
@@ -1507,9 +1579,13 @@ $("checklist").innerHTML = DATA.stage.checklist.map(c => {
            : `<span style="color:var(--muted)">○</span>`;
   return `<div class="chkRow">${ic}<div><b>${esc(c.item)}</b><div class="evi">${esc(c.evi)}</div></div></div>`;
 }).join("");
-$("events").innerHTML = DATA.events.map(e =>
-  `<div style="display:grid;grid-template-columns:44px 1fr;gap:8px;padding:5px 0;border-bottom:1px solid var(--grid);font-size:12.5px">
-     <span class="mut" style="font-variant-numeric:tabular-nums">${esc(e.d)}</span><span>${esc(e.t)}</span></div>`).join("");
+$("events").innerHTML = `<div style="max-height:372px;overflow-y:auto;padding-right:4px">` + DATA.events.map(e => {
+  const body = e.url
+    ? `<a href="${esc(e.url)}" target="_blank" rel="noopener">${esc(e.t)}<span style="color:var(--muted)"> ↗</span></a>`
+    : esc(e.t);
+  return `<div style="display:grid;grid-template-columns:44px 1fr;gap:8px;padding:5px 0;border-bottom:1px solid var(--grid);font-size:12.5px">
+     <span class="mut" style="font-variant-numeric:tabular-nums">${esc(e.d)}</span><span>${body}</span></div>`;
+}).join("") + `</div>`;
 const sp = DATA.charts.spreads;
 const dl = (v, unit, goodDown) => { if (v===undefined||v===null) return "";
   const cls = (v>0) === !goodDown ? "delta-up" : "delta-dn"; const sg = v>0?"+":"−";

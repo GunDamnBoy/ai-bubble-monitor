@@ -1,8 +1,8 @@
 {
  "meta": {
   "version": 1,
-  "built": "2026-07-18",
-  "builtTime": "2026-07-18（GitHub Actions 自動更新）",
+  "built": "2026-07-20",
+  "builtTime": "2026-07-20（每週質化覆核）",
   "nextUpdate": "每交易日自動更新（GitHub Actions）｜質化指標每週覆核",
   "artifactId": "ai-bubble-monitor",
   "lastAutoRun": {
@@ -29,13 +29,13 @@
    "fail": []
   }
  },
- "composite": 54.1,
+ "composite": 54.6,
  "dims": {
   "D1": 60.2,
   "D2": 0.0,
   "D3": 72.2,
-  "D4": 65.9,
-  "D5": 48.4,
+  "D4": 67.1,
+  "D5": 50.9,
   "D6": 60.0
  },
  "dimMeta": {
@@ -506,11 +506,11 @@
    "zone": "orange",
    "anchors": null,
    "dir": "質化評分（0-100）",
-   "asof": "2026-05-09",
+   "asof": "2026-07-17",
    "fresh": "ok",
    "src": "CNBC / Bloomberg",
    "url": "https://www.cnbc.com/2026/05/09/nvidia-embraces-ai-investor-topping-40-billion-in-equity-bets-2026.html",
-   "note": "NVIDIA 2026 前四個月股權投資 >$40B（對 OpenAI 累計 $30B、CoreWeave 再注 $2B、供應鏈 Marvell/Lumentum/Coherent/Corning 各 $2-3B），且每筆綁定商業合約。這是 2000 年 Lucent/Nortel 供應商融資的放大版——營收與資本的邊界模糊化，文章未給予足夠權重，本框架列為獨立紅旗。",
+   "note": "NVIDIA 2026 前四個月股權投資 >$40B（對 OpenAI 累計 $30B、CoreWeave、供應鏈 Marvell/Lumentum/Corning 各 $2-3B），每筆綁定商業合約。循環交易已成本輪泡沫的主流敘事（Bloomberg 循環交易圖譜、華爾街質疑約 $24B「模糊」互投）；Jensen Huang 稱 IPO 前將減碼 OpenAI/Anthropic，但結構性循環未解。營收與資本邊界模糊化，列為獨立紅旗。",
    "qual": true
   },
   {
@@ -518,16 +518,16 @@
    "dim": "D4",
    "name": "弱資質信用單點（金絲雀）",
    "value": 198,
-   "disp": "ORCL 5Y CDS ~198bp",
-   "score": 72,
+   "disp": "ORCL 遭 S&P 降評 BBB-",
+   "score": 78,
    "zone": "orange",
    "anchors": null,
    "dir": "質化評分（0-100）",
-   "asof": "2026-07-08",
+   "asof": "2026-07-19",
    "fresh": "ok",
-   "src": "Real Investment Advice / 市場報導",
-   "url": "https://realinvestmentadvice.com/resources/blog/oracle-and-coreweave-cds-spreads-widening-omen-or-jitters/",
-   "note": "Oracle：CDS 4月創歷史新高 ~198bp、長債 $124.7B、FY26 FCF −$23.7B、股債觀點嚴重分歧；CoreWeave CDS 曾達 ~665bp。第三階段是否啟動，就看這類主體的融資condition是否惡化並擴散。",
+   "src": "Motley Fool / S&P Global",
+   "url": "https://www.fool.com/investing/2026/07/19/oracle-just-hit-a-fresh-52-week-low-and-had-its-cr/",
+   "note": "Oracle 遭 S&P 於 7/9 降評至 BBB-（僅高於垃圾一級），點名 OpenAI 佔其 $638B 未履約合約約半數的集中度風險；FY27 自由現金流預估惡化至 −$42B（前估 −$24B）、總負債 $167B、擬增發 $20B 保投資級，7/19 股價創 52 週新低。反向緩衝：CoreWeave 信用回穩、借款成本自 10% 降至 7%。指標性主體評等下調、但尚無違約／再融資失敗——壓力明確升溫，仍屬個案未擴散成面。",
    "qual": true
   },
   {
@@ -619,17 +619,17 @@
    "id": "narrative",
    "dim": "D5",
    "name": "泡沫敘事熱度",
-   "value": 4,
-   "disp": "第 4 級／5 級",
-   "score": 70,
+   "value": 4.5,
+   "disp": "第 4→接近 5 級／5 級",
+   "score": 80,
    "zone": "orange",
    "anchors": null,
    "dir": "質化評分（1-5 級）",
-   "asof": "2026-07-14",
+   "asof": "2026-07-17",
    "fresh": "ok",
    "src": "綜合媒體監測",
-   "url": "https://www.notus.org/economy/treasury-internal-report-warning-dangers-ai-bubble",
-   "note": "7月上中旬三重疊加：美財政部內部報告警告 AI 系統性風險（7/6）、IBM 財測暴雷歸因 AI 排擠（7/14、盤前 −17%）、Bloomberg 循環交易圖譜成主流敘事。警戒升溫但尚未一面倒——Yardeni 等反方（「泡沫在盈利預估不在股價」）仍活躍。",
+   "url": "https://fortune.com/2026/07/17/china-moonshot-kimi-k3-markets-china-ai/",
+   "note": "7 月中下旬敘事顯著升溫：財政部內部報告警告 AI 系統性風險（7/6）、Oracle 遭降評（7/9）、IBM 財測暴雷單日重挫（7/14）、Moonshot Kimi K3 引爆「第二次 DeepSeek 時刻」帶動全球 AI／晶片股拋售（道瓊 7/17 −480 點）。已從『廣泛討論分歧』進入『恐慌情緒＋實際賣壓』，但尚未形成一面倒的崩盤共識（Yardeni 等多方仍主張『泡沫在盈利預估、不在股價』）——評為第 4 級偏強、逼近第 5 級。",
    "qual": true
   },
   {
@@ -642,11 +642,11 @@
    "zone": "yellow",
    "anchors": null,
    "dir": "寬鬆＋資產新高＝加溫",
-   "asof": "2026-06-01",
+   "asof": "2026-06-17",
    "fresh": "ok",
    "src": "FRED FEDFUNDS",
    "url": "https://fred.stlouisfed.org/series/FEDFUNDS",
-   "note": "高盛五訊號之四：1998-99 正是降息給泡沫最後一腳油門。目前 Fed 一年內降息 70bp、資產價格同步創高——歷史組合重現。",
+   "note": "6/17 FOMC 維持利率不變（有效利率 3.63%），6 月會議紀要（7/8 公布）顯示官員對後續路徑分歧；下次會議 7/28-29。政策仍處『相對寬鬆＋資產價格近歷史高』的組合（一年降息 70bp）——1998-99 降息給泡沫最後一腳油門的歷史情境延續，惟 6 月暫停降息使『積極寬鬆』色彩略淡。",
    "qual": true
   },
   {
@@ -1002,7 +1002,7 @@
    {
     "item": "負現金流主體大額發債常態化",
     "state": 0.5,
-    "evi": "Oracle FY26 FCF −$23.7B＋CDS 歷史新高；CoreWeave 高槓桿擴張——已有個案、尚未擴散成面"
+    "evi": "Oracle 遭 S&P 降評至 BBB-（僅高於垃圾一級，7/9）、FY27 FCF 預估 −$42B、擬增發 $20B 保投資級、7/19 創 52 週新低；CoreWeave 反在借款成本 10%→7% 改善——弱資質壓力仍集中於個案、未擴散成面"
    },
    {
     "item": "供應商融資（循環交易）規模化",
@@ -1030,9 +1030,14 @@
     "evi": "尚無"
    }
   ],
-  "note": "點亮 2.5／6。中金 7/14 判斷「第一→第二階段轉換」偏保守：發債與 IPO 證據顯示第二階段已全面展開，正確的問題是「距第三階段多遠」。"
+  "note": "點亮 2.5／6。本週 Oracle 遭 S&P 降評至 BBB-（近垃圾級）為最重要的階段訊號，但仍屬投資級、無違約，且 CoreWeave 信用回穩——第二階段（外部公開市場融資）證據充分，距第三階段（擴散至弱資質）的距離，取決於 Oracle 這類個案是否擴散、以及信用利差是否趨勢性走闊。"
  },
  "events": [
+  {
+   "d": "07-19",
+   "t": "Oracle 觸及 52 週新低、信評遭調降近垃圾級——市場質疑 AI 資本開支恐慌是否過頭",
+   "url": "https://www.fool.com/investing/2026/07/19/oracle-just-hit-a-fresh-52-week-low-and-had-its-cr/"
+  },
   {
    "d": "07-17",
    "t": "Moonshot 發布 Kimi K3——「第二次 DeepSeek 時刻」：中國新模型驚動投資人，引發全球 AI／半導體股大跌",
@@ -1040,12 +1045,12 @@
   },
   {
    "d": "07-17",
-   "t": "Bloomberg：AI 拋售重創槓桿 ETF 與散戶——擁擠交易開始反噬",
-   "url": "https://www.bloomberg.com/news/articles/2026-07-17/ai-upheaval-crushes-retail-traders-crowding-into-leveraged-funds"
+   "t": "道瓊重挫 480 點、AI 拋售擴大、晶片股延續跌勢——擁擠交易開始反噬",
+   "url": "https://invezz.com/news/2026/07/17/dow-sinks-480-points-as-ai-selloff-deepens-chip-stocks-extend-losses/"
   },
   {
    "d": "07-16",
-   "t": "台積電 Q2 純益年增 77.4% 創歷史新高、全年成長展望上修逾 40%——需求端最強反證",
+   "t": "台積電 Q2 純益年增 77.4% 創歷史新高、EPS NT$27.25、全年成長展望上修逾 40%——需求端最強反證",
    "url": "https://www.techtimes.com/articles/320696/20260716/tsmc-posts-record-quarter-ai-chip-demand-pushes-full-year-growth-outlook-past-40.htm"
   },
   {
@@ -1055,7 +1060,7 @@
   },
   {
    "d": "07-14",
-   "t": "IBM 預警 Q2 遜於預期、單日暴跌 25%（上市以來最慘）、市值蒸發 $69B——「AI 排擠效應」首個重大財報受害者",
+   "t": "IBM 預警 Q2 遜於預期、單日暴跌、市值大幅蒸發——「AI 排擠效應」首個重大財報受害者",
    "url": "https://www.cnbc.com/2026/07/14/ibm-warns-second-quarter-earnings-fell-short-of-expectations.html"
   },
   {
@@ -1064,9 +1069,14 @@
    "url": "https://www.cbsnews.com/newyork/news/new-york-data-center-moratorium-kathy-hochul/"
   },
   {
+   "d": "07-09",
+   "t": "S&P 將 Oracle 信評降至 BBB-（僅高於垃圾一級），點名 OpenAI 佔未履約合約約半數的集中度風險",
+   "url": "https://mlq.ai/news/sp-downgrades-oracle-to-bbb-one-notch-above-junk-citing-openai-concentration-risk/"
+  },
+  {
    "d": "07-08",
-   "t": "Oracle 5 年期 CDS 創高後，股票分析師與信用市場對其 AI 豪賭的分歧持續擴大",
-   "url": "https://realinvestmentadvice.com/resources/blog/oracle-and-coreweave-cds-spreads-widening-omen-or-jitters/"
+   "t": "Fed 6 月會議紀要：官員對利率方向明顯分歧（6/17 已維持利率不變），下次會議 7/28-29",
+   "url": "https://www.cnbc.com/2026/07/08/fed-minutes-june-2026-.html"
   },
   {
    "d": "07-06",
@@ -1075,23 +1085,13 @@
   },
   {
    "d": "07-02",
-   "t": "Bloomberg：Meta 計畫進軍 AI 算力出租，CoreWeave 垃圾債應聲再跌",
+   "t": "Bloomberg：CoreWeave 垃圾債續跌，投資人質疑 AI 榮景（Meta 亦計畫進軍算力出租）",
    "url": "https://www.bloomberg.com/news/articles/2026-07-02/coreweave-junk-bonds-slide-further-as-investors-question-ai-boom"
   },
   {
-   "d": "07-02",
-   "t": "Crunchbase：2026 上半年全球 VC $510B 創紀錄，Q2 AI 佔比 >70%",
-   "url": "https://news.crunchbase.com/venture/global-startup-exits-ipo-ma-soar-ai-q2-h1-2026/"
-  },
-  {
    "d": "06-09",
-   "t": "OpenAI 保密提交 S-1（Anthropic 6/1 亦已申請）——本輪的「1995 Netscape 時刻」進入倒數",
+   "t": "OpenAI 保密提交 S-1（Anthropic 6/1 亦已申請）——本輪的「1995 Netscape 時刻」進入倒數（結構性里程碑）",
    "url": "https://fortune.com/2026/06/09/openai-files-confidential-s-1-sec-ipo/"
-  },
-  {
-   "d": "05-29",
-   "t": "Anthropic 確認 run-rate 營收突破 $47B；前一日完成 $65B 融資（投後 $965B，史上最大 VC 輪）",
-   "url": "https://simonwillison.net/2026/May/29/anthropic/"
   }
  ],
  "history": [
@@ -1120,10 +1120,23 @@
     "D6": 60.0
    },
    "tw": 61.2
+  },
+  {
+   "date": "2026-07-20",
+   "composite": 54.6,
+   "dims": {
+    "D1": 60.2,
+    "D2": 0.0,
+    "D3": 72.2,
+    "D4": 67.1,
+    "D5": 50.9,
+    "D6": 60.0
+   },
+   "tw": 61.2
   }
  ],
  "params": {
   "nvda_eps": 6.31,
-  "tsmc_eps": 75.49
+  "tsmc_eps": 87.38
  }
 }

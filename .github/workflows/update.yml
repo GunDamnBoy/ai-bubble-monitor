@@ -8,6 +8,7 @@ on:
     paths-ignore: ['data.json']
 permissions:
   contents: write
+  pages: write
 jobs:
   update:
     runs-on: ubuntu-latest
@@ -26,3 +27,12 @@ jobs:
           git add data.json
           git diff --cached --quiet || git commit -m "data: auto update $(date -u +%F)"
           git push
+      - name: request pages rebuild
+        # GITHUB_TOKEN 推送不會自動觸發 Pages 佈建（防迴圈），改用 API 明確要求重建
+        run: |
+          curl -sf -X POST \
+            -H "Authorization: Bearer ${{ github.token }}" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/${{ github.repository }}/pages/builds" \
+            && echo "pages rebuild requested" \
+            || echo "pages rebuild request failed (non-fatal)"

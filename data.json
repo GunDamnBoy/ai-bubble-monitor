@@ -1,12 +1,12 @@
 {
  "meta": {
   "version": 1,
-  "built": "2026-07-20",
-  "builtTime": "2026-07-20（GitHub Actions 自動更新）",
+  "built": "2026-07-21",
+  "builtTime": "2026-07-21（GitHub Actions 自動更新）",
   "nextUpdate": "每交易日自動更新（GitHub Actions）｜質化指標每週覆核",
   "artifactId": "ai-bubble-monitor",
   "lastAutoRun": {
-   "date": "2026-07-20",
+   "date": "2026-07-21",
    "ok": [
     "FRED HY",
     "FRED IG",
@@ -29,14 +29,14 @@
    "fail": []
   }
  },
- "composite": 54.6,
+ "composite": 54.3,
  "dims": {
-  "D1": 60.1,
+  "D1": 60.2,
   "D2": 0.0,
   "D3": 72.2,
-  "D4": 67.1,
-  "D5": 50.9,
-  "D6": 60.0
+  "D4": 67.9,
+  "D5": 46.1,
+  "D6": 59.6
  },
  "dimMeta": {
   "D1": {
@@ -102,9 +102,9 @@
    "id": "cape",
    "dim": "D1",
    "name": "Shiller CAPE（標普500）",
-   "value": 41.52,
+   "value": 41.45,
    "disp": "41.5×",
-   "score": 79.0,
+   "score": 78.4,
    "zone": "orange",
    "anchors": [
     [
@@ -125,7 +125,7 @@
     ]
    ],
    "dir": "越高越熱",
-   "asof": "2026-07-20",
+   "asof": "2026-07-21",
    "fresh": "ok",
    "src": "multpl.com",
    "url": "https://www.multpl.com/shiller-pe",
@@ -136,9 +136,9 @@
    "id": "mag7",
    "dim": "D1",
    "name": "Mag7 佔標普500市值比重",
-   "value": 33.4,
-   "disp": "33.4%",
-   "score": 74.7,
+   "value": 33.5,
+   "disp": "33.5%",
+   "score": 75.2,
    "zone": "orange",
    "anchors": [
     [
@@ -159,7 +159,7 @@
     ]
    ],
    "dir": "越高越熱",
-   "asof": "2026-07-20",
+   "asof": "2026-07-21",
    "fresh": "ok",
    "src": "SlickCharts",
    "url": "https://www.slickcharts.com/sp500",
@@ -170,9 +170,9 @@
    "id": "nvdape",
    "dim": "D1",
    "name": "NVIDIA 本益比（TTM）",
-   "value": 32.14,
-   "disp": "32.1×",
-   "score": 26.7,
+   "value": 32.22,
+   "disp": "32.2×",
+   "score": 26.9,
    "zone": "green",
    "anchors": [
     [
@@ -193,7 +193,7 @@
     ]
    ],
    "dir": "越高越熱",
-   "asof": "2026-07-17",
+   "asof": "2026-07-20",
    "fresh": "ok",
    "src": "Google Finance / stockanalysis",
    "url": "https://stockanalysis.com/stocks/nvda/",
@@ -444,9 +444,9 @@
    "id": "hyoas",
    "dim": "D4",
    "name": "美高收益債利差（HY OAS）",
-   "value": 2.71,
-   "disp": "2.71%",
-   "score": 12.5,
+   "value": 2.73,
+   "disp": "2.73%",
+   "score": 16.7,
    "zone": "green",
    "anchors": [
     [
@@ -471,13 +471,13 @@
     ]
    ],
    "dir": "3個月走闊幅度（bp）越大越熱",
-   "asof": "2026-07-16",
+   "asof": "2026-07-17",
    "fresh": "ok",
    "src": "FRED (ICE BofA)",
    "url": "https://fred.stlouisfed.org/series/BAMLH0A0HYM2",
    "note": "3個月變化 −14bp（收斂）、絕對水位處於歷史低檔。目前信用市場對 AI 債務零風險定價——這既是「尚未觸發」的訊號，也是自滿的燃料。觸發線：3個月內走闊 +80bp。",
    "qual": false,
-   "sub": "IG OAS 0.78%"
+   "sub": "IG OAS 0.79%"
   },
   {
    "id": "vc",
@@ -534,9 +534,9 @@
    "id": "soxmom",
    "dim": "D5",
    "name": "半導體相對動能（SOXX−SPY，3個月）",
-   "value": 22.6,
-   "disp": "+23pp",
-   "score": 61.6,
+   "value": 21.6,
+   "disp": "+22pp",
+   "score": 59.3,
    "zone": "yellow",
    "anchors": [
     [
@@ -557,7 +557,7 @@
     ]
    ],
    "dir": "越高越熱",
-   "asof": "2026-07-17",
+   "asof": "2026-07-20",
    "fresh": "ok",
    "src": "ETFdb / stockanalysis",
    "url": "https://etfdb.com/etf/SOXX/",
@@ -568,9 +568,9 @@
    "id": "nvda200",
    "dim": "D5",
    "name": "NVIDIA 距 200 日均線乖離",
-   "value": 5.4,
-   "disp": "+5.4%",
-   "score": 11.9,
+   "value": 5.6,
+   "disp": "+5.6%",
+   "score": 12.3,
    "zone": "green",
    "anchors": [
     [
@@ -591,7 +591,7 @@
     ]
    ],
    "dir": "越高越熱",
-   "asof": "2026-07-17",
+   "asof": "2026-07-20",
    "fresh": "ok",
    "src": "stockanalysis.com",
    "url": "https://stockanalysis.com/stocks/nvda/statistics/",
@@ -602,13 +602,13 @@
    "id": "vix",
    "dim": "D5",
    "name": "VIX 恐慌指數",
-   "value": 16.73,
-   "disp": "16.7",
-   "score": 50.0,
+   "value": 18.77,
+   "disp": "18.8",
+   "score": 33.0,
    "zone": "yellow",
    "anchors": null,
    "dir": "13-18＝自滿區（非單調）",
-   "asof": "2026-07-16",
+   "asof": "2026-07-17",
    "fresh": "ok",
    "src": "CBOE / Google Finance",
    "url": "https://www.google.com/finance/quote/VIX:INDEXCBOE",
@@ -653,9 +653,9 @@
    "id": "us10y",
    "dim": "D6",
    "name": "美債 10 年期殖利率",
-   "value": 4.57,
-   "disp": "4.57%（3個月 +25bp）",
-   "score": 58.5,
+   "value": 4.55,
+   "disp": "4.55%（3個月 +29bp）",
+   "score": 57.5,
    "zone": "yellow",
    "anchors": [
     [
@@ -676,7 +676,7 @@
     ]
    ],
    "dir": "走升壓縮長久期投資",
-   "asof": "2026-07-16",
+   "asof": "2026-07-17",
    "fresh": "ok",
    "src": "US Treasury",
    "url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates",
@@ -719,7 +719,7 @@
   }
  ],
  "tw": {
-  "heat": 58.0,
+  "heat": 58.4,
   "items": [
    {
     "id": "tsmc_pe",
@@ -764,12 +764,12 @@
    {
     "id": "twii_pos",
     "name": "加權指數位於 52 週區間位置",
-    "value": 79.1,
-    "disp": "79.1%",
-    "score": 42.4,
+    "value": 80.0,
+    "disp": "80.0%",
+    "score": 44.4,
     "note": "46,781 點，距歷史高點 48,219 僅 3%；52 週低點 22,190（一年內指數曾腰斬後翻倍）。台股對美國 AI 資本開支週期的 β 遠大於 1——若美方進入第三階段出現信用事件，台股供應鏈是重災首選。",
     "src": "Yahoo Finance",
-    "asof": "2026-07-20"
+    "asof": "2026-07-17"
    }
   ]
  },
@@ -936,25 +936,25 @@
   },
   "spreads": {
    "hy": {
-    "now": 2.71,
-    "m3": 2.86,
-    "y1": 2.89,
-    "asof": "2026-07-16"
+    "now": 2.73,
+    "m3": 2.83,
+    "y1": 2.9,
+    "asof": "2026-07-17"
    },
    "ig": {
-    "now": 0.78,
-    "m3": 0.81,
+    "now": 0.79,
+    "m3": 0.8,
     "y1": 0.81,
-    "asof": "2026-07-16"
+    "asof": "2026-07-17"
    },
    "us10y": {
-    "now": 4.57,
-    "m3": 4.32,
-    "asof": "2026-07-16"
+    "now": 4.55,
+    "m3": 4.26,
+    "asof": "2026-07-17"
    },
    "vix": {
-    "now": 16.73,
-    "asof": "2026-07-16"
+    "now": 18.77,
+    "asof": "2026-07-17"
    },
    "fedfunds": {
     "now": 3.63,
@@ -1133,6 +1133,19 @@
     "D6": 60.0
    },
    "tw": 58.0
+  },
+  {
+   "date": "2026-07-21",
+   "composite": 54.3,
+   "dims": {
+    "D1": 60.2,
+    "D2": 0.0,
+    "D3": 72.2,
+    "D4": 67.9,
+    "D5": 46.1,
+    "D6": 59.6
+   },
+   "tw": 58.4
   }
  ],
  "params": {

@@ -24,6 +24,7 @@
     "px ^TWII",
     "multpl CAPE",
     "slickcharts Mag7",
+    "Google News",
     "EDGAR quarterly"
    ],
    "fail": []
@@ -136,9 +137,9 @@
    "id": "mag7",
    "dim": "D1",
    "name": "Mag7 佔標普500市值比重",
-   "value": 33.2,
+   "value": 33.21,
    "disp": "33.2%",
-   "score": 73.6,
+   "score": 73.7,
    "zone": "orange",
    "anchors": [
     [
@@ -1034,64 +1035,64 @@
  },
  "events": [
   {
-   "d": "07-19",
-   "t": "Oracle 觸及 52 週新低、信評遭調降近垃圾級——市場質疑 AI 資本開支恐慌是否過頭",
-   "url": "https://www.fool.com/investing/2026/07/19/oracle-just-hit-a-fresh-52-week-low-and-had-its-cr/"
+   "d": "07-22",
+   "t": "Wall St ends higher on chip stocks recovery; earnings in focus｜Reuters",
+   "url": "https://news.google.com/rss/articles/CBMiowFBVV95cUxOUDZOb0lyeDNtSHo4bVQ4MlJ3RnhPUUR2WmxYT2xqaWRVNFFVNkNUdHBNUUIxWm5kZGpVaVc0SFZicnBmN1F0RWI3RXpqNUpCbjQ3RHhPZEJkTmlaeGI3YXp3MUlSSXN2RGdBZ3dfekVaQzQxbFJzeHhuNU9veGtKMzdidFZ1N2QwbFE3Z3B1VmxoY1VuTUFtU3Rfa09XMlRMWl9B?oc=5"
   },
   {
-   "d": "07-17",
-   "t": "Moonshot 發布 Kimi K3——「第二次 DeepSeek 時刻」：中國新模型驚動投資人，引發全球 AI／半導體股大跌",
-   "url": "https://fortune.com/2026/07/17/china-moonshot-kimi-k3-markets-china-ai/"
+   "d": "07-22",
+   "t": "Exclusive | OpenAI Is Adding Two Independent Board Members Ahead of IPO｜WSJ",
+   "url": "https://news.google.com/rss/articles/CBMinAFBVV95cUxOLU50TVpjZUJUNXdPOGwtRVIzbUkxd0FqSEdYRVFKMkZYZ25XWFQycHQ3bC12dS1taDlENG12X21LcGtTYnlSVmxSa0FJcnYzS3hUWkdCaXI4eFZXeHFjYWtESmtaSlBCQTlud2gwSDdjQ0wzTE8zNGJmZVRUNTl1X2F5eFluLUMyQXB0OVQ5cjNXQ1o0RkxTSkdiRF8?oc=5"
   },
   {
-   "d": "07-17",
-   "t": "道瓊重挫 480 點、AI 拋售擴大、晶片股延續跌勢——擁擠交易開始反噬",
-   "url": "https://invezz.com/news/2026/07/17/dow-sinks-480-points-as-ai-selloff-deepens-chip-stocks-extend-losses/"
+   "d": "07-22",
+   "t": "Earnings growth is already priced into semiconductor stocks, says Empower's Marta Norton｜CNBC",
+   "url": "https://news.google.com/rss/articles/CBMixgFBVV95cUxNT1l6d2t1Y24wbXlFT2NuLVhPN2RNSkRfcF9CVDlsU2tFQS15amI2Zk5YWE1oRGwtY3kyNzJQVXY2V181N25sSTRSQldYdDBSOWRRcTJad3U3Qm9KSXQ2ZjdPaEd1VkxNemF3RV9Zc19yUURQM1VMcVpOMFNFa1lyQnpUYzVvYUxIMVVBdWRGX1gzdVVSR0RTcUNQN2JiVW5oTjA0MEU1ZksyQ1EteE5XOVEtUHdQd29BZ0hrekZOMVYzem5aWnc?oc=5"
   },
   {
-   "d": "07-16",
-   "t": "台積電 Q2 純益年增 77.4% 創歷史新高、EPS NT$27.25、全年成長展望上修逾 40%——需求端最強反證",
-   "url": "https://www.techtimes.com/articles/320696/20260716/tsmc-posts-record-quarter-ai-chip-demand-pushes-full-year-growth-outlook-past-40.htm"
+   "d": "07-22",
+   "t": "Exclusive: OpenAI renews $5M bet on local news｜Axios",
+   "url": "https://news.google.com/rss/articles/CBMihAFBVV95cUxOLURqN25NOHM3dUFkMDFyRzQ0LS1QQWtWblpZQjNtWWhVQXptWjU3akdZNExPQ21UNTdkLTNKdDhhczdET1FyeXBfUWMzdXNGWDlHS1hWSklEV2dKejVQUFZrRmpiYXV5Q1VJcFZMdHloMm15V0tHRHU1LUtnY0JCUENqajM?oc=5"
   },
   {
-   "d": "07-16",
-   "t": "Bloomberg：Oracle 因 AI 支出遠超現金流、面臨信用評等下調風險（股價一個月 −33%）",
-   "url": "https://www.bloomberg.com/news/articles/2026-07-16/oracle-risks-falling-behind-in-ai-race-as-spending-binge-bites"
+   "d": "07-22",
+   "t": "Chip Stocks Recover, Boosting Nasdaq｜WSJ",
+   "url": "https://news.google.com/rss/articles/CBMikAFBVV95cUxOZnE2dWltYTN4cjh3a2E4V2FGWlhySmd4cEJmdXRlOWFwaU13ZEExM0pHSkp1NVVkWGVHdWwwcWtmcHFkM2twVXRxZjN3MXU4R0w4UU5WZVEwQm1fNTV4N3lIY0VYaHNRWVc2T0tNTXFYZmstT0hOZnZ5M1lHQUxrX2hDaGxfdVBYS2sxT0Fsd0o?oc=5"
   },
   {
-   "d": "07-14",
-   "t": "IBM 預警 Q2 遜於預期、單日暴跌、市值大幅蒸發——「AI 排擠效應」首個重大財報受害者",
-   "url": "https://www.cnbc.com/2026/07/14/ibm-warns-second-quarter-earnings-fell-short-of-expectations.html"
+   "d": "07-21",
+   "t": "Concerns grow over AI giants’ hidden debts｜Semafor",
+   "url": "https://news.google.com/rss/articles/CBMingFBVV95cUxPSW1BeW1ySUNtbVdxT2JFX3A2NlVaSWE1YVY0YVdhQ1RBdlN2OExlcXBQdWY4VGYxdHNFQ2FibkJCLXZKNHZ4VlRDMFBka09yNE01S3VRcWZzVHZNVmlxdklfUUw1bkNNUnBtakttX0s4X2J2VkxYZkVYOTdyYlNocF9JVUtOZXJ2SFVyMkxoZnFjX0o1QkE1SkdnZ19Rdw?oc=5"
   },
   {
-   "d": "07-14",
-   "t": "紐約州簽署全美首個州級行政命令：>50MW 超大規模數據中心環評暫停一年",
-   "url": "https://www.cbsnews.com/newyork/news/new-york-data-center-moratorium-kathy-hochul/"
+   "d": "07-21",
+   "t": "Nebius stock surges nearly 19% as Nvidia discloses significant stake in neocloud｜CNBC",
+   "url": "https://news.google.com/rss/articles/CBMie0FVX3lxTE1Fb1F6MU9MbGJEMzRQd2RrNkdNRTdFeG1KUUdOSW5VVkxiMFcwX2hSNG5zSjRIaF9IcGViNHN2VXE2TzFKY2t3N0h0SVVkWU01UXlsQmlrVDlEbnZpLU11NzA2akRxWkRCaGNFZGs0OVlFS0RtbjRGa2d0b9IBgAFBVV95cUxPRGxHR2FtN0V1LUVmdWJzempQV2I0dl9FdUVRXzBVN0tRbE0xbTRvUnI3RTBMeVppTm0xcmM4M29lQ3pBeG9EUFZSSEtpTG5HUmpEcnk5VWR4Q2pzVmNWb2hqMGtpZ0RXMUdKVXBjSG9ZWDJjMVloelNrTDFuTGNkTQ?oc=5"
   },
   {
-   "d": "07-09",
-   "t": "S&P 將 Oracle 信評降至 BBB-（僅高於垃圾一級），點名 OpenAI 佔未履約合約約半數的集中度風險",
-   "url": "https://mlq.ai/news/sp-downgrades-oracle-to-bbb-one-notch-above-junk-citing-openai-concentration-risk/"
+   "d": "07-21",
+   "t": "Samsung Electronics shares rise as robotics move highlights push into physical AI｜CNBC",
+   "url": "https://news.google.com/rss/articles/CBMiqgFBVV95cUxNdHFUWEVZSHN2M04wY0hKelRZbFRjWFg4WUJqT2h4Zm1xNDJEQ3RUUGQ3SHFONWZCSmVJTlRlYVNIVkJTa1hJR25ETEIyel80UTI2QTJ1dDZCNkRTR2tmUEp4aVFDMjV5R1hoSDl0NjZLcVV1SkRONlNzMG82RExmSm5ockZGRmo3bXVfVGFhV3lUOURwMDl0WDZYM2Vld0hDRGNDcy1KMWxPd9IBrwFBVV95cUxNQUxXZWt6cEltLVp2Rm9pN1Rxczl2M3Z3MTRpS21MNXd5eUxiLXAtZ2hSbXprdDBmXzdWbkc1VmdLU3lDNGJ0U1M0cFRXQlVzZUVoV2NKc19FU3B3Mk44VzJheTVCV0FKQS1SZGUyYXZ6TmQxT2sxZWd5YU1QdmtlNTlMbEs1QmZTQk5iZ1E0WUpIREVjeUhaeTNORnQwTzVXTm5IWjdWa3FfZGNLV1Yw?oc=5"
   },
   {
-   "d": "07-08",
-   "t": "Fed 6 月會議紀要：官員對利率方向明顯分歧（6/17 已維持利率不變），下次會議 7/28-29",
-   "url": "https://www.cnbc.com/2026/07/08/fed-minutes-june-2026-.html"
+   "d": "07-21",
+   "t": "US judge approves Anthropic's $1.5 billion settlement of copyright lawsuit｜Reuters",
+   "url": "https://news.google.com/rss/articles/CBMirwFBVV95cUxOa1Ztc1Z3QjhWekJJTmEySVd4OUFoNkxzQWdkeWRqY0lSNkEwT1FEam1MR21fNE1LSlpFcjZvZnJIZmZwS1Rsa3RJM01uWkFLOTNWUzQycGVlcUhYaWcxNENFT1A4Nks2YUQxLXdOaWxpenBCNVVUdFFrYm5NRGdXLWNWeno2OVNkc1VWTDNDWGFnbFhRbUNON1V3Z1ljNGR3d19DUmlMNFJIWXg1UU5n?oc=5"
   },
   {
-   "d": "07-06",
-   "t": "NOTUS 披露美國財政部內部報告：警告 AI 具 dot-com 式系統性風險（集中度、私募信貸、電力瓶頸）",
-   "url": "https://www.notus.org/economy/treasury-internal-report-warning-dangers-ai-bubble"
+   "d": "07-20",
+   "t": "Bristol Myers buys Nvidia's latest AI computing system for drug research｜Reuters",
+   "url": "https://news.google.com/rss/articles/CBMivAFBVV95cUxNUGRmTWZOVGRTRWJYaTkzaWM1VzNVbl96dXFSQlpHc191TktCWTVZbC1fYUpmWFkwWkFJSXhRSmtLendkZXhBUGlMd0t3RUZvTFFwZjBma3l2N0UzSXlaa1FmUWZqSW81a1hMQmtCbkt4bjFZWlh1cVp5LUtPWmhKNFhtZUlCbnZyRzhjVGtaOUZ1Q3lwLXF3VmxZSHRjMVZxYmhSTkE5eVhMZ0J0VjFDVWljT2xaWlRKbkctTw?oc=5"
   },
   {
-   "d": "07-02",
-   "t": "Bloomberg：CoreWeave 垃圾債續跌，投資人質疑 AI 榮景（Meta 亦計畫進軍算力出租）",
-   "url": "https://www.bloomberg.com/news/articles/2026-07-02/coreweave-junk-bonds-slide-further-as-investors-question-ai-boom"
+   "d": "07-20",
+   "t": "Portfolio construction in the shadow of the AI bubble｜Financial Times",
+   "url": "https://news.google.com/rss/articles/CBMihAFBVV95cUxNMFBaQ0E2UjlMd2lGaG9CV0dPUzkzMURvTnU3TndDUGVmbDJDWUx5TVE5VG9UYzRsakllQTBWT2VLUzJaNEJ3dHZCTExRb05WdmF2SExzRHlwLW9mWS1SNzJXQlNxUmRBTG1LR0pXRm1vZFhLSWw0Yy1aanFfUUdISDdoejE?oc=5"
   },
   {
-   "d": "06-09",
-   "t": "OpenAI 保密提交 S-1（Anthropic 6/1 亦已申請）——本輪的「1995 Netscape 時刻」進入倒數（結構性里程碑）",
-   "url": "https://fortune.com/2026/06/09/openai-files-confidential-s-1-sec-ipo/"
+   "d": "07-18",
+   "t": "The Investors With a New Way to Win in Silicon Valley｜WSJ",
+   "url": "https://news.google.com/rss/articles/CBMiigFBVV95cUxPblVBRmlCRzg1Mk5iV3ZpR2RjaC0yR094YnVRaElSNW5FMTJnbUFUMjFDVERpSTgwMnpYY0lMWVF1VF91aVI3WVc1ek8zTU1uSlZ2ai1MaUY2YlRYOTVBWHdFc3dHb1MxQTF5LVJUenRGVHM2TG1YZ2hnTmN1TnI0c1pZZWZDbDFSdlE?oc=5"
   }
  ],
  "history": [

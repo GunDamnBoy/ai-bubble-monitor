@@ -176,7 +176,7 @@ ul.tight{padding-left:18px;font-size:13px} ul.tight li{margin:4px 0}
         <div class="chk" id="checklist"></div>
       </div>
       <div class="card">
-        <h2>本期焦點事件</h2>
+        <h2>焦點新聞<span class="mut" style="font-weight:400">　每日自動更新・依來源權威度與時效排序・點擊開原文</span></h2>
         <div id="events"></div>
         <h3 style="margin-top:14px">信用與宏觀溫度計</h3>
         <div class="tiles" id="creditTiles" style="margin-top:8px"></div>
@@ -1481,7 +1481,7 @@ ul.tight{padding-left:18px;font-size:13px} ul.tight li{margin:4px 0}
   "vix 為非單調特例：>=35→95、28-35→67-95 線性、18-28→33、13-18→50、<13→70",
   "綜合溫度 = Σ 維度權重 × 維度內指標平均；zones 分界 33/67/84",
   "history 僅附加不修改；meta.built 與 builtTime 更新為當次日期",
-  "events：8-12 條、近 7 天新聞優先、由新到舊排序；每條 {\"d\":\"MM-DD\",\"t\":\"…\",\"url\":\"原始新聞連結\"}——url 必填（找得到原文才收錄，優先主流媒體），可保留 1-2 條結構性里程碑（如 IPO 申請）",
+  "events：由每日 GitHub Actions 自 Google News RSS 自動產生（多主題查詢、來源加權 Bloomberg/Reuters/WSJ 優先、近 4 天、去重、上限 12 條、由新到舊）；每週覆核【不要覆寫】此欄位，僅在重大結構性事件遺漏時可插入最多 1-2 條（附 url）",
   "重大變化（任一指標跨區、檢查清單新點亮、綜合溫度 ±5）須在推播摘要中明示"
  ],
  "sources": {

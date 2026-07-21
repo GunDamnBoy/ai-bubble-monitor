@@ -161,6 +161,86 @@ def slickcharts_mag7():
         raise RuntimeError(f"slickcharts: only {len(weights)} of 8 tickers parsed")
     return sum(weights.values())
 
+
+# ---------------- daily news (Google News RSS, source-weighted) ----------------
+NEWS_QUERIES = [
+    '"AI bubble" when:4d',
+    '(hyperscaler OR "data center") (capex OR debt OR financing OR bonds) when:4d',
+    '(Nvidia OR OpenAI OR Anthropic) (deal OR funding OR investment OR IPO) when:4d',
+    '(TSMC OR Samsung OR semiconductor) (stocks OR earnings OR selloff OR rally) when:4d',
+    '("AI trade" OR "AI stocks") (Wall Street OR market OR investors) when:3d',
+]
+NEWS_W = {"bloomberg": 5, "reuters": 5, "financial times": 5, "the wall street journal": 5, "wsj": 5,
+          "cnbc": 4, "barron's": 4, "the information": 4, "the economist": 4, "axios": 3,
+          "fortune": 3, "marketwatch": 3, "nikkei asia": 3, "semafor": 3, "techcrunch": 2,
+          "business insider": 2, "yahoo finance": 2, "investor's business daily": 2}
+NEWS_BAN = {"globenewswire", "pr newswire", "business wire", "the motley fool", "simply wall st",
+            "zacks investment research", "benzinga", "stocktwits", "openpr", "seeking alpha"}
+
+def _parse_news_items(xmltxt):
+    import xml.etree.ElementTree as ET
+    from email.utils import parsedate_to_datetime
+    out = []
+    root = ET.fromstring(xmltxt)
+    for it in root.iter("item"):
+        try:
+            title = (it.findtext("title") or "").strip()
+            link = (it.findtext("link") or "").strip()
+            pd = parsedate_to_datetime(it.findtext("pubDate"))
+            s = it.find("source")
+            src_name = (s.text or "").strip() if s is not None else ""
+            if not title or not link or pd is None:
+                continue
+            if title.endswith(" - " + src_name):
+                title = title[: -(len(src_name) + 3)].strip()
+            out.append({"title": title, "url": link, "src": src_name, "pd": pd})
+        except Exception:
+            continue
+    return out
+
+def fetch_news(max_items=12):
+    from urllib.parse import quote
+    items, seen = [], set()
+    now = dt.datetime.now(dt.timezone.utc)
+    for q in NEWS_QUERIES:
+        try:
+            xmltxt = http_get("https://news.google.com/rss/search?q=" + quote(q) +
+                              "&hl=en-US&gl=US&ceid=US:en", ua=UA_BROWSER).text
+            raw = _parse_news_items(xmltxt)
+        except Exception as ex:
+            log(f"  news query fail: {ex}")
+            continue
+        for x in raw:
+            if x["src"].lower() in NEWS_BAN:
+                continue
+            key = re.sub(r"\W+", "", x["title"].lower())[:70]
+            if key in seen:
+                continue
+            age_d = max(0.0, (now - x["pd"]).total_seconds() / 86400)
+            if age_d > 5:
+                continue
+            seen.add(key)
+            w = NEWS_W.get(x["src"].lower(), 1)
+            x["score"] = w * 2 + max(0.0, 4 - age_d * 1.5)
+            items.append(x)
+    if len(items) < 5:
+        raise RuntimeError(f"news: only {len(items)} usable items")
+    items.sort(key=lambda x: x["score"], reverse=True)
+    per_src, picked = {}, []
+    for x in items:
+        c = per_src.get(x["src"], 0)
+        if c >= 3:
+            continue
+        per_src[x["src"]] = c + 1
+        picked.append(x)
+        if len(picked) >= max_items:
+            break
+    picked.sort(key=lambda x: x["pd"], reverse=True)
+    tz8 = dt.timezone(dt.timedelta(hours=8))
+    return [{"d": x["pd"].astimezone(tz8).strftime("%m-%d"),
+             "t": (x["title"] + ("｜" + x["src"] if x["src"] else "")),
+             "url": x["url"]} for x in picked]
+
 # ---------------- EDGAR quarterly engine ----------------
 CIK = {"MSFT": "0000789019", "AMZN": "0001018724", "GOOGL": "0001652044",
        "META": "0001326801", "ORCL": "0001341439"}
@@ -435,6 +515,11 @@ def main():
         upd("mag7", round(v, 2), f"{v:.1f}%", pw(v, IND["mag7"]["anchors"]))
     attempt("multpl CAPE", f_cape); attempt("slickcharts Mag7", f_mag7)
 
+    # ---- daily news feed ----
+    def f_news():
+        data["events"] = fetch_news()
+    attempt("Google News", f_news)
+
     # ---- EDGAR（僅在能完整重建時才覆蓋）----
     def f_edgar():
         E = refresh_edgar(data)
@@ -496,6 +581,9 @@ def selftest():
             ("2023-07-01", "2024-06-30", 44477)]
     q = to_quarters(rows, (7, 1))
     assert q[dt.date(2024, 6, 30)] == 13873, q
+    fx = '''<rss><channel><item><title>Big AI News - Bloomberg</title><link>https://x.example/a</link><pubDate>Mon, 20 Jul 2026 08:00:00 GMT</pubDate><source url="https://bloomberg.com">Bloomberg</source></item></channel></rss>'''
+    it = _parse_news_items(fx)
+    assert len(it) == 1 and it[0]["title"] == "Big AI News" and it[0]["src"] == "Bloomberg", it
     print("selftest OK")
 
 if __name__ == "__main__":

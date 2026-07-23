@@ -1,12 +1,12 @@
 {
  "meta": {
   "version": 1,
-  "built": "2026-07-23",
-  "builtTime": "2026-07-23（GitHub Actions 自動更新）",
+  "built": "2026-07-24",
+  "builtTime": "2026-07-24（GitHub Actions 自動更新）",
   "nextUpdate": "每交易日自動更新（GitHub Actions）｜質化指標每週覆核",
   "artifactId": "ai-bubble-monitor",
   "lastAutoRun": {
-   "date": "2026-07-23",
+   "date": "2026-07-24",
    "ok": [
     "FRED HY",
     "FRED IG",
@@ -30,14 +30,14 @@
    "fail": []
   }
  },
- "composite": 54.7,
+ "composite": 53.8,
  "dims": {
-  "D1": 58.7,
+  "D1": 56.0,
   "D2": 0.0,
   "D3": 72.2,
   "D4": 66.9,
-  "D5": 55.0,
-  "D6": 61.0
+  "D5": 53.2,
+  "D6": 61.6
  },
  "dimMeta": {
   "D1": {
@@ -103,9 +103,9 @@
    "id": "cape",
    "dim": "D1",
    "name": "Shiller CAPE（標普500）",
-   "value": 40.94,
-   "disp": "40.9×",
-   "score": 74.4,
+   "value": 40.42,
+   "disp": "40.4×",
+   "score": 70.3,
    "zone": "orange",
    "anchors": [
     [
@@ -126,7 +126,7 @@
     ]
    ],
    "dir": "越高越熱",
-   "asof": "2026-07-23",
+   "asof": "2026-07-24",
    "fresh": "ok",
    "src": "multpl.com",
    "url": "https://www.multpl.com/shiller-pe",
@@ -137,9 +137,9 @@
    "id": "mag7",
    "dim": "D1",
    "name": "Mag7 佔標普500市值比重",
-   "value": 32.87,
-   "disp": "32.9%",
-   "score": 71.8,
+   "value": 32.34,
+   "disp": "32.3%",
+   "score": 68.9,
    "zone": "orange",
    "anchors": [
     [
@@ -160,7 +160,7 @@
     ]
    ],
    "dir": "越高越熱",
-   "asof": "2026-07-23",
+   "asof": "2026-07-24",
    "fresh": "ok",
    "src": "SlickCharts",
    "url": "https://www.slickcharts.com/sp500",
@@ -171,9 +171,9 @@
    "id": "nvdape",
    "dim": "D1",
    "name": "NVIDIA 本益比（TTM）",
-   "value": 33.61,
-   "disp": "33.6×",
-   "score": 29.9,
+   "value": 33.08,
+   "disp": "33.1×",
+   "score": 28.8,
    "zone": "green",
    "anchors": [
     [
@@ -194,7 +194,7 @@
     ]
    ],
    "dir": "越高越熱",
-   "asof": "2026-07-22",
+   "asof": "2026-07-23",
    "fresh": "ok",
    "src": "Google Finance / stockanalysis",
    "url": "https://stockanalysis.com/stocks/nvda/",
@@ -377,8 +377,8 @@
    "id": "dnagap",
    "dim": "D3",
    "name": "折舊成長 vs 營收成長缺口",
-   "value": 35.9,
-   "disp": "+35.9pp",
+   "value": 35.0,
+   "disp": "+35.0pp",
    "score": 100.0,
    "zone": "red",
    "anchors": [
@@ -411,8 +411,8 @@
    "id": "debt",
    "dim": "D4",
    "name": "五大雲廠長期債務（年增率）",
-   "value": 87.4,
-   "disp": "+87.4%",
+   "value": 86.0,
+   "disp": "+86.0%",
    "score": 100.0,
    "zone": "red",
    "anchors": [
@@ -445,8 +445,8 @@
    "id": "hyoas",
    "dim": "D4",
    "name": "美高收益債利差（HY OAS）",
-   "value": 2.69,
-   "disp": "2.69%",
+   "value": 2.68,
+   "disp": "2.68%",
    "score": 11.7,
    "zone": "green",
    "anchors": [
@@ -472,7 +472,7 @@
     ]
    ],
    "dir": "3個月走闊幅度（bp）越大越熱",
-   "asof": "2026-07-21",
+   "asof": "2026-07-22",
    "fresh": "ok",
    "src": "FRED (ICE BofA)",
    "url": "https://fred.stlouisfed.org/series/BAMLH0A0HYM2",
@@ -535,10 +535,10 @@
    "id": "soxmom",
    "dim": "D5",
    "name": "半導體相對動能（SOXX−SPY，3個月）",
-   "value": 25.9,
-   "disp": "+26pp",
-   "score": 67.8,
-   "zone": "orange",
+   "value": 23.9,
+   "disp": "+24pp",
+   "score": 64.5,
+   "zone": "yellow",
    "anchors": [
     [
      0,
@@ -558,7 +558,7 @@
     ]
    ],
    "dir": "越高越熱",
-   "asof": "2026-07-22",
+   "asof": "2026-07-23",
    "fresh": "ok",
    "src": "ETFdb / stockanalysis",
    "url": "https://etfdb.com/etf/SOXX/",
@@ -569,9 +569,9 @@
    "id": "nvda200",
    "dim": "D5",
    "name": "NVIDIA 距 200 日均線乖離",
-   "value": 10.0,
-   "disp": "+10.0%",
-   "score": 22.1,
+   "value": 8.3,
+   "disp": "+8.3%",
+   "score": 18.2,
    "zone": "green",
    "anchors": [
     [
@@ -592,7 +592,7 @@
     ]
    ],
    "dir": "越高越熱",
-   "asof": "2026-07-22",
+   "asof": "2026-07-23",
    "fresh": "ok",
    "src": "stockanalysis.com",
    "url": "https://stockanalysis.com/stocks/nvda/statistics/",
@@ -603,13 +603,13 @@
    "id": "vix",
    "dim": "D5",
    "name": "VIX 恐慌指數",
-   "value": 17.05,
-   "disp": "17.1",
+   "value": 16.64,
+   "disp": "16.6",
    "score": 50.0,
    "zone": "yellow",
    "anchors": null,
    "dir": "13-18＝自滿區（非單調）",
-   "asof": "2026-07-21",
+   "asof": "2026-07-22",
    "fresh": "ok",
    "src": "CBOE / Google Finance",
    "url": "https://www.google.com/finance/quote/VIX:INDEXCBOE",
@@ -654,9 +654,9 @@
    "id": "us10y",
    "dim": "D6",
    "name": "美債 10 年期殖利率",
-   "value": 4.63,
-   "disp": "4.63%（3個月 +33bp）",
-   "score": 61.5,
+   "value": 4.67,
+   "disp": "4.67%（3個月 +37bp）",
+   "score": 63.5,
    "zone": "yellow",
    "anchors": [
     [
@@ -677,7 +677,7 @@
     ]
    ],
    "dir": "走升壓縮長久期投資",
-   "asof": "2026-07-21",
+   "asof": "2026-07-22",
    "fresh": "ok",
    "src": "US Treasury",
    "url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates",
@@ -720,37 +720,37 @@
   }
  ],
  "tw": {
-  "heat": 64.7,
+  "heat": 65.6,
   "items": [
    {
     "id": "tsmc_pe",
     "name": "台積電本益比（TTM）",
-    "value": 27.47,
+    "value": 27.52,
     "disp": "27.5×",
-    "score": 64.0,
+    "score": 64.3,
     "note": "歷史區間約 15-28×，目前 32.7× 高於區間上緣（Forward ~22.8×）。市場已把 AI 超級週期充分定價——EPS 若不再上修，估值沒有安全墊。",
     "src": "Google Finance / stockanalysis",
-    "asof": "2026-07-22"
+    "asof": "2026-07-23"
    },
    {
     "id": "tsmc_200dma",
     "name": "台積電距 200 日均線",
-    "value": 28.9,
-    "disp": "+28.9%",
-    "score": 64.5,
+    "value": 28.79,
+    "disp": "+28.8%",
+    "score": 64.3,
     "note": "2,470 vs 200DMA 1,715——乖離幅度遠超美股龍頭（NVDA 僅 +7.9%），台股 AI 主升段的動能已呈拋物線。",
     "src": "stockanalysis.com",
-    "asof": "2026-07-22"
+    "asof": "2026-07-23"
    },
    {
     "id": "tsmc_52w",
     "name": "台積電一年漲幅",
-    "value": 122.22,
-    "disp": "+122.2%",
-    "score": 84.7,
+    "value": 120.64,
+    "disp": "+120.6%",
+    "score": 83.9,
     "note": "52 週區間 1,115→2,535。一年翻 2.3 倍，波動放大（52週低點到高點 2.3×）。",
     "src": "Google Finance",
-    "asof": "2026-07-22"
+    "asof": "2026-07-23"
    },
    {
     "id": "odm_pe",
@@ -765,12 +765,12 @@
    {
     "id": "twii_pos",
     "name": "加權指數位於 52 週區間位置",
-    "value": 86.2,
-    "disp": "86.2%",
-    "score": 58.3,
+    "value": 88.5,
+    "disp": "88.5%",
+    "score": 63.6,
     "note": "46,781 點，距歷史高點 48,219 僅 3%；52 週低點 22,190（一年內指數曾腰斬後翻倍）。台股對美國 AI 資本開支週期的 β 遠大於 1——若美方進入第三階段出現信用事件，台股供應鏈是重災首選。",
     "src": "Yahoo Finance",
-    "asof": "2026-07-21"
+    "asof": "2026-07-22"
    }
   ]
  },
@@ -937,25 +937,25 @@
   },
   "spreads": {
    "hy": {
-    "now": 2.69,
-    "m3": 2.85,
+    "now": 2.68,
+    "m3": 2.84,
     "y1": 2.84,
-    "asof": "2026-07-21"
+    "asof": "2026-07-22"
    },
    "ig": {
     "now": 0.78,
-    "m3": 0.8,
+    "m3": 0.79,
     "y1": 0.81,
-    "asof": "2026-07-21"
+    "asof": "2026-07-22"
    },
    "us10y": {
-    "now": 4.63,
+    "now": 4.67,
     "m3": 4.3,
-    "asof": "2026-07-21"
+    "asof": "2026-07-22"
    },
    "vix": {
-    "now": 17.05,
-    "asof": "2026-07-21"
+    "now": 16.64,
+    "asof": "2026-07-22"
    },
    "fedfunds": {
     "now": 3.63,
@@ -1035,19 +1035,29 @@
  },
  "events": [
   {
-   "d": "07-23",
-   "t": "Wall Street indexes dip with technology earnings, rising oil in focus｜Reuters",
-   "url": "https://news.google.com/rss/articles/CBMivgFBVV95cUxQUExYckI5WDktV0NlZUUwblh5V3ZHRXFEWFdqY09sdlZXOEFNc2loZGJWS1phRGdzZ2VfR042TWNhTU9Gc1VwRlVReUZTbDM3UllKVktGcFlGSnJxcFBNR1ZHc2tvcTh2Ui1lbmJhRE9LakhkV3ZyekNJU2ZuRmVVZ3R6dXJicFBkcnJQTFZZWkl2TjhvQnV1eE5QN29qSnk2SjU0UVhiaVdyR3VKSVEtdXFSNVdlQUJ3MDU3OEd3?oc=5"
+   "d": "07-24",
+   "t": "AMD and Cerebras join forces on AI inference｜Axios",
+   "url": "https://news.google.com/rss/articles/CBMiZEFVX3lxTE1qbXYxNHF1dXJoeVRKR2VYdkZGZXpheVNFa0pvVzVMcVhSaHhFRmhFY19Ib2tiSFZSQ0tNcHdMZmxiZHg1N1RmM2tzZnhMbTRZZWIyZnFOaGJmWEZFWmQ3TzVNby0?oc=5"
+  },
+  {
+   "d": "07-24",
+   "t": "Nvidia, Amkor strike $1.5 billion chip packaging deal｜Reuters",
+   "url": "https://news.google.com/rss/articles/CBMiqAFBVV95cUxPbkZla1VnYlBjdGloZHdvdGxxNGlEd2JQSnl3ay1XblB4WDNJOGV2ZWRmTXVwVGF4Qm1UWFJpeTc2V2tLOXh4UTY0SHN1WEN2bVlaczk3dnZOZUt4MzUzaTdYMDdGdnU0X3BpcDFFTHBwNDhOQXVycy02cVFpLUFuSDgwR3JUaFpmcDhDZ0tGNmgtZVBhYjdON0VRZnBkeWV0UkRtZF83ZlA?oc=5"
   },
   {
    "d": "07-23",
-   "t": "AMD to sell Anthropic tens of billions in AI servers, invest up to $5 billion in startup｜Reuters",
-   "url": "https://news.google.com/rss/articles/CBMilAFBVV95cUxQRjQ4V2RqTUl4bWRtck5LZy1ST1VZNVBzcmswTUVyc3ZGcFNJeXlrRHpkUUIybkZSLUhoQXJtYUFKOHkzam15amh0dW5POHg2alBDMTRPRDQyWUUwUXBaX1czSWQtSGpXYlFvcGFRQ1p0WFZ3bndQYzlqdmZQSnN6NUhfbTdVYWZZNnBxYXZUYktkcVZu?oc=5"
+   "t": "Anthropic mulls mandatory employee stock trading plans after IPO, The Information reports｜Reuters",
+   "url": "https://news.google.com/rss/articles/CBMiyAFBVV95cUxNX0F0NzBtMGNOZWtGcEJPZU9KVEpuTEpMSDNZbTZTUE9rTFpLaVcyclpUTmJvLUZZYmdHYlVYWFl0eW1HU3gtMnRNSk4yWDV4NXk3U29GV2l3NEdaLUlIQXpXTU9WaFdCMjhNZklENnpFYWw0SUZXakR1bUlURVIzVklrampUay1DYVBQTmxqcE9aMGs2eHh5MU84UFlnbkZaaWF2b0l1UFRvWmRfay00UXRSbWZ0OGdlRHhwS0w4SVpmWVZNdGw3OQ?oc=5"
   },
   {
    "d": "07-23",
-   "t": "Southern Co unit signs 25-year power deal with OpenAI｜Reuters",
-   "url": "https://news.google.com/rss/articles/CBMiqAFBVV95cUxQQTIzUnVTb25HbmRDUTZ1dWd4SFBIUTdiRkNNclFGc3F3T2M2RVBFUTVRNkttQ3ZsNFhvQnd5Q1FBMkJDUXlWT2F1U1Y1MzlvWTltR0xRZkFVci1kaHBBWFZ4cUdXWkxtd01ET3RwSDhyaldPczZ4cU1ReUVBQ3NfSUliZ2lIeDBjeGpLRXRfT0hmZ3FIWGxhYjlOUnRzM2hocmtia3ZJZ20?oc=5"
+   "t": "Nokia CEO says AI investment cycle will continue for 'some time'｜CNBC",
+   "url": "https://news.google.com/rss/articles/CBMiqAFBVV95cUxNREM3bzAyVFZ0cmY3TElqYUNoR0NWZ3lPQmZwVWFfOGpRRDlxaklvMmdCeGpfZTF2blV4bTcwZWpuSWVxMGt3Ym5WWTZSVm90ZHJySWRsN2hqTHBibE1HWm14UXZvOG5CcG83dVQwQzRkV2s5UDV3SHBsd2V6dlZmdUNZNjJZeEQ1elNQTnc4ZDBCc1JFNXpBVnZ0S1paV2VtZ18yV1lqY0g?oc=5"
+  },
+  {
+   "d": "07-23",
+   "t": "European semiconductor stocks diverge as investors weigh AI demand, growth expectations｜Reuters",
+   "url": "https://news.google.com/rss/articles/CBMitgFBVV95cUxPN0hIaVBuNTVLVFdaVUpMRVR1bVpBTG5nZ19TNVhHVU00YXRZTWw4a04tSHVsT0ZfVE5SWkFadjYxSkl0OUxOWGhza3pNRm4wU09BZjk4cnJXWFUyLXZKV29DMDE1TTJFWnNSVTN1SWZqYWFvQ241djBlOHd1QkhuWDJLLTkwZ0JFMFljc3RndEUwcnhySUlOeUYxZWRXTkhPU25NM1ZHSk14d0h1aXY4VzI4MGc5QQ?oc=5"
   },
   {
    "d": "07-22",
@@ -1071,28 +1081,18 @@
   },
   {
    "d": "07-22",
-   "t": "World in Brief: OpenAI agent goes rogue; Saudi-American nuclear deal｜The Economist",
-   "url": "https://news.google.com/rss/articles/CBMilwFBVV95cUxQSjJkTDRlZWtjckwxN0hseDhaa2FvdEk2eXlqVzNnTXFISjBVX0tPaDVMTlJxbC1MX2xnWjJ2Y2RPaVNLYmZoRWxOa2hJQU1GcHF1ek4yQ0VtRmNKZVlIRHEtdzd3ZFczWHdPb3lhMkExa1lMbWZjNmdSWEEyemNVNTJIWm1zNHY3VE92S1dyOGhpamhlaTJN?oc=5"
-  },
-  {
-   "d": "07-22",
-   "t": "Anthropic Doubles Midterm Spending to $40 Million to Push AI Regulation｜WSJ",
-   "url": "https://news.google.com/rss/articles/CBMiqwFBVV95cUxNNUhmZUJTRk1sMmE5OWk2QUFtQVFveEZROVNXTGFYTnVxZ091SkdhMlB5NGxRczcyQjY3NHhPOVkwMm45UUV6dVBpLVIyN2tab0Ria21zS3RTazJnZ3ZBQ3hMSGRrOG5OVEFRYVNLSFQtdTFyWXlJME8xX0JhbkoySjZFV25nZHV6NjR2dTNuZjRTdS1GQlpnVFlxUlotYnZzQTNFbFVMdmdlYzA?oc=5"
-  },
-  {
-   "d": "07-22",
-   "t": "OpenAI appoints two new members to board of directors｜CNBC",
-   "url": "https://news.google.com/rss/articles/CBMilAFBVV95cUxQVWdnOTVCTzNyZWFlNXhNNlozX0JjcVhQVmFMekdxNlgtbnV1c0hDRWo4QXBKMFhTclAwNFM5YUgwVFZLRndFNVZCdDdVVzRqUmtsX1FxanR3MFdtS2NnRGNWS0I5bzJudjduU25ZXzFBcE1MTHkzTjZ1STNTcEh2MW40ZE9NYmdKVjJmLW5JMWZfNHYw0gGaAUFVX3lxTFAwZ0EwWFhSNnBLUm8zZ2FFazdpM21UdnRQV0k2WFgxb3ZIZDVmQkFlNnZBRzFldVprXzlDSWdLcXhMSklqU3kwcmxrZkR2aEdKQmpRZ1ZXX1dUUVI0OXdRZ0NWYV9vVmRVejNPLWVNQUlqamVXOGU4ZlJLUGY3WEZLWWRzdk11S1pDMk9vQ0JsVjQ5MnY0TEk0bUE?oc=5"
-  },
-  {
-   "d": "07-22",
    "t": "Exclusive | OpenAI Is Adding Two Independent Board Members Ahead of IPO｜WSJ",
    "url": "https://news.google.com/rss/articles/CBMinAFBVV95cUxOLU50TVpjZUJUNXdPOGwtRVIzbUkxd0FqSEdYRVFKMkZYZ25XWFQycHQ3bC12dS1taDlENG12X21LcGtTYnlSVmxSa0FJcnYzS3hUWkdCaXI4eFZXeHFjYWtESmtaSlBCQTlud2gwSDdjQ0wzTE8zNGJmZVRUNTl1X2F5eFluLUMyQXB0OVQ5cjNXQ1o0RkxTSkdiRF8?oc=5"
   },
   {
    "d": "07-22",
-   "t": "Earnings growth is already priced into semiconductor stocks, says Empower's Marta Norton｜CNBC",
-   "url": "https://news.google.com/rss/articles/CBMixgFBVV95cUxNT1l6d2t1Y24wbXlFT2NuLVhPN2RNSkRfcF9CVDlsU2tFQS15amI2Zk5YWE1oRGwtY3kyNzJQVXY2V181N25sSTRSQldYdDBSOWRRcTJad3U3Qm9KSXQ2ZjdPaEd1VkxNemF3RV9Zc19yUURQM1VMcVpOMFNFa1lyQnpUYzVvYUxIMVVBdWRGX1gzdVVSR0RTcUNQN2JiVW5oTjA0MEU1ZksyQ1EteE5XOVEtUHdQd29BZ0hrekZOMVYzem5aWnc?oc=5"
+   "t": "Chip Stocks Recover, Boosting Nasdaq｜WSJ",
+   "url": "https://news.google.com/rss/articles/CBMikAFBVV95cUxOZnE2dWltYTN4cjh3a2E4V2FGWlhySmd4cEJmdXRlOWFwaU13ZEExM0pHSkp1NVVkWGVHdWwwcWtmcHFkM2twVXRxZjN3MXU4R0w4UU5WZVEwQm1fNTV4N3lIY0VYaHNRWVc2T0tNTXFYZmstT0hOZnZ5M1lHQUxrX2hDaGxfdVBYS2sxT0Fsd0o?oc=5"
+  },
+  {
+   "d": "07-20",
+   "t": "Portfolio construction in the shadow of the AI bubble｜Financial Times",
+   "url": "https://news.google.com/rss/articles/CBMihAFBVV95cUxNMFBaQ0E2UjlMd2lGaG9CV0dPUzkzMURvTnU3TndDUGVmbDJDWUx5TVE5VG9UYzRsakllQTBWT2VLUzJaNEJ3dHZCTExRb05WdmF2SExzRHlwLW9mWS1SNzJXQlNxUmRBTG1LR0pXRm1vZFhLSWw0Yy1aanFfUUdISDdoejE?oc=5"
   }
  ],
  "history": [
@@ -1173,6 +1173,19 @@
     "D6": 61.0
    },
    "tw": 64.7
+  },
+  {
+   "date": "2026-07-24",
+   "composite": 53.8,
+   "dims": {
+    "D1": 56.0,
+    "D2": 0.0,
+    "D3": 72.2,
+    "D4": 66.9,
+    "D5": 53.2,
+    "D6": 61.6
+   },
+   "tw": 65.6
   }
  ],
  "params": {

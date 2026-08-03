@@ -1,8 +1,8 @@
 {
  "meta": {
   "version": 1,
-  "built": "2026-08-01",
-  "builtTime": "2026-08-01（GitHub Actions 自動更新）",
+  "built": "2026-08-03",
+  "builtTime": "2026-08-03（GitHub Actions 自動更新＋每週質化覆核）",
   "nextUpdate": "每交易日自動更新（GitHub Actions）｜質化指標每週覆核",
   "artifactId": "ai-bubble-monitor",
   "lastAutoRun": {
@@ -30,14 +30,14 @@
    "fail": []
   }
  },
- "composite": 53.6,
+ "composite": 53.5,
  "dims": {
   "D1": 58.2,
   "D2": 0.0,
   "D3": 72.2,
-  "D4": 70.6,
-  "D5": 39.2,
-  "D6": 58.5
+  "D4": 71.8,
+  "D5": 36.7,
+  "D6": 56.8
  },
  "dimMeta": {
   "D1": {
@@ -205,8 +205,8 @@
    "id": "cloudrev",
    "dim": "D2",
    "name": "三大雲業務營收年增率",
-   "value": 43.7,
-   "disp": "平均 +43.7%",
+   "value": 54.0,
+   "disp": "平均 +54.0%",
    "score": 0,
    "zone": "green",
    "anchors": [
@@ -228,11 +228,11 @@
     ]
    ],
    "dir": "越低越熱（減速＝變現失靈）",
-   "asof": "2026-04-30",
+   "asof": "2026-07-30",
    "fresh": "ok",
    "src": "CNBC / 各公司財報",
    "url": "https://www.cnbc.com/2026/04/30/google-microsoft-and-amazon-all-report-cloud-beats-in-earnings.html",
-   "note": "2026Q1（4/30 公布）：GCP +63%、Azure +40%、AWS +28%（另 OCI +93%）。日曆 Q2 2026 財報本週登場（MSFT/META/AMZN 約 7/29-31、GOOGL 前後），屆時更新；需求端此前仍在加速——泡沫的反證，若 Q2 出現連續減速而資本開支未減，才是真正的裂縫。",
+   "note": "2026 日曆 Q2（7/29-30 公布）三大雲全面加速：Google Cloud +82%、Azure +43%（升自 +40%）、AWS +37%（2021 年來最快）——平均約 +54%，需求端加速、泡沫反證強化（本維度維持綠燈）。旁注：Microsoft 將 2026 資本開支下修至 ~$175B（自 ~$190B，靠將資料中心/辦公資產耐用年限由 15 延長至 25 年）——留意此舉同時遞延折舊、可能淡化折舊牆。若後續季度出現連續減速而資本開支不減，才是真正裂縫。",
    "qual": false
   },
   {
@@ -501,34 +501,34 @@
    "id": "circular",
    "dim": "D4",
    "name": "循環融資強度（供應商融資）",
-   "value": 40,
-   "disp": ">$40B／4個月（NVDA＋AMD）",
-   "score": 82,
-   "zone": "orange",
+   "value": 540,
+   "disp": "NVDA 2026 已宣布 >$540B 交易",
+   "score": 85,
+   "zone": "red",
    "anchors": null,
    "dir": "質化評分（0-100）",
-   "asof": "2026-07-24",
+   "asof": "2026-08-01",
    "fresh": "ok",
    "src": "CNBC / Bloomberg",
    "url": "https://www.cnbc.com/2026/05/09/nvidia-embraces-ai-investor-topping-40-billion-in-equity-bets-2026.html",
-   "note": "NVIDIA 2026 前四個月股權投資 >$40B（對 OpenAI 累計 $30B、CoreWeave、供應鏈 Marvell/Lumentum/Corning）、每筆綁定商業合約。本週 AMD 擬對 Anthropic 投資最多 $5B（晶片＋股權，7/22 WSJ/FT）——循環融資自 NVIDIA 單一玩家擴散至第二家晶片大廠；NVIDIA 續投（Amkor $1.5B 封裝、7/24），OpenAI 揭露雲端支出承諾達 $750B（7/22 WSJ）。循環交易已從個案演變為多廠常態，營收與資本邊界持續模糊化。Jensen Huang 稱 IPO 前將減碼 OpenAI/Anthropic，但結構性循環未解、且橫向擴散——列為獨立紅旗、本週續升。",
+   "note": "本週由橙(82)轉紅(85)。NVIDIA 2026 迄今宣布逾 $540B 交易（不含 OpenAI 潛在案），另揭露對 OpenAI 最高約 $600B 融資框架（含 $250B 租賃付款擔保＋約 $350B 晶片採購融資，早期洽談）、與 SK 集團約 $500B（記憶體＋超級電腦）、Naver $1B。AMD 對 Anthropic 投資最高 $5B 換得數十億晶片訂單（7/22 Bloomberg/CNBC）；銀行擬對 Google 支持的 Anthropic 資料中心放款 $15B（7/31 WSJ）；Amazon 對 Anthropic 持股本季認列約 $53B 帳面利得。循環融資自 NVIDIA 單點擴散至多家晶片與雲廠，並出現『供應商擔保客戶租約＋融資客戶購買自家晶片』的結構性新特徵——已趨近『供應商融資成為需求主要來源』（84+ 級）。誠實保留：最大宗 OpenAI 框架仍屬早期洽談、未定案。",
    "qual": true
   },
   {
    "id": "weakcredit",
    "dim": "D4",
    "name": "弱資質信用單點（金絲雀）",
-   "value": 198,
-   "disp": "ORCL CDS 近 18 年高",
-   "score": 80,
+   "value": 855,
+   "disp": "CRWV CDS ~855bp・ORCL 破 18 年高",
+   "score": 83,
    "zone": "orange",
    "anchors": null,
    "dir": "質化評分（0-100）",
-   "asof": "2026-07-24",
+   "asof": "2026-07-29",
    "fresh": "ok",
    "src": "Motley Fool / S&P Global",
    "url": "https://www.fool.com/investing/2026/07/19/oracle-just-hit-a-fresh-52-week-low-and-had-its-cr/",
-   "note": "Oracle 5 年期 CDS 飆至約 108bp、逼近 18 年高（隱含 5 年違約機率 ~8%），延續 7/9 遭 S&P 降評至 BBB-（僅高於垃圾一級、點名 OpenAI 佔未履約合約集中度）的壓力，FY27 自由現金流預估惡化至 −$42B、擬增發 $20B 保投資級。CoreWeave 5 年 CDS 約 675bp（隱含違約機率 ~42%）、負債 $18.6B、近四季淨損約 $1.5B——弱資質信用本週明顯升溫。反向緩衝：Oracle 仍屬投資級、CoreWeave 傳借款成本自 10% 降至 7%，尚無違約或再融資失敗。指標性主體 CDS 創高（符 67-84 級）、但壓力仍集中於個案未擴散成面。",
+   "note": "本週由 80 升至 83。CoreWeave 5 年 CDS 飆至約 855bp（7/29，隱含 5 年違約機率 ~50%，較上週 ~675bp 明顯走闊）、7/29 股價單日 −9%（Nebius −10%），信用違約成本開始衝擊 AI 雲板塊。Oracle 5 年 CDS 走闊至逾 215bp（創約 18 年高、領漲整體 hyperscaler CDS 利差），延續 7 月 S&P 降評至 BBB-（僅高於垃圾一級、點名 OpenAI 未履約合約集中度）。反向緩衝：Oracle 仍屬投資級、CoreWeave 尚無違約或再融資失敗。指標性主體 CDS 創高、壓力升溫但仍集中個案（符 67-84 級）。",
    "qual": true
   },
   {
@@ -620,17 +620,17 @@
    "id": "narrative",
    "dim": "D5",
    "name": "泡沫敘事熱度",
-   "value": 4.5,
-   "disp": "第 4→接近 5 級／5 級",
-   "score": 80,
+   "value": 4.0,
+   "disp": "第 4 級（自近 5 級回落）",
+   "score": 70,
    "zone": "orange",
    "anchors": null,
    "dir": "質化評分（1-5 級）",
-   "asof": "2026-07-25",
+   "asof": "2026-08-01",
    "fresh": "ok",
    "src": "綜合媒體監測",
    "url": "https://fortune.com/2026/07/17/china-moonshot-kimi-k3-markets-china-ai/",
-   "note": "敘事延續高熱並向信用市場蔓延：Moonshot Kimi K3『第二次 DeepSeek 時刻』（7/17，TSMC 當日 −7%、SoftBank −9%、輝達一度失去市值王座予 Apple）後，7/24 WSJ 報導單週 $890B 科技市值蒸發、焦點轉向失控的 AI 資本開支；7/25 CNBC 指債市對 AI capex 預算焦慮升溫、Barron's 警示輝達 7 月漲勢面臨回檔風險。已從『廣泛討論分歧』深化為『情緒性賣壓＋信用疑慮』，惟仍有反方（InvestorPlace『華爾街誤讀 Kimi K3』、Yardeni 主張泡沫在盈利預估而非股價）——維持第 4 級偏強、逼近第 5 級，尚未形成一面倒的崩盤共識。",
+   "note": "本週由 4.5 下修至 4.0（score 80→70）：敘事仍高熱但單向恐慌回落。7/24 當週科技市值蒸發約 $890B、Oracle/CoreWeave CDS 警報、NPR 稱『華爾街對 AI 投資泡沫日益不安』（7/30）；惟 7/31 起明顯反彈（WSJ『AI 股回穩』、南韓股市單月 +18%、半導體收復失土），且看多方（Yardeni 等）續發聲。已自『逼近第 5 級』回到『第 4 級（廣泛討論分歧＋信用疑慮，但非崩盤共識）』。",
    "qual": true
   },
   {
@@ -638,16 +638,16 @@
    "dim": "D6",
    "name": "聯準會政策狀態",
    "value": 3.63,
-   "disp": "3.63%（年變動 -70bp）",
-   "score": 50,
+   "disp": "3.63%（7/29 連5按兵，市場轉價 2 次升息）",
+   "score": 45,
    "zone": "yellow",
    "anchors": null,
    "dir": "寬鬆＋資產新高＝加溫",
-   "asof": "2026-06-01",
+   "asof": "2026-07-29",
    "fresh": "ok",
    "src": "FRED FEDFUNDS",
    "url": "https://fred.stlouisfed.org/series/FEDFUNDS",
-   "note": "6/17 FOMC 維持不變，為連續第五次按兵不動；7/28-29 會議本週登場（結果未定），FactSet 調查預期續按兵不動，惟 CME FedWatch 顯示升息機率一週內自 12% 跳升至 38%（油價突破 $100/桶推升通膨疑慮），主席 Warsh 立場偏鷹。降息週期停滯、升息風險浮現——政策由『相對寬鬆＋資產價格近歷史高』淡化為『中性偏寬、資產仍高』，本週質化分由 60 下修至 50，『1998-99 降息給泡沫最後一腳油門』的歷史情境轉弱，貨幣燃料減少。",
+   "note": "本週由60→50→45：7/29 FOMC 連續第五次按兵不動（維持 3.50-3.75%）但轉鷹——3 位委員（Hammack、Kashkari、Logan）主張升息 25bp，市場已改為預期 2026 內兩次升息（9 月、12 月）；聲明稱通膨仍高於 2% 目標（點名能源供給衝擊），6 月點陣圖上修年底利率至 3.6-4.1%。降息週期終止、升息風險浮現，貨幣燃料進一步減少，『1998-99 降息給泡沫最後一腳油門』情境續弱。中性檔（45）。",
    "qual": true
   },
   {
@@ -1003,27 +1003,27 @@
    {
     "item": "負現金流主體大額發債常態化",
     "state": 0.5,
-    "evi": "Oracle 遭 S&P 降評至 BBB-、5 年 CDS 近 18 年高、擬增發 $20B 保投資級、FY27 FCF 估 −$42B；CoreWeave 負債 $18.6B、負現金流——大額發債擴散但仍屬個案"
+    "evi": "Oracle 遭 S&P 降評 BBB-、5 年 CDS 逾 215bp 創約 18 年高、擬增發 $20B；CoreWeave 5 年 CDS ~855bp（隱含違約機率 ~50%）、負現金流——大額發債／高違約定價擴散但仍屬個案"
    },
    {
     "item": "供應商融資（循環交易）規模化",
     "state": 1,
-    "evi": "NVIDIA 4 個月 >$40B 投資客戶與供應鏈、綁定商業合約；本週 AMD 擬對 Anthropic 投資最多 $5B——循環融資擴散至第二家晶片大廠（Bloomberg 循環交易圖譜）"
+    "evi": "NVIDIA 2026 迄今 >$540B 交易＋對 OpenAI 最高約 $600B 融資框架（租賃擔保＋晶片採購融資）、AMD $5B 投資 Anthropic、銀行擬放款 $15B 予 Google 支持的 Anthropic 資料中心——循環融資橫向擴散、結構化（本週指標轉紅）"
    },
    {
     "item": "信用利差趨勢性走闊（HY 3個月 +80bp）",
     "state": 0,
-    "evi": "HY OAS 2.77%、3 個月反收斂——未觸發（觸發線 3 個月 +80bp）"
+    "evi": "HY OAS 2.84%、3 個月反收斂（−14bp）——未觸發（觸發線 3 個月 +80bp）"
    },
    {
     "item": "AI 巨頭 IPO 潮與首日暴漲",
     "state": 0.5,
-    "evi": "OpenAI（6/9）、Anthropic（6/1）已保密申請 IPO；Anthropic 傳規劃 IPO 後員工強制持股交易計畫（7/23 Reuters）、Moonshot 傳赴港上市（7/20）——供給端就緒、尚未定價暴漲"
+    "evi": "OpenAI（6/8）、Anthropic（6/1）已保密申請 IPO；尚無定價或首日暴漲——供給端就緒、未引爆"
    },
    {
     "item": "私募信貸/表外融資佔比激增",
     "state": 0.5,
-    "evi": "數據中心私募信貸持續擴張、債市對 AI capex 焦慮升溫（7/25 CNBC）；公開數據有限、需人工追蹤"
+    "evi": "銀行擬放款 $15B 予 Google 支持的 Anthropic 資料中心（7/31 WSJ）、SocGen 近成 $5B SRT 含資料中心債（7/30）、私募信貸持續擴張；公開數據有限、需人工追蹤"
    },
    {
     "item": "弱資質主體信用事件",
@@ -1031,7 +1031,7 @@
     "evi": "尚無違約／再融資失敗"
    }
   ],
-  "note": "點亮 2.5／6。本週弱資質信用壓力明顯升溫（Oracle 5 年 CDS 逼近 18 年高、CoreWeave CDS ~675bp），循環融資橫向擴散至 AMD（$5B 投資 Anthropic），但均未觸發違約或信用利差趨勢性走闊。第二階段（外部公開市場融資）證據充分；距第三階段（擴散至弱資質）的關鍵仍是 Oracle/CoreWeave 這類個案是否擴散成面、以及 HY 利差是否趨勢性走闊。"
+  "note": "點亮 2.5／6（本週無新增點亮）。弱資質信用壓力續升（CoreWeave 5 年 CDS ~855bp／隱含違約 ~50%、Oracle CDS 逾 215bp 創約 18 年高），循環融資由橙轉紅、擴散為多家晶片與雲廠常態並出現『供應商擔保＋融資客戶購買自家晶片』結構；但均未觸發違約或 HY 利差趨勢性走闊。第二階段（外部公開市場融資）證據充分；距第三階段（擴散至弱資質）的關鍵仍在 Oracle/CoreWeave 是否由個案擴散成面、HY 利差是否趨勢性走闊。"
  },
  "events": [
   {
@@ -1275,6 +1275,19 @@
     "D4": 70.6,
     "D5": 39.2,
     "D6": 58.5
+   },
+   "tw": 57.3
+  },
+  {
+   "date": "2026-08-03",
+   "composite": 53.5,
+   "dims": {
+    "D1": 58.2,
+    "D2": 0.0,
+    "D3": 72.2,
+    "D4": 71.8,
+    "D5": 36.7,
+    "D6": 56.8
    },
    "tw": 57.3
   }

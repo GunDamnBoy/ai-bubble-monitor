@@ -62,14 +62,18 @@ def fred(series, days=620):
     if not out: raise RuntimeError(f"FRED {series}: empty")
     return out
 
+def fred_back(obs, back_days):
+    """從已取得的 FRED 觀測序列取 back_days 天前的值；序列不夠長回 None。"""
+    d_last = obs[-1][0]
+    for d, v in reversed(obs):
+        if d <= d_last - dt.timedelta(days=back_days):
+            return v
+    return None
+
 def fred_latest_and_back(series, back_days, days=620):
     obs = fred(series, days)
     d_last, v_last = obs[-1]
-    v_back = None
-    for d, v in reversed(obs):
-        if d <= d_last - dt.timedelta(days=back_days):
-            v_back = v; break
-    return d_last, v_last, v_back
+    return d_last, v_last, fred_back(obs, back_days)
 
 def stooq(sym, days=1500):
     d1 = (TODAY - dt.timedelta(days=days)).strftime("%Y%m%d")
@@ -646,10 +650,11 @@ def main():
 
     # ============ L2 資金與信用 ============
     def f_hy():
-        d, v, b = fred_latest_and_back("BAMLH0A0HYM2", 91)
+        obs = fred("BAMLH0A0HYM2")
+        d, v = obs[-1]; b = fred_back(obs, 91)
         d3 = (v - b) * 100 if b is not None else 0.0
         upd("hyoas", v, f"{v:.2f}%（3個月 {d3:+.0f}bp）", pw(d3, IND["hyoas"]["anchors"]), str(d))
-        sp["hy"] = {"now": v, "m3": b, "asof": str(d)}
+        sp["hy"] = {"now": v, "m3": b, "y1": fred_back(obs, 365), "asof": str(d)}
     def f_ccc():
         d, v, b = fred_latest_and_back("BAMLH0A3HYC", 91)
         d3 = (v - b) * 100 if b is not None else 0.0
@@ -662,10 +667,20 @@ def main():
         upd("orclbond", v, f"{v:.2f}%", pw(v, IND["orclbond"]["anchors"]))
         sp["orclbond"] = {"now": v, "asof": str(TODAY)}
     def f_ig():
-        d, v, b = fred_latest_and_back("BAMLC0A0CM", 91)
-        sp["ig"] = {"now": v, "m3": b, "asof": str(d)}
+        obs = fred("BAMLC0A0CM")
+        d, v = obs[-1]
+        sp["ig"] = {"now": v, "m3": fred_back(obs, 91), "asof": str(d)}
+    def f_fedfunds():
+        obs = fred("FEDFUNDS")
+        d, v = obs[-1]
+        sp["fedfunds"] = {"now": v, "y1": fred_back(obs, 365), "asof": str(d)}
+    def f_usinfo():
+        obs = fred("USINFO")
+        d, v = obs[-1]
+        sp["usinfo"] = {"now": v, "y1": fred_back(obs, 365), "asof": str(d)}
     attempt("FRED HY", f_hy); attempt("FRED CCC", f_ccc)
     attempt("ORCL bond", f_orclbond); attempt("FRED IG", f_ig)
+    attempt("FRED FEDFUNDS 磚塊", f_fedfunds); attempt("FRED USINFO 磚塊", f_usinfo)
 
     # ============ L3 基本面兌現 ============
     def f_rpo():

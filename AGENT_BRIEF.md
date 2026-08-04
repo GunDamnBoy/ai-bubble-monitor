@@ -188,7 +188,7 @@ support = 100 − L3             ← 基本面還有多少支撐（L3 越高＝�
 
 1. `note` 裡若寫了「… → Y」或「本週由 X 轉 Y」這種軌跡，**Y 必須等於該指標現在的 `score`**，不符就 FAIL。這抓的是最實際的失效模式：分數改了而 `note` 忘了改，或改錯邊。（`narrative` 那種「4.5 下修至 4.0」是 1–5 級的原始級數不是分數，檢查會自動略過 5 以下的數字。）
 2. `note` 裡要有一個看得出來的日期或月份，沒有就 WARN——沒有日期的理由，下一次覆核無從判斷它是不是已經過期。
-3. `asof` 停太久就 WARN，門檻**依各指標的自然更新頻率分開設**：`narrative`／`circular`／`weakcredit` 每週覆核，21 天；`tokens` 是月度第三方彙整，75 天；`vc`／`cloudrev` 是季度指標，130 天。門檻寫在 `healthcheck.py` 的 `QUAL_MAXAGE`，改頻率要一起改。
+3. `asof` 停太久就 WARN，門檻**依各指標的自然更新頻率分開設**：`narrative`／`circular`／`weakcredit` 每週覆核，21 天；`tokens` 是月度第三方彙整，75 天；`vc`／`cloudrev` 是季度指標，130 天。門檻寫在 `healthcheck.py` 的 `QUAL_MAXAGE`，改頻率要一起改。**未列在該表裡的質化 id 一律套 45 天預設**，所以新增第七個質化指標時要記得進去補一列，否則它會靜靜地被當成月頻。另外 `asof` 若**解不出日期**也會 WARN（允許 `YYYY-MM` 形式，會補成當月 1 日再算，`tokens` 的「2026-05（第三方彙整）」就是靠這條過關）。
 
 刻意**沒有**要求「每一項每次都要有軌跡」：`vc`／`cloudrev` 整季不動時 `note` 本來就不該重寫，硬要求只會製造永遠修不掉的 WARN，而永遠修不掉的 WARN 等於沒有 WARN。**分數沒動的那幾週不必重寫 `note`**，但 `asof` 要能看出上次覆核是什麼時候。
 
@@ -261,7 +261,7 @@ def attempt(name, fn):
 | 總經 | `fred(series, days=620)` `fred_back(obs, back_days)` `fred_latest_and_back(series, back_days, days=620)` | `fredgraph.csv`；要同時取多個回看期時用 `fred()` 抓一次再 `fred_back()` 取值，不要重複抓（`fred_latest_and_back` 現在也只是這兩者的組合） |
 | 價格 | `px_rows(ysym, ssym=None, rng="4y")` → **三層備援** `yf_chart`(yfinance) → `yahoo_chart`(raw API) → `stooq` | Stooq 在 Actions runner 被擋，只當最後備援 |
 | 統計 | `series_stats` `gsy_stats` | `gsy_stats` 需 ≥505 筆算 `ret24`、≥758 筆算 `accel` |
-| 估值/情緒 | `multpl_cape` `slickcharts_mag7` `aaii_sentiment` `cboe_putcall` | 後兩者目前在 Actions 端失敗 |
+| 估值/情緒 | `multpl_cape` `slickcharts_mag7` `aaii_sentiment` `cboe_putcall` | `aaii_sentiment` 持續在 Actions 端被擋；`cboe_putcall` 時好時壞（見 §9）|
 | 信用 | `orcl_bond_yield` | Public.com 報價頁 |
 | 季報 | `edgar_rows` `to_quarters` `bucket` `refresh_edgar` `rpo_backlog` | 見 5.3 |
 | 台灣 | `tw_monthly_rev` `tw_bwibbu` `tw_margin_balance` `tw_index_today` `taifex_tsmc_weight` `tw_customs_export_yoy` | 見 5.4 |
@@ -340,6 +340,8 @@ params     { nvda_eps, ngdp_nominal, megaipo_done }
 **第四處**：`index.html` 內嵌的 `<script id="dashboard-data">` 是 fetch 失敗時的離線退路快照。它不需要每天更新，但**改 schema 或改版時必須重新灌一次**，否則離線開啟會退回舊架構的頁面（v1→v2 期間就發生過，退路快照停在六維 54.1）。`healthcheck.py` 會比對它的 `meta.version`、v2 必要區塊、`history` 筆數，以及 `composite`／`meta.built` 是否與 `data.json` 明顯脫節。
 
 **第五處，而且最常被漏掉：`healthcheck.py` 自己。** 它為了能獨立驗算，硬寫了幾組常數——`LAYER_N`（各層指標項數）、`QUAL`（質化指標集合）、`TRIG`（觸發器 id）、`KNOWN_FAIL`（已知失效來源白名單）。**加減指標、改層歸屬、換觸發器、或某個來源恢復／新壞掉時，這個檔案也要改。** 它是把關每週推送的工具（FAIL 必須是 0），所以漏改它的下場不是靜靜少畫一塊，而是整條每週流程被自己的檢查擋住。
+
+不過**四組常數的嚴厲程度不一樣**，別記成一律 FAIL：`QUAL`、`TRIG`、`KNOWN_FAIL` 對不上是 **FAIL**（擋住推送），`LAYER_N` 對不上只是 **WARN**。這個差別是刻意的——前三組不一致必然代表有人漏改，而層人數本來就會因為「刻意增減指標」而變動，那時該提醒的是「記得回頭改 §4 各層表與 §4.5 的 28.9%」，不是把人擋在門外。
 
 ---
 
@@ -457,12 +459,12 @@ https://gundamnboy.github.io/ai-bubble-monitor///data.json    ← 第 3 次用�
 
 **為什麼改**：把系統寫成維護 skill（`bubble-maintain`）時，用子代理做了一次 brief ↔ 排程 prompt ↔ 引擎 ↔ 前端的獨立比對，抓出一批 v1→v2 改版時留下的殘骸與不同步。
 
-- 引擎：新增 `fred_back(obs, back_days)` 讓一次抓取可取多個回看期；`spreads` 補上 `hy.y1`（`ig.m3` 本來就有，先前誤記為新增），並實際抓取 `fedfunds`／`usinfo`（v1 淘汰指標後這兩塊停在殘值不再更新）。**`hy.y1` 要等下一次自動更新才會出現在 `data.json`**，在那之前 `healthcheck.py` 會以 WARN 提示
+- 引擎：新增 `fred_back(obs, back_days)` 讓一次抓取可取多個回看期；`spreads` 補上 `hy.y1`（`ig.m3` 本來就有，先前誤記為新增），並實際抓取 `fedfunds`／`usinfo`（v1 淘汰指標後這兩塊停在殘值不再更新）。（`hy.y1` 已於 2026-08-04 的自動更新補齊，對應的 WARN 已消失）
 - 前端：信用磚塊改為**缺鍵就不畫**（原本 `sp.hy.y1` 不存在，畫出 `−NaNbp`）；VIX 描述改為隨數值生成，不再寫死「13-18＝自滿區」；來源表的更新頻率改用季頻集合判定（原本把日頻指標全標成「週」、`rpo` 也漏掉）；歷史快照說明由「每週一」更正為「每交易日」
 - 前端：`<script id="dashboard-data">` 離線退路快照由 v1 六維（54.1）重灌為 v2
 - 前端：`<script id="update-spec">` 由 v1 規格全文改為指向本檔的指標，消掉一個漂移面
 - brief：L2 標題「6 項」更正為 7 項；質化權重 23% 更正為 28.9%；`officialPE` 子鍵 `yield` 更正為 `pb`；刪除不存在的前端 `pwScore`；補 `tokens`／`cloudrev` 的 rubric；補 `stage.current` 的維護責任；補 workflow 的 `push` 觸發條件；§8.3 區分「重抓」與「重算」（原本把 `quadrant` 誤列為不可動，與 §8.4 的重算要求打架）
-- 排程 prompt：重寫為**流程骨架**，規格改成引用本文件（原本整份複製一次，兩邊各自漂移）；線上核對改抓網站本身＋cache-buster（原本抓 `raw.githubusercontent.com`，只能證明 commit 進去、證明不了 Pages 已重建）；補上 §8.4 的六步重算順序與 `zone`、`stage.current`／`label`／`stages[]`、`events` 補 1–2 條的例外；加上「推送前 `healthcheck.py` 必須 FAIL 0」的關卡
+- 排程 prompt：重寫為**流程骨架**，規格改成引用本文件（原本整份複製一次，兩邊各自漂移）；線上核對改抓網站本身＋cache-buster（原本抓 `raw.githubusercontent.com`，只能證明 commit 進去、證明不了 Pages 已重建）；補上 §8.4 的七步重算順序與 `zone`、`stage.current`／`label`／`stages[]`、`events` 補 1–2 條的例外；加上「推送前 `healthcheck.py` 必須 FAIL 0」的關卡
 - `healthcheck.py`：新增內嵌退路快照的 `meta.version` 與 `data.json` 比對、`charts.spreads` 的「前端讀取鍵與欄位 vs 引擎實際寫入」對帳（用 AST 解析 `update_data.py`）、各鍵 `asof` 凍結偵測
 - 新增 `healthcheck.py`、`MAINTENANCE.md`、skill `bubble-maintain`
 

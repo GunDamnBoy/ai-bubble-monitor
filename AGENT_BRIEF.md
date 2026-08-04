@@ -167,7 +167,7 @@ support = 100 − L3             ← 基本面還有多少支撐（L3 越高＝�
 
 - **分段線性 `pw(v, anchors)`**：錨點須依 x 遞增；區間內線性內插，兩端夾住。**分數只在 Python 端計算**，前端不重算、只渲染 `data.json` 裡的 `score` 與 `zone`（v1 曾在前端另算一份，兩邊會漂）。
 - **VIX 非單調特例**（`vix_score`）：`≥35→95`／`28–35→67~95 線性`／`18–28→33`／`13–18→50`／`<13→70`。低 VIX 是自滿、高 VIX 是恐慌，兩端都不是「健康」。
-- **`senti` 是合成指標**：AAII 多空差、CBOE 個股 Put/Call（取負）、VIX 特例分數，**三者可得幾項就平均幾項**。目前 AAII 與 CBOE 在 Actions 端被擋，實際只剩 VIX——見第 9 節。
+- **`senti` 是合成指標**：AAII 多空差、CBOE 個股 Put/Call（取負）、VIX 特例分數，**三者可得幾項就平均幾項**。哪幾項真的參與了合成，看卡片的 `sub`——它由引擎依當次成功的來源生成，不是寫死的。目前穩定被擋的只有 AAII，CBOE 時好時壞，見第 9 節。
 
 ### 4.5 質化指標評分 rubric
 
@@ -184,9 +184,22 @@ support = 100 − L3             ← 基本面還有多少支撐（L3 越高＝�
 
 **每次調整質化分數，`note` 必須寫上「上週分數 → 本週分數 ＋ 變動理由與日期來源」**，這是唯一能事後查核漂移的機制。這條是質化指標的**例外**——`MAINTENANCE.md` 第 6.4 節「`note` 只留不隨時間變的結構性說明」是針對自動指標講的，自動指標的時效性敘述一律走 `sub`（由引擎生成），質化指標沒有引擎可生成，所以改用 `note` 留軌跡。
 
+`healthcheck.py` 對質化指標做三件機械檢查：
+
+1. `note` 裡若寫了「… → Y」或「本週由 X 轉 Y」這種軌跡，**Y 必須等於該指標現在的 `score`**，不符就 FAIL。這抓的是最實際的失效模式：分數改了而 `note` 忘了改，或改錯邊。（`narrative` 那種「4.5 下修至 4.0」是 1–5 級的原始級數不是分數，檢查會自動略過 5 以下的數字。）
+2. `note` 裡要有一個看得出來的日期或月份，沒有就 WARN——沒有日期的理由，下一次覆核無從判斷它是不是已經過期。
+3. `asof` 停太久就 WARN，門檻**依各指標的自然更新頻率分開設**：`narrative`／`circular`／`weakcredit` 每週覆核，21 天；`tokens` 是月度第三方彙整，75 天；`vc`／`cloudrev` 是季度指標，130 天。門檻寫在 `healthcheck.py` 的 `QUAL_MAXAGE`，改頻率要一起改。
+
+刻意**沒有**要求「每一項每次都要有軌跡」：`vc`／`cloudrev` 整季不動時 `note` 本來就不該重寫，硬要求只會製造永遠修不掉的 WARN，而永遠修不掉的 WARN 等於沒有 WARN。**分數沒動的那幾週不必重寫 `note`**，但 `asof` 要能看出上次覆核是什麼時候。
+
+**兩條 `note` 的書寫慣例（機器抓不到，但每週都要照做）**：
+
+- 指標跨區時（燈號換色），`note` 開頭標「本週由X轉Y」，讓事後翻閱時一眼看到轉折點。
+- `stage.note` 裡必須有「點亮 X／6」這一句，且 X 要等於 `checklist` 實算的點亮數（半格算 0.5）。全形半形斜線都收，但**句子整個不見就是 FAIL**——舊版寫成「抓不到就跳過」，於是改寫句型可以無聲關掉比對還照樣印 PASS，比沒有檢查更糟，現在改成抓不到就報錯。
+
 ### 4.6 台灣供應鏈（10 項，獨立計分，不進綜合溫度）
 
-`tw.items` 十項，經 `tw.subs` 四個子群再加權成 `tw.heat`：
+`tw.items` 共十項，其中**九項**經 `tw.subs` 四個子群再加權成 `tw.heat`（第十項 `tsmc_weight` 不入子群，見下）：
 
 | 子群 | 權重 | 成員 |
 |---|---|---|
@@ -314,7 +327,7 @@ charts     { aggQ[], ttm[], debt{labels,values,note}, spreads{hy,ig,us10y,vix,
 stage      { current, label, stages[4], checklist[6]{item,state,evi}, note }
 events     [ ≤12 × {d:"MM-DD", t:"標題｜來源", url} ]
 history    [ ≤400 × {date, composite, dims, tw, quad:[support,heat]} ]
-params     { nvda_eps, tsmc_eps, ngdp_nominal, megaipo_done }
+params     { nvda_eps, ngdp_nominal, megaipo_done }
 ```
 
 **`history` 只附加、同日去重、永不改寫既有日期。** 象限軌跡與匯流報的跨期比較都靠它。
@@ -324,7 +337,9 @@ params     { nvda_eps, tsmc_eps, ngdp_nominal, megaipo_done }
 
 改 `data.json` 結構時，**這三處必須一起改**：本檔第 6 節、`scripts/update_data.py`、`index.html` 的對應 render 函式（`renderQuad` / `renderTriggers` / `renderTwV2` / 圖表區）。漏掉第三處時頁面不會報錯，只會靜靜地少畫一塊。
 
-**還有第四處容易漏**：`index.html` 內嵌的 `<script id="dashboard-data">` 是 fetch 失敗時的離線退路快照。它不需要每天更新，但**改 schema 或改版時必須重新灌一次**，否則離線開啟會退回舊架構的頁面（v1→v2 期間就發生過，退路快照停在六維 54.1）。`healthcheck.py` 會比對它的 `meta.version` 與 `data.json` 是否相同。
+**第四處**：`index.html` 內嵌的 `<script id="dashboard-data">` 是 fetch 失敗時的離線退路快照。它不需要每天更新，但**改 schema 或改版時必須重新灌一次**，否則離線開啟會退回舊架構的頁面（v1→v2 期間就發生過，退路快照停在六維 54.1）。`healthcheck.py` 會比對它的 `meta.version`、v2 必要區塊、`history` 筆數，以及 `composite`／`meta.built` 是否與 `data.json` 明顯脫節。
+
+**第五處，而且最常被漏掉：`healthcheck.py` 自己。** 它為了能獨立驗算，硬寫了幾組常數——`LAYER_N`（各層指標項數）、`QUAL`（質化指標集合）、`TRIG`（觸發器 id）、`KNOWN_FAIL`（已知失效來源白名單）。**加減指標、改層歸屬、換觸發器、或某個來源恢復／新壞掉時，這個檔案也要改。** 它是把關每週推送的工具（FAIL 必須是 0），所以漏改它的下場不是靜靜少畫一塊，而是整條每週流程被自己的檢查擋住。
 
 ---
 
@@ -359,9 +374,13 @@ L1 除 `narrative` 外全部、L2 除三項質化外全部、L3 除 `cloudrev`�
 
 ### 8.2 人（每週覆核排程）負責
 
-`narrative`、`circular`、`weakcredit`、`vc`、`tokens`、`cloudrev`（財報季）、`params`（`nvda_eps`／`tsmc_eps` 財報季、`megaipo_done` 事件、`ngdp_nominal` 年度）、`tw.items` 的 `tsmc_weight`（每月）。
+`narrative`、`circular`、`weakcredit`、`vc`、`tokens`、`cloudrev`（財報季）、`params`（`nvda_eps` 財報季、`megaipo_done` 事件、`ngdp_nominal` 年度）、`tw.items` 的 `tsmc_weight`（每月）。
 
 `stage` **整塊**都是人維護的：`stage.checklist` 六項的 `state`／`evi`、`stage.note`，以及**`stage.current`（1–4 的小數）、`stage.label`、`stages[]` 的 `active`／`done`**。checklist 勾選數變了而 `current` 沒動，是最常見的漏更新。
+
+**改 `params` 不會立刻反映在頁面上。** `params.nvda_eps` 要等下一次引擎跑 `nvdape` 才會換算成新的本益比；`params.ngdp_nominal`／`megaipo_done` 要等下一次引擎重評 `triggers` 才會改變點亮狀態——而 `triggers` 又在 §8.3 的「絕對不要重抓」清單裡，所以覆核當下**不要自己去改 `triggers` 的 `state` 來「讓它一致」**。正確做法是改完 `params` 就放著，在摘要裡註明「已更新 `params.X`，將於下一個交易日的自動更新生效」。唯一的例外是 `megaipo_done`：它同時要在 `stage.checklist` 反映，而 `stage` 本來就是人維護的。
+
+**上週的基準從哪裡來。** `history` 每筆只存 `date`、`composite`、三個層分數與 `quad`——**沒有 `regime`、沒有觸發器點亮數**。所以：上週 `composite` 看 `history` 倒數第二筆；上週 `regime` 要拿倒數第二筆的 `quad`（`[support, heat]`）自己套 §3.3 的規則反推；觸發器點亮數則完全沒有歷史，只能在**動手前**先把當下的 `triggers` 記下來當基準（排程流程第 1 步就是為此存在）。改完再回頭數，差額才是「本週新點亮」。
 
 ### 8.3 覆核**絕對不要重抓**的欄位
 
@@ -369,12 +388,14 @@ L1 除 `narrative` 外全部、L2 除三項質化外全部、L3 除 `cloudrev`�
 
 原因是覆核容器的網路有**兩條路，能力不一樣**，這點常被誤記成「容器只放行 GitHub」：
 
-| 路徑 | 實測結果 | 意義 |
+| 路徑 | 實測結果（2026-08 逐一實測） | 意義 |
 |---|---|---|
-| Bash 的 `curl`／`requests`（引擎走這條） | **只通得到 GitHub**；FRED、Stooq、SEC EDGAR、TAIFEX 一律連線失敗 | 在覆核工作階段裡**跑不動 `update_data.py`**，也不能自己 `curl` 補數字 |
-| `WebSearch`／`WebFetch`（走 Anthropic 的抓取服務） | **可以連到外部網站**，包括 FRED 與 TAIFEX | 質化研究（§8.2）與 `tsmc_weight` 月更**做得到**，靠的是這條 |
+| Bash 的 `curl`／`requests`（引擎走這條） | 只通得到 `github.com` 與 `raw.githubusercontent.com`。**連 `gundamnboy.github.io` 都不通**（回 http=000），`api.github.com` 根路徑 200 但 repo 端點 403，`example.com` 不通，FRED／Stooq／SEC EDGAR／TAIFEX 一律連線失敗 | 在覆核工作階段裡**跑不動 `update_data.py`**，也不能自己 `curl` 補數字；**線上核對也不能用 curl**（見下） |
+| `WebSearch`／`WebFetch`（走 Anthropic 的抓取服務） | **可以連到外部網站**，包括 FRED、TAIFEX，以及 `github.io` 上的 `data.json` | 質化研究（§8.2）、`tsmc_weight` 月更、以及發布後的線上核對，全都靠這條 |
 
 所以禁令的真正理由不是「連不到網路」，而是：**能連到網路的那條路（WebFetch）拿不到引擎要的東西**。WebFetch 讀 `fredgraph.csv` 這類 CSV／JSON 端點會回傳 binary 亂碼，讀網頁則是經過摘要的文字——兩者都不能取代引擎的數值抓取，硬要用只會抓到殘值或讀錯數字，然後把每日管線抓到的好值蓋掉。
+
+**但同一條路可以做線上核對。** WebFetch 抓 `https://gundamnboy.github.io/ai-bubble-monitor/data.json` 並要它回報 `meta.built`／`composite`／`quadrant.regime` 是實測可行的（小模型讀 JSON 回報少數幾個欄位，跟「抓整份 CSV 當數值來源」不是同一件事）。注意 **WebFetch 對同一個 URL 有 15 分鐘快取**，重試時要換 `?t=` 時間戳，否則會拿到上一次的答案還以為 Pages 沒更新。`raw.githubusercontent.com` 雖然 curl 得到，但它只證明 commit 進去了，證明不了 Pages 已重建。
 
 `events` 若真的漏了重大結構性事件，最多**補 1–2 條**（附 url），不要整批重寫。
 
@@ -390,6 +411,11 @@ L1 除 `narrative` 外全部、L2 除三項質化外全部、L3 除 `cloudrev`�
 4. `quadrant` 的 `heat`／`support`／`regime`
 5. `tw.subs`／`tw.heat`（null 子群剔除後重新歸一）
 6. `history` 附加一筆（同日去重，含 `quad`）
+7. **`meta.built` 改成今天、`meta.builtTime` 改成 `YYYY-MM-DD（每週質化覆核）`**
+
+第 7 步不能省。`healthcheck.py` 硬性要求 `history` 最後一筆的日期等於 `meta.built`；覆核在週一附加一筆今天的 `history`，而 `meta.built` 還停在上週五自動更新的日期，就會直接 FAIL 卡住推送。而且第 5 節線上核對是靠 `meta.built` 變化來確認 Pages 已重建——沒改的話那一步永遠驗不過，會誤判成佈建失敗。
+
+**但 `meta.lastAutoRun` 絕對不要動。** 它描述的是「最後一次**自動**更新」的成敗，人工覆核不是自動更新；改了會讓 `AAII` 這類已知失效來源的追蹤斷掉。
 
 **只改指標分數而不重算，頁面會顯示彼此矛盾的數字。** 收尾跑一次 `healthcheck.py`，它會把上面每一項重算後與存檔比對。
 
@@ -404,13 +430,15 @@ L1 除 `narrative` 外全部、L2 除三項質化外全部、L3 除 `cloudrev`�
 
 | 來源 | 狀況 | 目前處置 |
 |---|---|---|
-| AAII 情緒調查 | Actions runner 被擋 | `senti` 降級為 VIX 單一輸入，不報錯 |
-| CBOE 個股 Put/Call | Actions runner 被擋 | 同上 |
+| AAII 情緒調查 | Actions runner 持續被擋 | `senti` 少一個輸入，不報錯 |
+| CBOE 個股 Put/Call | **時好時壞**（2026-08-04 成功，之前多次失敗） | 成功就進 `senti`，失敗就退出當次平均 |
 | TAIFEX 台積電權重 | 擋機器人 | 由每週覆核人工更新（種子值 44.78%，2026-07-31） |
 | Stooq | Actions runner 被擋 | 已降為價格三層備援的最後一層 |
 | 美國商務部資料中心營建支出 | 需免費 API 金鑰 | 未納入，列為 v2.1 待辦 |
 
-**`senti` 只剩 VIX 是目前最大的單點弱化**，會讓 L1 的情緒面變鈍。若要修，方向是換一個不擋機器人的情緒源，而不是把 `senti` 拿掉——拿掉等於改了 L1 的權重結構。
+**這張表要跟 `healthcheck.py` 的 `KNOWN_FAIL` 白名單一致**（機器會比對；白名單裡有、這張表沒有的會 FAIL）。但**反方向沒有機器能抓**——某個來源恢復正常之後，它會安靜地留在白名單裡，下次真的壞掉就只會是 WARN 而不是 FAIL。所以每週覆核要看 `meta.lastAutoRun.ok`：**表上列的來源若已連續數週出現在 `ok` 裡，就該把它從表與白名單一起移除。**
+
+**`senti` 的輸入數會浮動**（穩定的只有 VIX），情緒面因此偏鈍。若要修，方向是加一個不擋機器人的情緒源，而不是把 `senti` 拿掉——拿掉等於改了 L1 的權重結構。
 
 ---
 

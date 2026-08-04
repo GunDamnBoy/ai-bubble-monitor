@@ -57,24 +57,25 @@
 **其他反覆出現的坑：**
 
 - **圖表卡在上一季不是壞掉**。公司開財報會 ≠ 10-Q 進 EDGAR，中間有數天到數週。有 ≥3/5 家申報就會出現空心點的「初步」季度；不到 3 家就是照設計在等。
-- **`meta.lastAutoRun.fail` 長期有 AAII／CBOE／TAIFEX 是已知狀態**，不是新事故。看到它們不用緊張，看到別的才要查。
+- **`meta.lastAutoRun.fail` 長期有 AAII／CBOE／TAIFEX 是已知狀態**，不是新事故。看到它們不用緊張，看到別的才要查（`healthcheck.py` 的 `KNOWN_FAIL` 就是這份白名單，新面孔會直接 FAIL）。其中 AAII 是持續被擋，CBOE 是**時好時壞**——2026-08-04 那次抓成功了，所以看到 `senti` 卡片上的來源時多時少是正常的，不是有人動了引擎。
 - **`elec_rel`／`tw_margin` 顯示「序列累積中 n/21」是正常的**，這兩項要靠每日累積 21 個交易日才算得出來。歷史被清掉就要重數 21 天。
 - **EDGAR 403** 幾乎都是 User-Agent 不符 SEC 規範（要含聯絡 email）。
 - **EDGAR 某公司某科目突然沒資料**，先查標籤是不是換了（GOOGL 就從 `RevenueFromContractWithCustomerExcludingAssessedTax` 換到 `Revenues`）。
 - **價格抓不到**：三層備援 yfinance → Yahoo raw → Stooq。Stooq 在 Actions runner 被擋是常態，它只是最後一層。
-- **不要在覆核工作階段重抓自動指標**。覆核容器的 Bash（`curl`／`requests`）**只通得到 GitHub**，FRED、Stooq、SEC、TAIFEX 一律連不上，所以在那裡跑不動引擎；而唯一通得到外網的 `WebSearch`／`WebFetch` 讀 CSV／JSON 端點只會拿到 binary 亂碼，讀網頁則是經過摘要的文字，都不能代替引擎的數值抓取。硬要重抓的結果就是抓到空值或殘值，然後把每日管線的好值蓋掉。詳見 `AGENT_BRIEF.md` §8.3 的兩條路對照表。
+- **不要在覆核工作階段重抓自動指標**。覆核容器的 Bash（`curl`／`requests`）只通得到 `github.com` 與 `raw.githubusercontent.com`，FRED、Stooq、SEC、TAIFEX 一律連不上，所以在那裡跑不動引擎；而唯一通得到外網的 `WebSearch`／`WebFetch` 讀 CSV／JSON 端點只會拿到 binary 亂碼，讀網頁則是經過摘要的文字，都不能代替引擎的數值抓取。硬要重抓的結果就是抓到空值或殘值，然後把每日管線的好值蓋掉。詳見 `AGENT_BRIEF.md` §8.3 的兩條路對照表。
+- **推送後的線上核對不能用 `curl`**。`gundamnboy.github.io` 從覆核容器的 Bash 連不到（回 http=000，不是逾時也不是 404，是連線直接被擋），舊版排程 prompt 寫 `curl … github.io/data.json | python3 -c …` 那一步**從來沒有真的執行成功過**——它會拿到空字串然後 JSONDecodeError，而流程往下走看起來像沒事。正解是用 WebFetch 讀同一個 URL 請它回報 `meta.built`／`composite`／`regime`，並記得換 `?t=` 時間戳繞開 WebFetch 的 15 分鐘快取。這是「文件寫了一個沒人驗證過的指令」的典型案例：**寫進流程的每一行指令，都要在寫的當下實際跑過一次。**
 
 ---
 
 ## 5. 待辦與觀察中
 
 - **Excel 版還停在 v1**。`UpdateAll()` 巨集的 v1.1 修正（QueryTables 文字匯入備援，解 Mac 端 Stooq 無副檔名導致 `Workbooks.Open` 失敗）**使用者尚未實測**。要不要跟進 v2 架構待決。
-- **`senti` 只剩 VIX**。找一個不擋 Actions runner 的情緒源（方向：CNN Fear & Greed 的第三方鏡像、FINRA 融資餘額、或改用 CBOE 的官方 CSV 端點）。
+- **`senti` 的輸入不穩**。AAII 持續被擋、CBOE 時好時壞，所以這一項有時是三個來源等權、有時只剩 VIX 一個（卡片的 `sub` 會誠實顯示當次真正合成了哪幾個，不再寫死三來源）。要找一個不擋 Actions runner 的穩定情緒源（方向：CNN Fear & Greed 的第三方鏡像、FINRA 融資餘額、或改用 CBOE 的官方 CSV 端點）。
 - **美國商務部資料中心營建支出**需免費 API 金鑰，尚未納入。這是 L3 少數能日／月頻反映實體投資的序列，值得補。
 - **`tsmc_weight` 每月人工更新**，容易忘。若連兩個月沒動，考慮改抓別的來源或降為季頻展示。
 - **沒有回測**。整套錨點除了 `gsy_runup` 之外都沒有歷史校準，是專家判斷。這是本系統最大的方法論弱點，也是當初特地把 Greenwood-Shleifer 指標放進來的原因——它至少提供一個有機率意義的參照點。
 - **質化指標佔 28.9% 權重**（L1 3.9%＋L2 15.0%＋L3 10.0%），漂移風險真實存在。防線只有「`note` 必須記錄上週分數與變動理由」這一條。加減指標會改變這個數字，改完要回頭更正 `AGENT_BRIEF.md` 第 4.5 節與這一行。
-- **`index.html` 內嵌的離線退路快照需要手動重灌**。它平常沒人看得到（只在 fetch 失敗時才用），所以一放就是好幾個月；2026-08 已隨 v2 重灌過一次。`healthcheck.py` 現在比對它的 `meta.version`、v2 必要區塊是否齊全、以及 `history` 筆數（超過 30 筆 WARN，頁面會過肥），但**版本號沒變而內容變舊，機器一樣抓不到**——改 schema 或改版時仍要手動重灌。
+- **`index.html` 內嵌的離線退路快照需要手動重灌**。它平常沒人看得到（只在 fetch 失敗時才用），所以一放就是好幾個月；2026-08 已隨 v2 重灌過一次。`healthcheck.py` 現在比對它的 `meta.version`、v2 必要區塊是否齊全、`history` 筆數（超過 60 筆 WARN，頁面會過肥），以及**它跟現行 `data.json` 有沒有脫節到會誤導**——`meta.built` 落後超過 45 天、`composite` 差超過 5 分、或象限 `regime` 不同，就 WARN。門檻刻意鬆：快照本來就是舊的拷貝，只有舊到「離線那天使用者看到另一個故事」才算問題。
 
 ---
 

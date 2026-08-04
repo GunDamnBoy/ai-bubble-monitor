@@ -556,7 +556,10 @@ def main():
     data = json.loads(DATA.read_text())
     IND = {i["id"]: i for i in data["indicators"]}
     params = data.setdefault("params", {})
-    params.setdefault("nvda_eps", 6.31); params.setdefault("tsmc_eps", 86.27)
+    # 不要再加回 tsmc_eps。台積電本益比走 TWSE 官方 BWIBBU 端點直接拿 PE（見 f_twpe），
+    # 不是用股價 ÷ EPS 算的，所以那個參數沒有任何程式碼會讀——留著只會讓每季覆核的人
+    # 白花一次力氣更新它，還誤以為自己在影響分數。
+    params.setdefault("nvda_eps", 6.31)
     params.setdefault("ngdp_nominal", 4.9); params.setdefault("megaipo_done", False)
     sp = data["charts"].setdefault("spreads", {})
     tw = data["tw"]
@@ -644,8 +647,15 @@ def main():
             parts.append(vix_score(senti["vix"]["v"]))
             notes.append(f"VIX {senti['vix']['v']:.1f}")
         if not parts: raise RuntimeError("no sentiment inputs")
-        upd("senti", round(sum(parts) / len(parts), 1), "｜".join(notes), sum(parts) / len(parts),
-            sub="AAII（週）＋CBOE 個股 Put/Call（日）＋VIX（日）等權合成")
+        # sub 必須反映「這一次真的合成了哪幾個輸入」。寫死三個來源，在 AAII 或 CBOE
+        # 被擋的日子就是對使用者謊報計算方式——正是 MAINTENANCE §6.4 的失效模式，
+        # 只是躲在 §6.4 指定給「會變動的敘述」的安全地帶（sub）裡面。
+        srcs = [s for s, on in (("AAII（週）", "aaii" in senti),
+                                ("CBOE 個股 Put/Call（日）", bool(senti.get("pc", {}).get("equity"))),
+                                ("VIX（日）", "vix" in senti)) if on]
+        sub = ("＋".join(srcs) + "等權合成") if len(srcs) > 1 else \
+              (srcs[0] + "單一輸入（其餘情緒來源本次抓取失敗）")
+        upd("senti", round(sum(parts) / len(parts), 1), "｜".join(notes), sum(parts) / len(parts), sub=sub)
     attempt("calc senti", f_senti)
 
     # ============ L2 資金與信用 ============

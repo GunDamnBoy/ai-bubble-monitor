@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""AI 泡沫監控儀表板 · 健康檢查（唯讀，不碰 git、不連網）
+"""AI 泡沫監控儀表板 · 健康檢查（不改 repo、不碰 git、不連網）
+
+「不改 repo」是精確的說法：本檔不會動 repo 內的任何檔案，但為了用 `node --check`
+驗 index.html 的 JS 語法，會在系統暫存目錄寫一個唯一檔名的 .js 並在結束時刪掉。
 
 用法：
     python3 healthcheck.py              # 自動偵測 repo 位置
@@ -55,6 +58,11 @@ def warn(m): _p("warn", m)
 def bad(m): _p("fail", m)
 
 
+# 各層指標項數。層人數直接決定質化佔比（等權平均），加減指標必須回頭改
+# AGENT_BRIEF §4 各層表與 §4.5 的 28.9%。放在模組層是因為 index.html 那句
+# 「N 項指標依三層頻率分組」也要拿它對帳。
+LAYER_N = {"L1": 9, "L2": 7, "L3": 6}
+
 # 已知會失敗、設計上可降級的來源。
 # 鍵＝`meta.lastAutoRun.fail` 裡出現的字串（由 update_data.py 的 attempt() 標籤決定）；
 # 值＝AGENT_BRIEF.md 第 9 節那一列的辨識關鍵字。
@@ -64,6 +72,9 @@ KNOWN_FAIL = {
     "CBOE putcall": "CBOE",
     "TW 台積電權重": "台積電權重",
 }
+# CBOE 是「時好時壞」不是「已修好」（2026-08-04 成功，之前多次失敗），所以留在名單裡。
+# 把它拿掉的話，下一個抓失敗的日子會變成 FAIL 而擋住每週推送——而那正是這個系統
+# 設計上允許降級的情況。真正修好、連續數週都成功之後才移除，並同步刪掉 brief §9 那一列。
 
 
 def find_repo(explicit=None):
@@ -124,8 +135,6 @@ def check_data(repo):
 
     # 指標 → 層分數 → 綜合溫度 → 象限：全部重算比對
     inds = d.get("indicators", [])
-    # 層人數直接決定質化佔比（等權平均），加減指標必須回頭改 brief §4.5 的 28.9%
-    LAYER_N = {"L1": 9, "L2": 7, "L3": 6}
     got_n = {k: sum(1 for i in inds if i.get("dim") == k) for k in dm}
     if len(inds) == sum(LAYER_N.values()) and got_n == LAYER_N:
         ok(f"indicators 共 {len(inds)} 項，層人數符合規格 {LAYER_N}")
@@ -202,6 +211,56 @@ def check_data(repo):
         ok(f"質化指標集合符合規格（{len(QUAL)} 項）")
     else:
         bad(f"質化指標集合漂移：多 {sorted(actual - QUAL)}、少 {sorted(QUAL - actual)}")
+
+    # 質化指標的 note／asof 稽核。
+    #
+    # 質化分數沒有引擎可以重算，唯一的查核機制是人寫的 note（AGENT_BRIEF §4.5）。
+    # 但「note 一定要有分數軌跡」這條沒辦法無差別套用：vc／cloudrev 是季度指標，
+    # 分數整季不動時 note 本來就不該重寫，硬要求會製造永遠修不掉的 WARN——
+    # 而永遠修不掉的 WARN 等於沒有 WARN。所以這裡只查三件做得到的事：
+    #   (1) note 裡若寫了「… → Y」的軌跡，Y 必須等於現在的 score
+    #       （這才是真正的失效模式：分數改了、note 忘了改，或改錯邊）
+    #   (2) note 裡要有一個看得出來的日期／月份，否則理由無從判斷是否過期
+    #   (3) asof 停太久 → 這一項已經連續好幾次覆核沒被真正看過
+    #       門檻依各指標的自然更新頻率分開設，不用同一個數字。
+    QUAL_MAXAGE = {"narrative": 21, "circular": 21, "weakcredit": 21,  # 每週覆核
+                   "tokens": 75,                                       # 月度第三方彙整
+                   "vc": 130, "cloudrev": 130}                         # 季度
+    # 「本週由 4.5 下修至 4.0（score 80→70）」「本週由橙(82)轉紅(85)」都要抓得到
+    TRAIL = [re.compile(r"(\d+(?:\.\d+)?)\s*(?:→|->)\s*(\d+(?:\.\d+)?)"),
+             re.compile(r"本週由\D{0,4}(\d+(?:\.\d+)?)\D{0,6}?"
+                        r"(?:轉|升至|降至|上修至|下修至|改為)\D{0,4}(\d+(?:\.\d+)?)")]
+    DATEISH = re.compile(r"\d{4}-\d{1,2}(?:-\d{1,2})?|\d{1,2}\s*[/月]\s*\d{0,2}")
+    qprob, qwarn = [], []
+    for i in inds:
+        if not i.get("qual"):
+            continue
+        qid, note, sc = i["id"], str(i.get("note") or ""), num(i.get("score"))
+        # (1) 軌跡終點對不對得上現在的分數
+        ends = [m for rx in TRAIL for m in rx.finditer(note)]
+        if ends and sc is not None:
+            tail = float(ends[-1].group(2))
+            # 級距分數（0–100）才比對；narrative 那種「4.5 下修至 4.0」是原始級數，跳過
+            if tail > 5 and abs(tail - sc) > 1e-9:
+                qprob.append(f"{qid}：note 軌跡終點 {tail:g} ≠ 現在的 score {sc:g}")
+        # (2) 日期
+        if not DATEISH.search(note):
+            qwarn.append(f"{qid} 的 note 沒有任何可辨識的日期")
+        # (3) asof 停太久
+        a = days_ago(str(i.get("asof"))[:7] + "-01"
+                     if re.fullmatch(r"\d{4}-\d{2}\D*", str(i.get("asof")) or "")
+                     else i.get("asof"))
+        lim = QUAL_MAXAGE.get(qid, 45)
+        if a is None:
+            qwarn.append(f"{qid} 的 asof={i.get('asof')!r} 解不出日期")
+        elif a > lim:
+            qwarn.append(f"{qid} 的 asof 已 {a} 天沒動（該項門檻 {lim} 天）")
+    if qprob:
+        bad("質化 note 與 score 不符：" + "；".join(qprob))
+    for w in qwarn:
+        warn("質化：" + w)
+    if not qprob and not qwarn:
+        ok(f"質化 {len(QUAL)} 項的 note 軌跡、日期與 asof 新鮮度皆正常")
 
     # 觸發器
     TRIG = {"hy80", "ccc12", "gsy150", "cpi4", "policy_gap", "y10_5", "megaipo"}
@@ -329,9 +388,16 @@ def check_data(repo):
         if wrong:
             sprob.append(f"stages 的 done 應為「n < active 才 True」，不符：{wrong}")
     # note 開頭的「點亮 X／6」必須等於 checklist 實際加總
+    # note 開頭的「點亮 X／6」必須存在，且等於 checklist 實際加總。
+    # 這裡刻意「抓不到就報錯」而不是「抓不到就跳過」：舊版寫成 `if m and …`，
+    # 於是把全形／改成半形、或改寫句型，就會靜靜地關掉比對，而且照樣印一行 PASS
+    # 說 stage 一致——比沒有檢查更糟。斜線兩種都收，句型不對則明講。
     lit = sum(num(c.get("state")) or 0 for c in cl)
-    m = re.search(r"點亮\s*([0-9.]+)\s*／\s*(\d+)", str(st.get("note", "")))
-    if m and (abs(float(m.group(1)) - lit) > 1e-9 or int(m.group(2)) != len(cl)):
+    m = re.search(r"點亮\s*([0-9.]+)\s*[／/]\s*(\d+)", str(st.get("note", "")))
+    if not m:
+        sprob.append("stage.note 找不到「點亮 X／6」這一句（格式要照抄，"
+                     f"目前 checklist 實算是 {lit:g}／{len(cl)}）")
+    elif abs(float(m.group(1)) - lit) > 1e-9 or int(m.group(2)) != len(cl):
         sprob.append(f"stage.note 寫「點亮 {m.group(1)}／{m.group(2)}」，"
                      f"但 checklist 實際是 {lit:g}／{len(cl)}")
     if sprob:
@@ -521,9 +587,36 @@ def check_fallback(html, d):
 
     fh, dh = len(fb.get("history") or []), len((d or {}).get("history") or [])
     if fh > 60:
-        warn(f"#dashboard-data 內嵌快照 history {fh} 筆，建議只留最後 30 筆以免頁面過大")
+        warn(f"#dashboard-data 內嵌快照 history {fh} 筆，超過 60 筆就該裁到最後 60 筆以免頁面過大")
     elif fh:
         ok(f"#dashboard-data 內嵌快照 history {fh} 筆（data.json {dh} 筆）")
+
+    # 快照本來就是「某個時點的拷貝」，跟 data.json 不同是正常的；危險的是它舊到
+    # 講出另一個故事——fetch 失敗那天，使用者看到的會是這份快照而不是最新數字。
+    # 所以不比對「有沒有差」，只比對「差到會誤導沒有」。
+    if d:
+        fb_built, d_built = (fb.get("meta") or {}).get("built"), (d.get("meta") or {}).get("built")
+        lag = None
+        try:
+            lag = (dt.date.fromisoformat(str(d_built)[:10])
+                   - dt.date.fromisoformat(str(fb_built)[:10])).days
+        except Exception:
+            warn(f"內嵌快照 meta.built={fb_built!r} 解不出日期，無法判斷落後多久")
+        div = []
+        if lag is not None and lag > 45:
+            div.append(f"built 落後 data.json {lag} 天（{fb_built} vs {d_built}）")
+        fc, dc = num(fb.get("composite")), num(d.get("composite"))
+        if fc is not None and dc is not None and abs(fc - dc) > 5:
+            div.append(f"composite 差 {abs(fc - dc):.1f}（快照 {fc} vs 現行 {dc}）")
+        fr = (fb.get("quadrant") or {}).get("regime")
+        dr = (d.get("quadrant") or {}).get("regime")
+        if fr and dr and fr != dr:
+            div.append(f"象限 regime 不同（快照「{fr}」vs 現行「{dr}」）")
+        if div:
+            warn("內嵌快照已舊到會誤導，請以現行 data.json 重灌："
+                 + "；".join(div))
+        elif lag is not None:
+            ok(f"內嵌快照與現行 data.json 差距在容忍範圍內（落後 {lag} 天）")
 
 
 def engine_tw_anchors(path):
@@ -686,9 +779,21 @@ def check_code(repo, d):
         ok("index.html 採 fetch-first 讀取 data.json")
     else:
         bad("index.html 沒有 fetch data.json 的邏輯（會永遠顯示內嵌快照）")
-    for fn in ("renderQuad", "renderTriggers", "renderTwV2"):
+    for fn in ("renderQuad", "renderTriggers", "renderTwV2", "renderTwProse"):
         if fn not in html:
             bad(f"index.html 缺 v2 render 函式 {fn}")
+
+    # index.html 有一句寫死的「N 項指標依三層頻率分組」。它是結構性敘述、不必由引擎生成，
+    # 但加減指標時最容易漏改（MAINTENANCE §6.4 的老毛病）——所以把它交給機器對帳。
+    mN = re.search(r"(\d+)\s*項指標依三層頻率分組", html)
+    real = sum(LAYER_N.values())
+    if not mN:
+        warn("index.html 找不到「N 項指標依三層頻率分組」這句，無法核對指標項數")
+    elif int(mN.group(1)) != real:
+        bad(f"index.html 寫「{mN.group(1)} 項指標」，但三層實際共 {real} 項"
+            f"（{'＋'.join(f'{k} {v}' for k, v in LAYER_N.items())}）")
+    else:
+        ok(f"index.html 的「{real} 項指標」與三層項數一致")
 
     check_fallback(html, d)
     check_spreads_keys(repo, html, d)
@@ -699,9 +804,15 @@ def check_code(repo, d):
     if not js.strip():
         warn("index.html 找不到可檢查的 <script> 區塊")
         return
-    tmp = os.path.join("/tmp", "_bubble_check.js")
-    open(tmp, "w", encoding="utf-8").write(js)
+    # 用固定檔名（舊版是 /tmp/_bubble_check.js）會在兩個 healthcheck 同時跑時互相蓋掉，
+    # 而且寫檔動作若放在 try 外面，磁碟滿或 /tmp 唯讀時會直接把整個健康檢查炸掉。
+    # 改用 tempfile 產生唯一檔名，並把寫檔一起包進 try。
+    import tempfile
+    tmp = None
     try:
+        fd, tmp = tempfile.mkstemp(prefix="bubble_check_", suffix=".js")
+        with os.fdopen(fd, "w", encoding="utf-8") as f:
+            f.write(js)
         r = subprocess.run(["node", "--check", tmp], capture_output=True, text=True, timeout=30)
         if r.returncode == 0:
             ok("index.html 的 JS 語法正常（node --check）")
@@ -713,7 +824,8 @@ def check_code(repo, d):
         warn(f"JS 語法檢查未完成：{ex}")
     finally:
         try:
-            os.remove(tmp)
+            if tmp:
+                os.remove(tmp)
         except OSError:
             pass
 

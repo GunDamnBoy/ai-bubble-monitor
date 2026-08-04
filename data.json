@@ -1568,7 +1568,6 @@
  ],
  "params": {
   "nvda_eps": 6.31,
-  "tsmc_eps": 86.27,
   "ngdp_nominal": 4.9,
   "megaipo_done": false
  },

@@ -17,12 +17,15 @@
     "calc nvdape",
     "multpl CAPE",
     "slickcharts Mag7",
+    "CBOE putcall",
     "FRED VIX",
     "calc senti",
     "FRED HY",
     "FRED CCC",
     "ORCL bond",
     "FRED IG",
+    "FRED FEDFUNDS 磚塊",
+    "FRED USINFO 磚塊",
     "EDGAR RPO",
     "EDGAR quarterly",
     "TW 月營收",
@@ -38,14 +41,13 @@
    ],
    "fail": [
     "AAII",
-    "CBOE putcall",
     "TW 台積電權重"
    ]
   }
  },
- "composite": 55.9,
+ "composite": 56.6,
  "dims": {
-  "L1": 58.6,
+  "L1": 60.5,
   "L2": 70.3,
   "L3": 36.1
  },
@@ -166,9 +168,9 @@
    "id": "nvdape",
    "dim": "L1",
    "name": "NVIDIA 本益比（即時價÷TTM EPS）",
-   "value": 32.75,
-   "disp": "32.7×",
-   "score": 28.0,
+   "value": 31.81,
+   "disp": "31.8×",
+   "score": 26.0,
    "zone": "green",
    "anchors": [
     [
@@ -189,21 +191,21 @@
     ]
    ],
    "dir": "越高越熱",
-   "asof": "2026-08-03",
+   "asof": "2026-07-31",
    "fresh": "ok",
    "src": "Yahoo/Stooq＋財報 EPS",
    "url": "https://stockanalysis.com/stocks/nvda/",
    "note": "對照 2000 年 Cisco 130×+。龍頭是否仍由盈利支撐的即時檢驗；GS 2026-08 改口「盈利泡沫」後，這裡要與 LTG 預期一起看。",
    "qual": false,
-   "sub": "距200日線 +6.9%"
+   "sub": "距200日線 +4.0%"
   },
   {
    "id": "gsy_runup",
    "dim": "L1",
    "name": "GSY 泡沫判準：24個月漲幅（SOXX）",
-   "value": 121.8,
-   "disp": "+122%（24個月）",
-   "score": 70.9,
+   "value": 120.1,
+   "disp": "+120%（24個月）",
+   "score": 70.1,
    "zone": "orange",
    "anchors": [
     [
@@ -228,7 +230,7 @@
     ]
    ],
    "dir": "越高越熱",
-   "asof": "2026-08-03",
+   "asof": "2026-07-31",
    "fresh": "ok",
    "src": "Greenwood-Shleifer (JFE 2019)",
    "url": "https://www.nber.org/papers/w23191",
@@ -240,9 +242,9 @@
    "id": "gsy_accel",
    "dim": "L1",
    "name": "GSY 加速度（後12月−前12月）",
-   "value": 81.2,
-   "disp": "+81pp",
-   "score": 90.2,
+   "value": 76.9,
+   "disp": "+77pp",
+   "score": 88.1,
    "zone": "red",
    "anchors": [
     [
@@ -267,7 +269,7 @@
     ]
    ],
    "dir": "凸性越強越熱",
-   "asof": "2026-08-03",
+   "asof": "2026-07-31",
    "fresh": "ok",
    "src": "Greenwood-Shleifer (JFE 2019)",
    "url": "https://www.nber.org/papers/w23191",
@@ -278,9 +280,9 @@
    "id": "volchg",
    "dim": "L1",
    "name": "已實現波動率一年變化（SOXX）",
-   "value": 2.3,
-   "disp": "+2.3pp（年化 44%）",
-   "score": 48.5,
+   "value": 2.6,
+   "disp": "+2.6pp（年化 45%）",
+   "score": 50.3,
    "zone": "yellow",
    "anchors": [
     [
@@ -301,7 +303,7 @@
     ]
    ],
    "dir": "上升越多越熱",
-   "asof": "2026-08-03",
+   "asof": "2026-07-31",
    "fresh": "ok",
    "src": "Greenwood-Shleifer / State Street",
    "url": "https://www.nber.org/papers/w23191",
@@ -312,9 +314,9 @@
    "id": "soxmom",
    "dim": "L1",
    "name": "半導體相對動能（SOXX−SPY，3個月）",
-   "value": 3.9,
-   "disp": "+4pp",
-   "score": 12.8,
+   "value": 5.5,
+   "disp": "+5pp",
+   "score": 18.0,
    "zone": "green",
    "anchors": [
     [
@@ -335,7 +337,7 @@
     ]
    ],
    "dir": "越高越熱",
-   "asof": "2026-08-03",
+   "asof": "2026-07-31",
    "fresh": "ok",
    "src": "Yahoo/Stooq",
    "url": "https://stockanalysis.com/etf/soxx/",
@@ -346,9 +348,9 @@
    "id": "senti",
    "dim": "L1",
    "name": "情緒與投機溫度（合成）",
-   "value": 50.0,
-   "disp": "VIX 16.0",
-   "score": 50.0,
+   "value": 65.3,
+   "disp": "個股P/C 0.55｜VIX 16.0",
+   "score": 65.3,
    "zone": "yellow",
    "anchors": null,
    "dir": "合成規則（AAII＋P/C＋VIX）",
@@ -754,7 +756,7 @@
   }
  ],
  "tw": {
-  "heat": 53.4,
+  "heat": 51.3,
   "items": [
    {
     "id": "tw_rev",
@@ -799,32 +801,32 @@
    {
     "id": "tsmc_200dma",
     "name": "台積電距 200 日均線",
-    "value": 24.6,
-    "disp": "+24.6%",
-    "score": 54.8,
+    "value": 21.7,
+    "disp": "+21.7%",
+    "score": 48.2,
     "note": "主升段乖離度。",
     "src": "stockanalysis.com",
-    "asof": "2026-08-03"
+    "asof": "2026-08-04"
    },
    {
     "id": "tsmc_52w",
     "name": "台積電一年漲幅",
-    "value": 105.2,
-    "disp": "+105.2%",
-    "score": 75.4,
+    "value": 101.7,
+    "disp": "+101.7%",
+    "score": 73.5,
     "note": "GSY 式漲幅檢驗的台股版。",
     "src": "Google Finance",
-    "asof": "2026-08-03"
+    "asof": "2026-08-04"
    },
    {
     "id": "twii_pos",
     "name": "台積電 52 週區間位置",
-    "value": 89.9,
-    "disp": "89.9%",
-    "score": 66.8,
+    "value": 86.3,
+    "disp": "86.3%",
+    "score": 58.6,
     "note": "以台積電（佔大盤 44%+）取代加權指數作位置計。",
     "src": "Yahoo Finance",
-    "asof": "2026-08-03"
+    "asof": "2026-08-04"
    },
    {
     "id": "elec_rel",
@@ -858,7 +860,7 @@
    }
   ],
   "subs": {
-   "動能": 65.7,
+   "動能": 60.1,
    "估值": 68.8,
    "籌碼": null,
    "基本面": 11.9
@@ -1189,6 +1191,7 @@
    "hy": {
     "now": 2.84,
     "m3": 2.83,
+    "y1": 2.89,
     "asof": "2026-07-30"
    },
    "ig": {
@@ -1293,13 +1296,13 @@
  "events": [
   {
    "d": "08-04",
-   "t": "Big Tech's Anthropic and OpenAI stakes are distorting the corporate earnings picture｜CNBC",
-   "url": "https://news.google.com/rss/articles/CBMiowFBVV95cUxQLVZ0SlZoODJGekFDdGRyVkJwNll5b09xSGtra3lBRHJuQWtoc0hOZlJxdjk2YUZUZDJXZFJSdFJTcVNfQnhHUFZBMUg0ZTVmTU5qMk1TMkw0am92T2FjZlotdnd2X3RReUNWcHJyRDJxRDZ2MjczUWZ3c0pQeWYxN1d3MUV5LVA4SE5UUXlqRjR3QTM1c3NVOTNpUlh6YTllOE9j0gGoAUFVX3lxTE9jQlpJY3Q1UDdiSHVzWEJhcFdnSHdNbFNyeDQ2cUsxLUhwQ2Vnd0pnTnM4YUlnUkptOFVhUUZpaUw4anZ3R2huVkoxWmt0WkRlQUhNamF2ZE1BZHdlV2ZwMXd0YktDT1VZTmZqVXBfZmVwdVhoaGxkRWc0U2hMOWpmcWtTMlVjdzR5R2dkMFgzYVl6b1V0ZnpnejNEa21NaXctd3lsdThqQw?oc=5"
+   "t": "AI demand to keep near-term inflation pressures elevated: Allspring Global Investments｜CNBC",
+   "url": "https://news.google.com/rss/articles/CBMiqAFBVV95cUxNU1MwTlc3YjJham0yLWY3dU5pd0lidWRBeTNVaWxmRlR5N2ZEWVF0b09tM05xWWh4cnpfZ2NQZTNCd09ocWxmMlBtVTQ3U0Y2dEN2STF3Rl9NR3laa3lUZW5tS3lyNG5USWF1MGdFbjAxLUpyNWg3NHRESm11U2R5UzZWZDg3UVgxNmwyXzVQbVk0ekRHVlBGRWYzSjRXb0FJbmFsSjZyT0g?oc=5"
   },
   {
    "d": "08-04",
-   "t": "On Semiconductor Rises on Solid Earnings Beat as AI Data Center Revenue Grows｜Barron's",
-   "url": "https://news.google.com/rss/articles/CBMihgFBVV95cUxNTjBZVVF0RnlQTFU3WURXTjMtRFZ5MVJRUlFKSFM3S0JIbTdjcXZkWnREVVFYSFNORXVxanBIVUdDUXpaRU5QRHA4QklreTJnM3dRcGNMcTFXNnlYSVRtSVRSVnROdjhhaDYzR3JmY1dyVHpBMVdxS0YwenQwcEs2b2g1cldHdw?oc=5"
+   "t": "Big Tech's Anthropic and OpenAI stakes are distorting the corporate earnings picture｜CNBC",
+   "url": "https://news.google.com/rss/articles/CBMiowFBVV95cUxQLVZ0SlZoODJGekFDdGRyVkJwNll5b09xSGtra3lBRHJuQWtoc0hOZlJxdjk2YUZUZDJXZFJSdFJTcVNfQnhHUFZBMUg0ZTVmTU5qMk1TMkw0am92T2FjZlotdnd2X3RReUNWcHJyRDJxRDZ2MjczUWZ3c0pQeWYxN1d3MUV5LVA4SE5UUXlqRjR3QTM1c3NVOTNpUlh6YTllOE9j0gGoAUFVX3lxTE9jQlpJY3Q1UDdiSHVzWEJhcFdnSHdNbFNyeDQ2cUsxLUhwQ2Vnd0pnTnM4YUlnUkptOFVhUUZpaUw4anZ3R2huVkoxWmt0WkRlQUhNamF2ZE1BZHdlV2ZwMXd0YktDT1VZTmZqVXBfZmVwdVhoaGxkRWc0U2hMOWpmcWtTMlVjdzR5R2dkMFgzYVl6b1V0ZnpnejNEa21NaXctd3lsdThqQw?oc=5"
   },
   {
    "d": "08-04",
@@ -1313,8 +1316,8 @@
   },
   {
    "d": "08-04",
-   "t": "On Semiconductor posts earnings and revenue beat｜CNBC",
-   "url": "https://news.google.com/rss/articles/CBMilgFBVV95cUxOZk1KLVFSdlA3bXdENGtHZ0hpWktPR01JSk02S2JXNUgzd2h6emZrSUIxY05UZ2ZsWXo5UFRRaVU2VGRWOThEUkRGY3dSVkVIeTc2a3V3VEpDR2d6V0E5SGZBclh3MmdEbmNzd1pPUkhPeF9XZW9WWmtESHBjdUFNRkk0bjlKdXR1QUI2R2JPSUdqaDBHZlE?oc=5"
+   "t": "On Semiconductor Rises on Solid Earnings Beat as AI Data Center Revenue Grows｜Barron's",
+   "url": "https://news.google.com/rss/articles/CBMihgFBVV95cUxNTjBZVVF0RnlQTFU3WURXTjMtRFZ5MVJRUlFKSFM3S0JIbTdjcXZkWnREVVFYSFNORXVxanBIVUdDUXpaRU5QRHA4QklreTJnM3dRcGNMcTFXNnlYSVRtSVRSVnROdjhhaDYzR3JmY1dyVHpBMVdxS0YwenQwcEs2b2g1cldHdw?oc=5"
   },
   {
    "d": "08-03",
@@ -1550,16 +1553,16 @@
   },
   {
    "date": "2026-08-04",
-   "composite": 55.9,
+   "composite": 56.6,
    "dims": {
-    "L1": 58.6,
+    "L1": 60.5,
     "L2": 70.3,
     "L3": 36.1
    },
-   "tw": 53.4,
+   "tw": 51.3,
    "quad": [
     63.9,
-    64.5
+    65.4
    ]
   }
  ],
@@ -1590,7 +1593,7 @@
    "id": "gsy150",
    "name": "SOXX 24個月漲幅 ≥150%",
    "state": 0,
-   "value": "+122%",
+   "value": "+120%",
    "note": "GSY：歷史崩盤機率 80% 區",
    "asof": "2026-08-04"
   },
@@ -1628,7 +1631,7 @@
   }
  ],
  "quadrant": {
-  "heat": 64.5,
+  "heat": 65.4,
   "support": 63.9,
   "regime": "過熱但有撐（melt-up 風險）"
  }

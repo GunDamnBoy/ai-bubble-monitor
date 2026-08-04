@@ -29,7 +29,7 @@
 5. 只在**流程或人機分工改變**時才動每週排程 prompt，用 `mcp__claude-code-remote__update_trigger` 同步。
    **`prompt` 是整份取代，不是局部編輯**——送出前確認所有段落都帶上了，漏掉的段落等於刪除。
 6. 在 `AGENT_BRIEF.md` 第 10 節加變更紀錄，**寫清楚為什麼改**；事故經過與被否決的選項寫進本檔第 6 節。
-7. 推送後**一定要驗證線上**：`curl` 帶 cache-buster 抓 `data.json`，比對 `meta.built` 與 `composite`。
+7. 推送後**一定要驗證線上**：用 WebFetch 抓 `data.json`（**不能用 `curl`**，本容器連不到 `github.io`），比對 `meta.built` 與 `composite`。重試要**換路徑**（多打一個斜線）而不是加 `?t=`，理由見第 6 節。
 
 改完當下再跑一次 `healthcheck.py`，並確認沒有製造新的不同步。
 
@@ -63,7 +63,8 @@
 - **EDGAR 某公司某科目突然沒資料**，先查標籤是不是換了（GOOGL 就從 `RevenueFromContractWithCustomerExcludingAssessedTax` 換到 `Revenues`）。
 - **價格抓不到**：三層備援 yfinance → Yahoo raw → Stooq。Stooq 在 Actions runner 被擋是常態，它只是最後一層。
 - **不要在覆核工作階段重抓自動指標**。覆核容器的 Bash（`curl`／`requests`）只通得到 `github.com` 與 `raw.githubusercontent.com`，FRED、Stooq、SEC、TAIFEX 一律連不上，所以在那裡跑不動引擎；而唯一通得到外網的 `WebSearch`／`WebFetch` 讀 CSV／JSON 端點只會拿到 binary 亂碼，讀網頁則是經過摘要的文字，都不能代替引擎的數值抓取。硬要重抓的結果就是抓到空值或殘值，然後把每日管線的好值蓋掉。詳見 `AGENT_BRIEF.md` §8.3 的兩條路對照表。
-- **推送後的線上核對不能用 `curl`**。`gundamnboy.github.io` 從覆核容器的 Bash 連不到（回 http=000，不是逾時也不是 404，是連線直接被擋），舊版排程 prompt 寫 `curl … github.io/data.json | python3 -c …` 那一步**從來沒有真的執行成功過**——它會拿到空字串然後 JSONDecodeError，而流程往下走看起來像沒事。正解是用 WebFetch 讀同一個 URL 請它回報 `meta.built`／`composite`／`regime`，並記得換 `?t=` 時間戳繞開 WebFetch 的 15 分鐘快取。這是「文件寫了一個沒人驗證過的指令」的典型案例：**寫進流程的每一行指令，都要在寫的當下實際跑過一次。**
+- **推送後的線上核對不能用 `curl`**。`gundamnboy.github.io` 從覆核容器的 Bash 連不到（回 http=000，不是逾時也不是 404，是連線直接被擋），舊版排程 prompt 寫 `curl … github.io/data.json | python3 -c …` 那一步**從來沒有真的執行成功過**——它會拿到空字串然後 JSONDecodeError，而流程往下走看起來像沒事。正解是用 WebFetch 讀同一個 URL 請它回報 `meta.built`／`composite`／`regime`。這是「文件寫了一個沒人驗證過的指令」的典型案例：**寫進流程的每一行指令，都要在寫的當下實際跑過一次。**
+- **而 `?t=` 時間戳不是 cache-buster**（2026-08-04，上一條的續集，也是同一個教訓犯第二次）。發現 curl 不通之後改寫成「WebFetch＋`?t=` 繞開 15 分鐘快取」，只驗證了 WebFetch 抓得到，**沒有驗證那個 `?t=` 真的會繞開快取**。結果推送後連續五次換時間戳、橫跨 26 分鐘，全部拿回推送前的舊 JSON，一路誤判成「Pages 沒重建」，還跑去翻 workflow 的 `POST /pages/builds` 找兇手。快取鍵忽略 query string。**有效的繞法是換路徑**——`…/ai-bubble-monitor//data.json`、`///data.json`，多打斜線 Pages 照樣服務，每個都是不同的快取鍵。識破的關鍵動作是**去抓一個不可能有快取的 URL**（同一次推送新寫的 `README.md`），它是新版的，才確定站台早就好了、舊的是快取。**分不出「站台是舊的」和「你看到的是舊的」時，找一個從沒抓過的路徑。**
 
 ---
 

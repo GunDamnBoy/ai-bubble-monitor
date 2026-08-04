@@ -395,7 +395,16 @@ L1 除 `narrative` 外全部、L2 除三項質化外全部、L3 除 `cloudrev`�
 
 所以禁令的真正理由不是「連不到網路」，而是：**能連到網路的那條路（WebFetch）拿不到引擎要的東西**。WebFetch 讀 `fredgraph.csv` 這類 CSV／JSON 端點會回傳 binary 亂碼，讀網頁則是經過摘要的文字——兩者都不能取代引擎的數值抓取，硬要用只會抓到殘值或讀錯數字，然後把每日管線抓到的好值蓋掉。
 
-**但同一條路可以做線上核對。** WebFetch 抓 `https://gundamnboy.github.io/ai-bubble-monitor/data.json` 並要它回報 `meta.built`／`composite`／`quadrant.regime` 是實測可行的（小模型讀 JSON 回報少數幾個欄位，跟「抓整份 CSV 當數值來源」不是同一件事）。注意 **WebFetch 對同一個 URL 有 15 分鐘快取**，重試時要換 `?t=` 時間戳，否則會拿到上一次的答案還以為 Pages 沒更新。`raw.githubusercontent.com` 雖然 curl 得到，但它只證明 commit 進去了，證明不了 Pages 已重建。
+**但同一條路可以做線上核對。** WebFetch 抓 `https://gundamnboy.github.io/ai-bubble-monitor/data.json` 並要它回報 `meta.built`／`composite`／`quadrant.regime` 是實測可行的（小模型讀 JSON 回報少數幾個欄位，跟「抓整份 CSV 當數值來源」不是同一件事）。`raw.githubusercontent.com` 雖然 curl 得到，但它只證明 commit 進去了，證明不了 Pages 已重建。
+
+**快取的正確繞法是換路徑，不是加 query string。** 這個 URL 有 15 分鐘快取，而 2026-08-04 實測發現：**加 `?t=<時間戳>` 完全沒有用**——連續五次換不同時間戳、橫跨 26 分鐘，全部拿回同一份推送前的舊 JSON，看起來像「Pages 一直沒重建」。真相是快取鍵忽略 query string（在 WebFetch 端還是 Pages CDN 端分不出來，但結果一樣）。有效的做法是**讓路徑本身不同**，多打幾個斜線即可，Pages 照樣服務：
+
+```
+https://gundamnboy.github.io/ai-bubble-monitor//data.json     ← 第 2 次抓用這個
+https://gundamnboy.github.io/ai-bubble-monitor///data.json    ← 第 3 次用這個，依此類推
+```
+
+當時識破這件事的方法值得記下來：去抓一個**從來不可能有快取的路徑**（同一次推送裡新寫的 `README.md`），發現它已經是新版——證明 Pages 早就重建好了，舊的是快取不是站台。**分不出「站台是舊的」和「你看到的是舊的」時，就去抓一個不可能被快取的 URL。**
 
 `events` 若真的漏了重大結構性事件，最多**補 1–2 條**（附 url），不要整批重寫。
 

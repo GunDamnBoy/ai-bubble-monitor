@@ -8,36 +8,46 @@
   "lastAutoRun": {
    "date": "2026-08-04",
    "ok": [
-    "FRED HY",
-    "FRED IG",
-    "FRED VIX",
-    "FRED 10Y",
-    "FRED FED",
-    "FRED JOBS",
-    "px NVDA",
     "px SOXX",
     "px SPY",
-    "px 2330.TW",
-    "calc nvda",
+    "px NVDA",
+    "px 2330",
+    "calc GSY",
     "calc soxmom",
-    "calc tsmc",
-    "px ^TWII",
+    "calc nvdape",
     "multpl CAPE",
     "slickcharts Mag7",
-    "Google News",
-    "EDGAR quarterly"
+    "FRED VIX",
+    "calc senti",
+    "FRED HY",
+    "FRED CCC",
+    "ORCL bond",
+    "FRED IG",
+    "EDGAR RPO",
+    "EDGAR quarterly",
+    "TW 月營收",
+    "TW 官方PE",
+    "calc TW 2330",
+    "TW 電子指數",
+    "TW 融資餘額",
+    "TW 海關出口",
+    "FRED CPI",
+    "FRED FEDFUNDS",
+    "FRED DGS10",
+    "Google News"
    ],
-   "fail": []
+   "fail": [
+    "AAII",
+    "CBOE putcall",
+    "TW 台積電權重"
+   ]
   }
  },
- "composite": 54.3,
+ "composite": 55.9,
  "dims": {
-  "D1": 61.3,
-  "D2": 0.0,
-  "D3": 72.2,
-  "D4": 71.8,
-  "D5": 37.0,
-  "D6": 58.0
+  "L1": 58.6,
+  "L2": 70.3,
+  "L3": 36.1
  },
  "dimMeta": {
   "L1": {
@@ -122,9 +132,9 @@
    "id": "mag7",
    "dim": "L1",
    "name": "Mag7 佔標普500市值比重",
-   "value": 33.8,
-   "disp": "33.8%",
-   "score": 76.9,
+   "value": 33.96,
+   "disp": "34.0%",
+   "score": 77.8,
    "zone": "orange",
    "anchors": [
     [
@@ -184,16 +194,17 @@
    "src": "Yahoo/Stooq＋財報 EPS",
    "url": "https://stockanalysis.com/stocks/nvda/",
    "note": "對照 2000 年 Cisco 130×+。龍頭是否仍由盈利支撐的即時檢驗；GS 2026-08 改口「盈利泡沫」後，這裡要與 LTG 預期一起看。",
-   "qual": false
+   "qual": false,
+   "sub": "距200日線 +6.9%"
   },
   {
    "id": "gsy_runup",
    "dim": "L1",
    "name": "GSY 泡沫判準：24個月漲幅（SOXX）",
-   "value": null,
-   "disp": "—",
-   "score": null,
-   "zone": "pending",
+   "value": 121.8,
+   "disp": "+122%（24個月）",
+   "score": 70.9,
+   "zone": "orange",
    "anchors": [
     [
      25,
@@ -217,21 +228,22 @@
     ]
    ],
    "dir": "越高越熱",
-   "asof": "待首次更新",
+   "asof": "2026-08-03",
    "fresh": "ok",
    "src": "Greenwood-Shleifer (JFE 2019)",
    "url": "https://www.nber.org/papers/w23191",
    "note": "唯一有崩盤機率校準的訊號：產業 24 個月漲幅 ≥100% → 其後 24 個月崩盤（-40%）機率 53%；≥150% → 80%。每日以 SOXX 計算。",
-   "qual": false
+   "qual": false,
+   "sub": "文獻校準：≥100%→其後24個月崩盤率53%、≥150%→80%（Greenwood-Shleifer）"
   },
   {
    "id": "gsy_accel",
    "dim": "L1",
    "name": "GSY 加速度（後12月−前12月）",
-   "value": null,
-   "disp": "—",
-   "score": null,
-   "zone": "pending",
+   "value": 81.2,
+   "disp": "+81pp",
+   "score": 90.2,
+   "zone": "red",
    "anchors": [
     [
      -30,
@@ -255,7 +267,7 @@
     ]
    ],
    "dir": "凸性越強越熱",
-   "asof": "待首次更新",
+   "asof": "2026-08-03",
    "fresh": "ok",
    "src": "Greenwood-Shleifer (JFE 2019)",
    "url": "https://www.nber.org/papers/w23191",
@@ -266,10 +278,10 @@
    "id": "volchg",
    "dim": "L1",
    "name": "已實現波動率一年變化（SOXX）",
-   "value": null,
-   "disp": "—",
-   "score": null,
-   "zone": "pending",
+   "value": 2.3,
+   "disp": "+2.3pp（年化 44%）",
+   "score": 48.5,
+   "zone": "yellow",
    "anchors": [
     [
      -6,
@@ -289,7 +301,7 @@
     ]
    ],
    "dir": "上升越多越熱",
-   "asof": "待首次更新",
+   "asof": "2026-08-03",
    "fresh": "ok",
    "src": "Greenwood-Shleifer / State Street",
    "url": "https://www.nber.org/papers/w23191",
@@ -334,18 +346,19 @@
    "id": "senti",
    "dim": "L1",
    "name": "情緒與投機溫度（合成）",
-   "value": null,
-   "disp": "—",
-   "score": null,
-   "zone": "pending",
+   "value": 50.0,
+   "disp": "VIX 16.0",
+   "score": 50.0,
+   "zone": "yellow",
    "anchors": null,
    "dir": "合成規則（AAII＋P/C＋VIX）",
-   "asof": "待首次更新",
+   "asof": "2026-08-04",
    "fresh": "ok",
    "src": "AAII / CBOE / FRED",
    "url": "https://www.aaii.com/sentimentsurvey",
    "note": "橋水問題③④的公開替代：AAII 多空差（散戶信念）、CBOE 個股 Put/Call（投機行為）、VIX（自滿度）等權合成。目前特徵是「不信任的上漲」——散戶淨空但個股選擇權貪婪。",
-   "qual": false
+   "qual": false,
+   "sub": "AAII（週）＋CBOE 個股 Put/Call（日）＋VIX（日）等權合成"
   },
   {
    "id": "narrative",
@@ -396,14 +409,15 @@
    "src": "SEC EDGAR XBRL",
    "url": "https://data.sec.gov/",
    "note": "資本開支資金來源從現金流切換到債市的直接證據——網路泡沫第二階段定義性特徵。申報當日自動入帳。",
-   "qual": false
+   "qual": false,
+   "sub": "合計 $439B"
   },
   {
    "id": "hyoas",
    "dim": "L2",
    "name": "高收益債利差（3個月變化）",
    "value": 2.84,
-   "disp": "2.84%",
+   "disp": "2.84%（3個月 +1bp）",
    "score": 25.8,
    "zone": "green",
    "anchors": [
@@ -441,10 +455,10 @@
    "id": "ccc",
    "dim": "L2",
    "name": "CCC 級利差（最弱信用層）",
-   "value": null,
-   "disp": "—",
-   "score": null,
-   "zone": "pending",
+   "value": 10.06,
+   "disp": "10.06%（3個月 +97bp）",
+   "score": 63.2,
+   "zone": "yellow",
    "anchors": [
     [
      5,
@@ -468,21 +482,22 @@
     ]
    ],
    "dir": "越高越熱",
-   "asof": "待首次更新",
+   "asof": "2026-07-30",
    "fresh": "ok",
    "src": "FRED BAMLH0A3HYC",
    "url": "https://fred.stlouisfed.org/series/BAMLH0A3HYC",
    "note": "信用市場的礦坑金絲雀總表：HY 整體被大型優質發行人稀釋時，CCC 層先反映壓力。2022 熊市高點約 12%。",
-   "qual": false
+   "qual": false,
+   "sub": "最弱信用層日頻壓力計；2022 熊市高點約 12%"
   },
   {
    "id": "orclbond",
    "dim": "L2",
    "name": "Oracle 2055 長債殖利率",
-   "value": null,
-   "disp": "—",
-   "score": null,
-   "zone": "pending",
+   "value": 7.52,
+   "disp": "7.52%",
+   "score": 70.4,
+   "zone": "orange",
    "anchors": [
     [
      5,
@@ -506,7 +521,7 @@
     ]
    ],
    "dir": "越高越熱",
-   "asof": "待首次更新",
+   "asof": "2026-08-04",
    "fresh": "ok",
    "src": "Public.com 債券報價",
    "url": "https://public.com/bonds/corporate/oracle-corp/orcl-4.375-05-15-2055-68389xbg9",
@@ -597,7 +612,7 @@
    "url": "https://data.sec.gov/",
    "note": "資本開支吞噬現金流的核心比率。v2 新增初步季度 nowcast：三家以上申報即先算初步值（缺者沿用上季），不再等五家到齊。",
    "qual": false,
-   "sub": "最新單季 94.0%"
+   "sub": "2026Q2 初步：單季 91.3%、TTM 80.2%（4/5 家已申報，缺 META 沿用上季）"
   },
   {
    "id": "fcf",
@@ -632,7 +647,7 @@
    "url": "https://data.sec.gov/",
    "note": "獲利巨頭把現金流全數換成資料中心的速度。",
    "qual": false,
-   "sub": "單季 FCF $9.5B（年增 -77.6%）"
+   "sub": "TTM FCF $158.3B｜初步 $137.3B"
   },
   {
    "id": "dnagap",
@@ -672,18 +687,19 @@
    "id": "rpo",
    "dim": "L3",
    "name": "合約儲備 RPO 年增（MSFT＋GOOGL＋ORCL）",
-   "value": null,
-   "disp": "—",
-   "score": null,
-   "zone": "pending",
+   "value": 196.5,
+   "disp": "+197%（合計 $1842B）",
+   "score": 0.0,
+   "zone": "green",
    "anchors": null,
    "dir": "成長越快支撐越強（反證維度）",
-   "asof": "待首次更新",
+   "asof": "2026-08-04",
    "fresh": "ok",
    "src": "SEC EDGAR XBRL",
    "url": "https://data.sec.gov/",
    "note": "已簽約未認列收入＝AI 需求的前瞻檢驗。ORCL 137B→638B、GOOGL 108B→519B 的暴增是本輪與 2000 年最大的基本面差異；若 RPO 成長熄火而 capex 不減，缺口直接擴大。",
-   "qual": false
+   "qual": false,
+   "sub": "MSFT $684B(2026-06)＋GOOGL $520B(2026-06)＋ORCL $638B(2026-05)"
   },
   {
    "id": "cloudrev",
@@ -738,97 +754,97 @@
   }
  ],
  "tw": {
-  "heat": 61.9,
+  "heat": 53.4,
   "items": [
    {
     "id": "tw_rev",
     "name": "AI 供應鏈月營收動能（10檔加權年增）",
-    "value": null,
-    "disp": "—",
-    "score": null,
+    "value": 63.6,
+    "disp": "加權年增 +63.6%",
+    "score": 13.8,
     "note": "台灣是全球 AI 硬體的出貨速度計：台積電＋伺服器鏈月營收加權年增。成長極強＝基本面支撐（降溫）；轉弱＝需求裂縫最早的實體訊號。月頻、每月10日後更新。",
     "src": "TWSE/官方公開資料",
-    "asof": "待首次更新"
+    "asof": "2026-06"
    },
    {
     "id": "tw_export",
     "name": "台灣海關出口年增",
-    "value": null,
-    "disp": "—",
-    "score": null,
+    "value": 54.6,
+    "disp": "+54.6%（2026-05）",
+    "score": 10.0,
     "note": "總體交叉驗證：關務署月度出口統計（月頻）。",
     "src": "TWSE/官方公開資料",
-    "asof": "待首次更新"
+    "asof": "2026-05"
    },
    {
     "id": "tsmc_pe",
     "name": "台積電本益比（TWSE 官方）",
-    "value": 28.11,
-    "disp": "28.1×",
-    "score": 67.5,
+    "value": 31.86,
+    "disp": "31.9×（官方）",
+    "score": 85.2,
     "note": "改用證交所官方日更本益比，不再自算。歷史區間約 15-28×。",
     "src": "Google Finance / stockanalysis",
-    "asof": "2026-07-31"
+    "asof": "2026-08-03"
    },
    {
     "id": "odm_pe",
     "name": "AI 伺服器供應鏈本益比（官方）",
-    "value": 17.8,
-    "disp": "平均 17.8×",
-    "score": 52.1,
+    "value": 17.9,
+    "disp": "平均 17.9×（官方）",
+    "score": 52.4,
     "note": "鴻海/廣達/緯創/緯穎官方 PE 平均。",
     "src": "Google Finance",
-    "asof": "2026-07-16"
+    "asof": "2026-08-03"
    },
    {
     "id": "tsmc_200dma",
     "name": "台積電距 200 日均線",
-    "value": 27.85,
-    "disp": "+27.8%",
-    "score": 62.1,
+    "value": 24.6,
+    "disp": "+24.6%",
+    "score": 54.8,
     "note": "主升段乖離度。",
     "src": "stockanalysis.com",
-    "asof": "2026-07-31"
+    "asof": "2026-08-03"
    },
    {
     "id": "tsmc_52w",
     "name": "台積電一年漲幅",
-    "value": 114.6,
-    "disp": "+114.6%",
-    "score": 80.5,
+    "value": 105.2,
+    "disp": "+105.2%",
+    "score": 75.4,
     "note": "GSY 式漲幅檢驗的台股版。",
     "src": "Google Finance",
-    "asof": "2026-07-31"
+    "asof": "2026-08-03"
    },
    {
     "id": "twii_pos",
     "name": "台積電 52 週區間位置",
-    "value": 81.3,
-    "disp": "81.3%",
-    "score": 47.3,
+    "value": 89.9,
+    "disp": "89.9%",
+    "score": 66.8,
     "note": "以台積電（佔大盤 44%+）取代加權指數作位置計。",
     "src": "Yahoo Finance",
-    "asof": "2026-07-31"
+    "asof": "2026-08-03"
    },
    {
     "id": "elec_rel",
     "name": "電子類指數相對加權（20日）",
     "value": null,
-    "disp": "—",
+    "disp": "序列累積中（1/21 交易日）",
     "score": null,
     "note": "電子 vs 大盤的相對動能（TWSE 官方指數，序列自動累積）。",
     "src": "TWSE/官方公開資料",
-    "asof": "待首次更新"
+    "asof": "2026-08-03"
    },
    {
     "id": "tw_margin",
     "name": "融資餘額（20日變化）",
-    "value": null,
-    "disp": "—",
+    "value": 514.8,
+    "disp": "515 十億元（序列累積中 1/21）",
     "score": null,
     "note": "散戶槓桿溫度計（TWSE 信用交易統計，日頻）。",
     "src": "TWSE/官方公開資料",
-    "asof": "待首次更新"
+    "asof": "2026-08-03"
    },
    {
     "id": "tsmc_weight",
@@ -841,7 +857,150 @@
     "asof": "待首次更新"
    }
   ],
-  "subs": {}
+  "subs": {
+   "動能": 65.7,
+   "估值": 68.8,
+   "籌碼": null,
+   "基本面": 11.9
+  },
+  "revTable": [
+   {
+    "code": "2330",
+    "name": "台積電",
+    "role": "晶圓代工",
+    "yoy": 67.9,
+    "mom": 6.2,
+    "rev": 442.7
+   },
+   {
+    "code": "2317",
+    "name": "鴻海",
+    "role": "AI伺服器組裝",
+    "yoy": 52.1,
+    "mom": -4.4,
+    "rev": 821.8
+   },
+   {
+    "code": "2382",
+    "name": "廣達",
+    "role": "AI伺服器ODM",
+    "yoy": 102.9,
+    "mom": 23.7,
+    "rev": 385.2
+   },
+   {
+    "code": "3231",
+    "name": "緯創",
+    "role": "ODM/GPU板",
+    "yoy": 53.8,
+    "mom": 10.9,
+    "rev": 321.8
+   },
+   {
+    "code": "6669",
+    "name": "緯穎",
+    "role": "CSP直供伺服器",
+    "yoy": 29.8,
+    "mom": 32.5,
+    "rev": 111.4
+   },
+   {
+    "code": "3017",
+    "name": "奇鋐",
+    "role": "散熱",
+    "yoy": 66.1,
+    "mom": 11.0,
+    "rev": 17.6
+   },
+   {
+    "code": "2308",
+    "name": "台達電",
+    "role": "電源/液冷",
+    "yoy": 55.4,
+    "mom": 11.3,
+    "rev": 65.6
+   },
+   {
+    "code": "3661",
+    "name": "世芯-KY",
+    "role": "ASIC",
+    "yoy": 15.4,
+    "mom": 84.6,
+    "rev": 3.6
+   },
+   {
+    "code": "3443",
+    "name": "創意",
+    "role": "ASIC",
+    "yoy": 103.7,
+    "mom": 5.4,
+    "rev": 4.9
+   },
+   {
+    "code": "2345",
+    "name": "智邦",
+    "role": "交換器",
+    "yoy": 61.2,
+    "mom": 38.2,
+    "rev": 39.6
+   }
+  ],
+  "revMonth": "2026-06",
+  "officialPE": {
+   "2330": {
+    "pe": 31.86,
+    "pb": 10.43
+   },
+   "2317": {
+    "pe": 17.97,
+    "pb": 1.99
+   },
+   "2382": {
+    "pe": 14.91,
+    "pb": 5.51
+   },
+   "3231": {
+    "pe": 18.66,
+    "pb": 3.11
+   },
+   "6669": {
+    "pe": 19.86,
+    "pb": 7.86
+   },
+   "3017": {
+    "pe": 41.9,
+    "pb": 22.16
+   },
+   "2308": {
+    "pe": 50.29,
+    "pb": 13.97
+   },
+   "3661": {
+    "pe": 47.63,
+    "pb": 6.14
+   },
+   "3443": {
+    "pe": 107.28,
+    "pb": 41.65
+   },
+   "2345": {
+    "pe": 44.16,
+    "pb": 19.98
+   }
+  },
+  "idx_hist": [
+   {
+    "d": "2026-08-03",
+    "taiex": 43386.41,
+    "elec": 23516.99
+   }
+  ],
+  "margin_hist": [
+   {
+    "d": "2026-08-03",
+    "bal": 514.8
+   }
+  ]
  },
  "charts": {
   "aggQ": [
@@ -921,6 +1080,18 @@
     "ocf": 157.9,
     "fcf": 9.5,
     "ratio": 94.0
+   },
+   {
+    "q": "2026Q2",
+    "capex": 170.4,
+    "ocf": 186.7,
+    "fcf": 16.3,
+    "ratio": 91.3,
+    "prov": true,
+    "have": 4,
+    "missing": [
+     "META"
+    ]
    }
   ],
   "ttm": [
@@ -979,6 +1150,14 @@
     "ocf": 640.5,
     "fcf": 158.3,
     "ratio": 75.3
+   },
+   {
+    "q": "2026Q2",
+    "capex": 555.3,
+    "ocf": 692.6,
+    "fcf": 137.3,
+    "ratio": 80.2,
+    "prov": true
    }
   ],
   "debt": {
@@ -990,7 +1169,8 @@
     "2025Q2",
     "2025Q3",
     "2025Q4",
-    "2026Q1"
+    "2026Q1",
+    "2026Q2"
    ],
    "values": [
     204.1,
@@ -1000,7 +1180,8 @@
     228.6,
     221.9,
     291.7,
-    372.0
+    372.0,
+    439.2
    ],
    "note": "五大雲廠合計長期債務（$B）。ORCL 為年度值前向填補、GOOGL 2024 前僅年度揭露。"
   },
@@ -1008,13 +1189,11 @@
    "hy": {
     "now": 2.84,
     "m3": 2.83,
-    "y1": 3.02,
     "asof": "2026-07-30"
    },
    "ig": {
     "now": 0.8,
     "m3": 0.81,
-    "y1": 0.81,
     "asof": "2026-07-30"
    },
    "us10y": {
@@ -1035,6 +1214,15 @@
     "now": 2774.0,
     "y1": 2863.0,
     "asof": "2026-06-01"
+   },
+   "ccc": {
+    "now": 10.06,
+    "m3": 9.09,
+    "asof": "2026-07-30"
+   },
+   "orclbond": {
+    "now": 7.52,
+    "asof": "2026-08-04"
    }
   }
  },
@@ -1110,6 +1298,11 @@
   },
   {
    "d": "08-04",
+   "t": "On Semiconductor Rises on Solid Earnings Beat as AI Data Center Revenue Grows｜Barron's",
+   "url": "https://news.google.com/rss/articles/CBMihgFBVV95cUxNTjBZVVF0RnlQTFU3WURXTjMtRFZ5MVJRUlFKSFM3S0JIbTdjcXZkWnREVVFYSFNORXVxanBIVUdDUXpaRU5QRHA4QklreTJnM3dRcGNMcTFXNnlYSVRtSVRSVnROdjhhaDYzR3JmY1dyVHpBMVdxS0YwenQwcEs2b2g1cldHdw?oc=5"
+  },
+  {
+   "d": "08-04",
    "t": "Stocks making the biggest moves after hours: Palantir, On Semiconductor, Snap & more｜CNBC",
    "url": "https://news.google.com/rss/articles/CBMimAFBVV95cUxQSHprU1oxa1ZnVTY4R09BdC1ZejFVcjhkRW8tZmFfdnNlN1Fscy1TU3Z0MVpBNnNKNmVBUlBVSTdJRU5XNDd2bkNBM1ZoXzZyeFYtVDEzc1J5SUFIMTlRTHpsT3U2T0NBOXBkTmU4MHJsSzQyMENvVXpvMnpENXVJdF9EY1lGVk5kMk9qVDlwOFF4YkdKakI1Mw?oc=5"
   },
@@ -1120,33 +1313,13 @@
   },
   {
    "d": "08-04",
-   "t": "On Semiconductor Rises on Solid Earnings Beat as AI Data Center Revenue Grows｜Barron's",
-   "url": "https://news.google.com/rss/articles/CBMihgFBVV95cUxNTjBZVVF0RnlQTFU3WURXTjMtRFZ5MVJRUlFKSFM3S0JIbTdjcXZkWnREVVFYSFNORXVxanBIVUdDUXpaRU5QRHA4QklreTJnM3dRcGNMcTFXNnlYSVRtSVRSVnROdjhhaDYzR3JmY1dyVHpBMVdxS0YwenQwcEs2b2g1cldHdw?oc=5"
-  },
-  {
-   "d": "08-04",
    "t": "On Semiconductor posts earnings and revenue beat｜CNBC",
    "url": "https://news.google.com/rss/articles/CBMilgFBVV95cUxOZk1KLVFSdlA3bXdENGtHZ0hpWktPR01JSk02S2JXNUgzd2h6emZrSUIxY05UZ2ZsWXo5UFRRaVU2VGRWOThEUkRGY3dSVkVIeTc2a3V3VEpDR2d6V0E5SGZBclh3MmdEbmNzd1pPUkhPeF9XZW9WWmtESHBjdUFNRkk0bjlKdXR1QUI2R2JPSUdqaDBHZlE?oc=5"
-  },
-  {
-   "d": "08-04",
-   "t": "Big Tech's cloud backlog just hit $2.3 trillion — and it's feeding AI capex plans｜Yahoo Finance",
-   "url": "https://news.google.com/rss/articles/CBMi0gFBVV95cUxPeXVMZ0JkNjRqVVBaNXdOX3lkUzMtQzlKeFR6NWhaNWVDS0ViYkxEWEJZeFpyLW9Ed05Sd0dSR0pHdjFKV3lTOEhlZ3lvWDN5cHprSUlNVFVtOG80bkRsQWxmSmtiNXFpV1E3YldhVFlRMGVqdHdKNEtXQVJEN1ZNRHByT21aaE03TkpQM0ljU0JqYU5JMmJwVVl0SWEwZHBEY0FVczRtbDQwQ1JJVkhTNTlSUFVOR3c3dWhjazNRSnQ0TUUyOTFZTW5QLVNzd3RCOFE?oc=5"
-  },
-  {
-   "d": "08-03",
-   "t": "Lattice Semiconductor Earnings: What To Look For From LSCC｜Yahoo Finance",
-   "url": "https://news.google.com/rss/articles/CBMiqAFBVV95cUxNX0pMVjVyZUY1bFJQNUg0Q1ZLLXlKM1ljQ1VIcHAyOWdZemsyMUNPQkFXSWJFSkJBTzY3ZUt4N2cwN21Bcl9KSHp1VlJnTVctaWpOYmxZQng3LVVNSnZxZkFFMjczX25HNjdEbmtvTFJ4RHVfVlFmUExqVWhPcjY2QUNyLWllbER0ZEs0Z1dqYktMZDlWRjFZRzJnbnhXMU5qMHFkSXNsekQ?oc=5"
   },
   {
    "d": "08-03",
    "t": "Sam Altman reveals the investing advice billionaire Peter Thiel gave him that's led to a $3.3 billion net worth｜Fortune",
    "url": "https://news.google.com/rss/articles/CBMi0AFBVV95cUxPUHBKVVhwSGNQem9fSTJhZW5VNDF3VG82OW5pQkQ2YlM2ek40SjBheVRLTXBsRlJBcmY2S0RZeGI1Wk8wQUNCMDExSTkxbTQxNkM2aGNoYkFyanRyY18telk5X1RiOXViZHdFc0l5ZVJrelhKSHc5TWpzN2NWRVRDMW9QeTZaeGMzWGRQdFRyVkhmVUE5aWR3MkN6QmJvVC1yd3puVDQzeHpibWp4ZGFFQmRmUHd4YVFIVVNESXdRR3dPbFZ3bFlnekVQbVR1b2ZW?oc=5"
-  },
-  {
-   "d": "08-03",
-   "t": "Taiwan Semiconductor Just Reclaimed a $2 Trillion Market Cap. It Still Trades at About 20 Times Forward Earnings.｜Yahoo Finance",
-   "url": "https://news.google.com/rss/articles/CBMipAFBVV95cUxNRFh6ZEc0eUdUdGtkVFBiZG14b0hFSXJaV3pVMmNTaGszTERscURkTmhlNGI0dHlJVjhlNWlNbzhvT3BReUFnR0RUXzlPQ3oyNnM4czNIQTRucXFtdGJTZkJWSV9RMkJpWTNyNGtGRVI5TjZCeXYxMzJ0aGxXajVrU3BQVkhVN0VlTTZncy1hWGtyR2F5clVCaVVrd0w0UGxxcnM4OA?oc=5"
   },
   {
    "d": "08-03",
@@ -1162,6 +1335,21 @@
    "d": "08-01",
    "t": "Wall Street Thinks It Knows How Tech Giants Will Make AI Pay｜WSJ",
    "url": "https://news.google.com/rss/articles/CBMingFBVV95cUxOZzdxMHNMWnZqYktyTy1jVEhaRGh5ZjBwdjR5ZWcySjNMS0I5SVU0QU15WUdiNEhXMmxveV9WSWg0endtTjVKRE1JQkF6R3h6RWZ1LVJXWFdpT0pDRGNjVWlPdW9qYlVLNldkM2hJWUFtRjJiQnpNeXM4MU52YzlMRWk1VGFsamNkRnZFUUhZQlBKRlF2b3BKZVBRZXM0Zw?oc=5"
+  },
+  {
+   "d": "08-01",
+   "t": "Amazon completes $50bn investment in OpenAI｜Financial Times",
+   "url": "https://news.google.com/rss/articles/CBMihAFBVV95cUxNaEFvajk1QWYtT0dWV0NBbFd5QTJKR0s4eHNLR3N0eV9yV0Q4NXkyS3R2UjFoRDlXWTROdHNBU1NtTENFS1BGLUVQaVEwc1ViTmhuY2FDeW5NZm5MVDB3azVTRjVKRGtEVTFfSlhETkRLTUdaY0ZVXzRERnRWYUVZNkVEaEs?oc=5"
+  },
+  {
+   "d": "08-01",
+   "t": "Moonshot has Nvidia chip cluster from Alibaba computing deal, Bloomberg News reports｜Reuters",
+   "url": "https://news.google.com/rss/articles/CBMi1gFBVV95cUxOeVViREhmXzZUal83SHNUWjJqSkxJbWt1RXBQc1R6MUVVMm1SWFNwRG5xM0VyR096MVNxN05qNEtRVXdaME5JMXo5TUNwaGJoVUJZTG5WNzBPdTlaQmxxYzlHaWNiMXZsQzdkSHh1ZTA1NVlfdERQZ0t1b0VlcUY0QW45VXVDb0d5SjZleXVINnBDWnNkZTVzd0lEMXZkYUZfVlV3cnRva1p1TXoxcVhOOFRYdnFuRHNUX3FFQ2xzZXpVV2RjeG9SZVdVTXhRR2dxdkdDblR3?oc=5"
+  },
+  {
+   "d": "07-31",
+   "t": "MediaTek plans $5 billion financing for AI data-center chips｜Reuters",
+   "url": "https://news.google.com/rss/articles/CBMitAFBVV95cUxOMHlyNnM2ZnRxc183Q0dmN2V4RC1yWDBYSjdxT2kwYVd1X0U0bXc2M3ctRmpRQkx4amdockRSX3dBa3FFZ2VCMXR6bnlWRnQ4UUFVZHdpSF80UVZWc0ZjV3lvV2xVdzNpVmJoSUFQd0tGSTg4b1Vjb0pQTEFmLW1iRkRWc2RoSVF4Q3huTDhNMkp4bzNHV1lsNjRrOGlzdFJGZDdmUTE4QnJoTUpndmxRT3Q1NWg?oc=5"
   }
  ],
  "history": [
@@ -1362,76 +1550,86 @@
   },
   {
    "date": "2026-08-04",
-   "composite": 54.3,
+   "composite": 55.9,
    "dims": {
-    "D1": 61.3,
-    "D2": 0.0,
-    "D3": 72.2,
-    "D4": 71.8,
-    "D5": 37.0,
-    "D6": 58.0
+    "L1": 58.6,
+    "L2": 70.3,
+    "L3": 36.1
    },
-   "tw": 61.9
+   "tw": 53.4,
+   "quad": [
+    63.9,
+    64.5
+   ]
   }
  ],
  "params": {
   "nvda_eps": 6.31,
-  "tsmc_eps": 86.27
+  "tsmc_eps": 86.27,
+  "ngdp_nominal": 4.9,
+  "megaipo_done": false
  },
  "triggers": [
   {
    "id": "hy80",
    "name": "HY 利差 3個月走闊 ≥80bp",
    "state": 0,
-   "value": "—",
-   "note": "信用市場確認轉向（GS/歷史典型）"
+   "value": "+1bp/3M",
+   "note": "信用市場確認轉向（GS/歷史典型）",
+   "asof": "2026-08-04"
   },
   {
    "id": "ccc12",
    "name": "CCC 利差 ≥12%（2022 熊市水位）",
    "state": 0,
-   "value": "—",
-   "note": "最弱信用層壓力達熊市級"
+   "value": "10.06%",
+   "note": "最弱信用層壓力達熊市級",
+   "asof": "2026-08-04"
   },
   {
    "id": "gsy150",
    "name": "SOXX 24個月漲幅 ≥150%",
    "state": 0,
-   "value": "—",
-   "note": "GSY：歷史崩盤機率 80% 區"
+   "value": "+122%",
+   "note": "GSY：歷史崩盤機率 80% 區",
+   "asof": "2026-08-04"
   },
   {
    "id": "cpi4",
    "name": "CPI 年增 ≥4%",
    "state": 0,
-   "value": "—",
-   "note": "Hartnett：通膨迫使實質緊縮＝刺破機制"
+   "value": "3.5%",
+   "note": "Hartnett：通膨迫使實質緊縮＝刺破機制",
+   "asof": "2026-08-04"
   },
   {
    "id": "policy_gap",
    "name": "政策利率 ≥ 名目GDP成長",
    "state": 0,
-   "value": "—",
-   "note": "UBS：貨幣條件由順風轉逆風"
+   "value": "FF 3.63% vs 名目GDP≈4.9%",
+   "note": "UBS：貨幣條件由順風轉逆風",
+   "asof": "2026-08-04"
   },
   {
    "id": "y10_5",
    "name": "美債10年 ≥5%",
    "state": 0,
-   "value": "—",
-   "note": "長久期 AI 資產的折現硬約束"
+   "value": "4.75%",
+   "note": "長久期 AI 資產的折現硬約束",
+   "asof": "2026-08-04"
   },
   {
    "id": "megaipo",
    "name": "OpenAI／SpaceX 巨型 IPO 完成",
    "state": 0,
    "value": "未發生",
-   "note": "Hartnett：大頂前的最後供給事件（每週人工覆核）"
+   "note": "Hartnett：大頂前的最後供給事件（每週人工覆核）",
+   "asof": "2026-08-04"
   }
  ],
  "quadrant": {
-  "heat": null,
-  "support": null,
-  "regime": "待首次更新"
+  "heat": 64.5,
+  "support": 63.9,
+  "regime": "過熱但有撐（melt-up 風險）"
  }
 }

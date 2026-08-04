@@ -44,44 +44,44 @@
     "TW 台積電權重"
    ],
    "streak": {
-    "px SOXX": 1,
-    "px SPY": 1,
-    "px NVDA": 1,
-    "px 2330": 1,
-    "calc GSY": 1,
-    "calc soxmom": 1,
-    "calc nvdape": 1,
-    "multpl CAPE": 1,
-    "slickcharts Mag7": 1,
-    "CBOE putcall": 1,
-    "FRED VIX": 1,
-    "calc senti": 1,
-    "FRED HY": 1,
-    "FRED CCC": 1,
-    "ORCL bond": 1,
-    "FRED IG": 1,
-    "FRED FEDFUNDS 磚塊": 1,
-    "FRED USINFO 磚塊": 1,
-    "EDGAR RPO": 1,
-    "EDGAR quarterly": 1,
-    "TW 月營收": 1,
-    "TW 官方PE": 1,
-    "calc TW 2330": 1,
-    "TW 電子指數": 1,
-    "TW 融資餘額": 1,
-    "TW 海關出口": 1,
-    "FRED CPI": 1,
-    "FRED FEDFUNDS": 1,
-    "FRED DGS10": 1,
-    "Google News": 1,
     "AAII": 0,
-    "TW 台積電權重": 0
+    "TW 台積電權重": 0,
+    "px SOXX": 2,
+    "px SPY": 2,
+    "px NVDA": 2,
+    "px 2330": 2,
+    "calc GSY": 2,
+    "calc soxmom": 2,
+    "calc nvdape": 2,
+    "multpl CAPE": 2,
+    "slickcharts Mag7": 2,
+    "CBOE putcall": 2,
+    "FRED VIX": 2,
+    "calc senti": 2,
+    "FRED HY": 2,
+    "FRED CCC": 2,
+    "ORCL bond": 2,
+    "FRED IG": 2,
+    "FRED FEDFUNDS 磚塊": 2,
+    "FRED USINFO 磚塊": 2,
+    "EDGAR RPO": 2,
+    "EDGAR quarterly": 2,
+    "TW 月營收": 2,
+    "TW 官方PE": 2,
+    "calc TW 2330": 2,
+    "TW 電子指數": 2,
+    "TW 融資餘額": 2,
+    "TW 海關出口": 2,
+    "FRED CPI": 2,
+    "FRED FEDFUNDS": 2,
+    "FRED DGS10": 2,
+    "Google News": 2
    }
   }
  },
- "composite": 56.6,
+ "composite": 56.5,
  "dims": {
-  "L1": 60.5,
+  "L1": 60.3,
   "L2": 70.3,
   "L3": 36.1
  },
@@ -168,9 +168,9 @@
    "id": "mag7",
    "dim": "L1",
    "name": "Mag7 佔標普500市值比重",
-   "value": 33.96,
-   "disp": "34.0%",
-   "score": 77.8,
+   "value": 33.71,
+   "disp": "33.7%",
+   "score": 76.4,
    "zone": "orange",
    "anchors": [
     [
@@ -1351,18 +1351,8 @@
   },
   {
    "d": "08-04",
-   "t": "AI demand to keep near-term inflation pressures elevated: Allspring Global Investments｜CNBC",
-   "url": "https://news.google.com/rss/articles/CBMiqAFBVV95cUxNU1MwTlc3YjJham0yLWY3dU5pd0lidWRBeTNVaWxmRlR5N2ZEWVF0b09tM05xWWh4cnpfZ2NQZTNCd09ocWxmMlBtVTQ3U0Y2dEN2STF3Rl9NR3laa3lUZW5tS3lyNG5USWF1MGdFbjAxLUpyNWg3NHRESm11U2R5UzZWZDg3UVgxNmwyXzVQbVk0ekRHVlBGRWYzSjRXb0FJbmFsSjZyT0g?oc=5"
-  },
-  {
-   "d": "08-04",
-   "t": "Big Tech's Anthropic and OpenAI stakes are distorting the corporate earnings picture｜CNBC",
-   "url": "https://news.google.com/rss/articles/CBMiowFBVV95cUxQLVZ0SlZoODJGekFDdGRyVkJwNll5b09xSGtra3lBRHJuQWtoc0hOZlJxdjk2YUZUZDJXZFJSdFJTcVNfQnhHUFZBMUg0ZTVmTU5qMk1TMkw0am92T2FjZlotdnd2X3RReUNWcHJyRDJxRDZ2MjczUWZ3c0pQeWYxN1d3MUV5LVA4SE5UUXlqRjR3QTM1c3NVOTNpUlh6YTllOE9j0gGoAUFVX3lxTE9jQlpJY3Q1UDdiSHVzWEJhcFdnSHdNbFNyeDQ2cUsxLUhwQ2Vnd0pnTnM4YUlnUkptOFVhUUZpaUw4anZ3R2huVkoxWmt0WkRlQUhNamF2ZE1BZHdlV2ZwMXd0YktDT1VZTmZqVXBfZmVwdVhoaGxkRWc0U2hMOWpmcWtTMlVjdzR5R2dkMFgzYVl6b1V0ZnpnejNEa21NaXctd3lsdThqQw?oc=5"
-  },
-  {
-   "d": "08-04",
-   "t": "Stocks making the biggest moves after hours: Palantir, On Semiconductor, Snap & more｜CNBC",
-   "url": "https://news.google.com/rss/articles/CBMimAFBVV95cUxQSHprU1oxa1ZnVTY4R09BdC1ZejFVcjhkRW8tZmFfdnNlN1Fscy1TU3Z0MVpBNnNKNmVBUlBVSTdJRU5XNDd2bkNBM1ZoXzZyeFYtVDEzc1J5SUFIMTlRTHpsT3U2T0NBOXBkTmU4MHJsSzQyMENvVXpvMnpENXVJdF9EY1lGVk5kMk9qVDlwOFF4YkdKakI1Mw?oc=5"
+   "t": "Here's What Key Metrics Tell Us About ON Semiconductor Corp. (ON) Q2 Earnings｜Yahoo Finance",
+   "url": "https://news.google.com/rss/articles/CBMilAFBVV95cUxQc1Atbnc3b3lRa2JOU0RFbUNpZWVlRXJPc0llcUpGSVJyNFl1c2ZpU0lqZHFKeTU0eGFJalVra0NGV2ViVklHLU5YNFcyZ0lmdVd2VGxMNUVVS2xlOFZnc3lVZDk1UTRMa3M5eFN3V0Z3Mm8tYjNRZjdKaEdTNVJwLU5pQ2xXc1Z1X1BMTHFIakFoYjdD?oc=5"
   },
   {
    "d": "08-04",
@@ -1380,6 +1370,11 @@
    "url": "https://news.google.com/rss/articles/CBMibkFVX3lxTFBSaURhcmNFR05rWXByM1pPU0J5Uk9md2NQYXc0Ym5fal8zUnRlUktTYmhJSjBySzdHN3Bjb1BUZ0hZazlQWktkTE5BaVgwTzJhNTQyVE1mR0RIQUs4d0s3c1dWWEZGVUtibmp2Mnln?oc=5"
   },
   {
+   "d": "08-04",
+   "t": "Wall Street bulls are starting to admit the earnings bubble is real—and the 60/40 portfolio may be the first casualty｜Fortune",
+   "url": "https://news.google.com/rss/articles/CBMipgFBVV95cUxQVGJxOVN1T211RW9KcERVWm9UZVVQMEE2UUdIQkRVaHVMX3Rhc3ptRHdTQVNBclItZXhVQnlkUlZkZUJUN3IyY3UwN0FERGNQcEIxaWtUa1N2NU5tQjVYNUxvM3ZLT0tuZTBZbFpLVkZRLThlWXZKdEc0WEhkVXI5MW9tQnFSclZ3WjhWb0JvN0x6YmkzdW9KODhjRi1JV3hudDBidjVn?oc=5"
+  },
+  {
    "d": "08-03",
    "t": "Sam Altman reveals the investing advice billionaire Peter Thiel gave him that's led to a $3.3 billion net worth｜Fortune",
    "url": "https://news.google.com/rss/articles/CBMi0AFBVV95cUxPUHBKVVhwSGNQem9fSTJhZW5VNDF3VG82OW5pQkQ2YlM2ek40SjBheVRLTXBsRlJBcmY2S0RZeGI1Wk8wQUNCMDExSTkxbTQxNkM2aGNoYkFyanRyY18telk5X1RiOXViZHdFc0l5ZVJrelhKSHc5TWpzN2NWRVRDMW9QeTZaeGMzWGRQdFRyVkhmVUE5aWR3MkN6QmJvVC1yd3puVDQzeHpibWp4ZGFFQmRmUHd4YVFIVVNESXdRR3dPbFZ3bFlnekVQbVR1b2ZW?oc=5"
@@ -1390,11 +1385,6 @@
    "url": "https://news.google.com/rss/articles/CBMihwFBVV95cUxQRzZtTVpxV3Utek5kcjFrRXJ1VGZlSk1NRnV4ck9fSlU0bEUzcVE1dy12X012R05SLVFsQU12bzRLRGZ6aWFFVEozQmFCV1BQVVptbGZGbTRIYTJaUEVPTlJtREJKU2xoOXc4emY5MWxUdGh6bDhxejNza3c1Z3hGVE9vOEp1MEE?oc=5"
   },
   {
-   "d": "08-02",
-   "t": "Wall Street’s favorite bet comes undone as chips whipsaw market｜Fortune",
-   "url": "https://news.google.com/rss/articles/CBMikAFBVV95cUxOdVVnSVlNcU5QY1liRUxHRVJVSGd3QVJDQ011SEVDMTFkLVlOVHhLVU9jVi1vMkRtSXBwbGFmcU5HTmVkYnREX0V3RnI1ZjVpSTZpdHJOSHJtaWQ1UDd0Z3lCdXRkOFVwZFZWTTM4RUFJNWg4aGZwUFVNQVhEQlQ4TU1ISjJTTURaSzUxUGpsdi0?oc=5"
-  },
-  {
    "d": "08-01",
    "t": "Wall Street Thinks It Knows How Tech Giants Will Make AI Pay｜WSJ",
    "url": "https://news.google.com/rss/articles/CBMingFBVV95cUxOZzdxMHNMWnZqYktyTy1jVEhaRGh5ZjBwdjR5ZWcySjNMS0I5SVU0QU15WUdiNEhXMmxveV9WSWg0endtTjVKRE1JQkF6R3h6RWZ1LVJXWFdpT0pDRGNjVWlPdW9qYlVLNldkM2hJWUFtRjJiQnpNeXM4MU52YzlMRWk1VGFsamNkRnZFUUhZQlBKRlF2b3BKZVBRZXM0Zw?oc=5"
@@ -1403,6 +1393,16 @@
    "d": "08-01",
    "t": "Amazon completes $50bn investment in OpenAI｜Financial Times",
    "url": "https://news.google.com/rss/articles/CBMihAFBVV95cUxNaEFvajk1QWYtT0dWV0NBbFd5QTJKR0s4eHNLR3N0eV9yV0Q4NXkyS3R2UjFoRDlXWTROdHNBU1NtTENFS1BGLUVQaVEwc1ViTmhuY2FDeW5NZm5MVDB3azVTRjVKRGtEVTFfSlhETkRLTUdaY0ZVXzRERnRWYUVZNkVEaEs?oc=5"
+  },
+  {
+   "d": "08-01",
+   "t": "Moonshot has Nvidia chip cluster from Alibaba computing deal, Bloomberg News reports｜Reuters",
+   "url": "https://news.google.com/rss/articles/CBMi1gFBVV95cUxOeVViREhmXzZUal83SHNUWjJqSkxJbWt1RXBQc1R6MUVVMm1SWFNwRG5xM0VyR096MVNxN05qNEtRVXdaME5JMXo5TUNwaGJoVUJZTG5WNzBPdTlaQmxxYzlHaWNiMXZsQzdkSHh1ZTA1NVlfdERQZ0t1b0VlcUY0QW45VXVDb0d5SjZleXVINnBDWnNkZTVzd0lEMXZkYUZfVlV3cnRva1p1TXoxcVhOOFRYdnFuRHNUX3FFQ2xzZXpVV2RjeG9SZVdVTXhRR2dxdkdDblR3?oc=5"
+  },
+  {
+   "d": "07-31",
+   "t": "MediaTek plans $5 billion financing for AI data-center chips｜Reuters",
+   "url": "https://news.google.com/rss/articles/CBMitAFBVV95cUxOMHlyNnM2ZnRxc183Q0dmN2V4RC1yWDBYSjdxT2kwYVd1X0U0bXc2M3ctRmpRQkx4amdockRSX3dBa3FFZ2VCMXR6bnlWRnQ4UUFVZHdpSF80UVZWc0ZjV3lvV2xVdzNpVmJoSUFQd0tGSTg4b1Vjb0pQTEFmLW1iRkRWc2RoSVF4Q3huTDhNMkp4bzNHV1lsNjRrOGlzdFJGZDdmUTE4QnJoTUpndmxRT3Q1NWg?oc=5"
   }
  ],
  "history": [
@@ -1603,16 +1603,16 @@
   },
   {
    "date": "2026-08-04",
-   "composite": 56.6,
+   "composite": 56.5,
    "dims": {
-    "L1": 60.5,
+    "L1": 60.3,
     "L2": 70.3,
     "L3": 36.1
    },
    "tw": 51.3,
    "quad": [
     63.9,
-    65.4
+    65.3
    ]
   }
  ],
@@ -1680,7 +1680,7 @@
   }
  ],
  "quadrant": {
-  "heat": 65.4,
+  "heat": 65.3,
   "support": 63.9,
   "regime": "過熱但有撐（melt-up 風險）"
  }

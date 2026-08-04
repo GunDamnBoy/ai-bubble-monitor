@@ -814,36 +814,49 @@ def main():
     def f_cpi():
         obs = fred("CPIAUCSL", days=800)
         base = [v for d, v in obs if d <= obs[-1][0] - dt.timedelta(days=360)]
-        trig_vals["cpi"] = (obs[-1][1] / base[-1] - 1) * 100
+        trig_vals["cpi"] = ((obs[-1][1] / base[-1] - 1) * 100, obs[-1][0])
     def f_ff():
-        trig_vals["ff"] = fred_latest_and_back("FEDFUNDS", 0)[1]
+        d, v, _ = fred_latest_and_back("FEDFUNDS", 0)
+        trig_vals["ff"] = (v, d)
     def f_y10():
         trig_vals["y10"] = fred_latest_and_back("DGS10", 91)
     attempt("FRED CPI", f_cpi); attempt("FRED FEDFUNDS", f_ff); attempt("FRED DGS10", f_y10)
 
-    def set_trig(tid, state, val):
+    def set_trig(tid, state, val, asof=None):
+        """asof 要填「這個判斷所依據的資料」的日期，不是今天。
+
+        來源抓失敗時 sp／IND 裡留的是上一輪的舊值，判斷照樣算得出來；這時若把
+        asof 蓋成今天，前端就會顯示成今天剛驗證過——對使用者謊報新鮮度，正是
+        §5.1「絕不編造數字」要擋的事。只有真的沒有來源日期可用（megaipo 這種
+        人工旗標）才退回 TODAY。
+        """
         for t in data["triggers"]:
             if t["id"] == tid:
                 t["state"] = 1 if state else 0
                 t["value"] = val
-                t["asof"] = str(TODAY)
+                t["asof"] = str(asof or TODAY)
     hy = sp.get("hy", {})
     if hy.get("now") is not None and hy.get("m3") is not None:
         d3 = (hy["now"] - hy["m3"]) * 100
-        set_trig("hy80", d3 >= 80, f"{d3:+.0f}bp/3M")
+        set_trig("hy80", d3 >= 80, f"{d3:+.0f}bp/3M", hy.get("asof"))
     if sp.get("ccc", {}).get("now") is not None:
-        set_trig("ccc12", sp["ccc"]["now"] >= 12, f"{sp['ccc']['now']:.2f}%")
+        set_trig("ccc12", sp["ccc"]["now"] >= 12, f"{sp['ccc']['now']:.2f}%",
+                 sp["ccc"].get("asof"))
     if "cpi" in trig_vals:
-        set_trig("cpi4", trig_vals["cpi"] >= 4, f"{trig_vals['cpi']:.1f}%")
+        v, d = trig_vals["cpi"]
+        set_trig("cpi4", v >= 4, f"{v:.1f}%", d)
     if "ff" in trig_vals:
-        set_trig("policy_gap", trig_vals["ff"] >= params["ngdp_nominal"],
-                 f"FF {trig_vals['ff']:.2f}% vs 名目GDP≈{params['ngdp_nominal']}%")
+        v, d = trig_vals["ff"]
+        set_trig("policy_gap", v >= params["ngdp_nominal"],
+                 f"FF {v:.2f}% vs 名目GDP≈{params['ngdp_nominal']}%", d)
     if "y10" in trig_vals:
         d, v, b = trig_vals["y10"]
-        set_trig("y10_5", v >= 5.0, f"{v:.2f}%")
+        set_trig("y10_5", v >= 5.0, f"{v:.2f}%", d)
         sp["us10y"] = {"now": v, "m3": b, "asof": str(d)}
     if IND.get("gsy_runup", {}).get("value") is not None:
-        set_trig("gsy150", IND["gsy_runup"]["value"] >= 150, f"{IND['gsy_runup']['value']:+.0f}%")
+        set_trig("gsy150", IND["gsy_runup"]["value"] >= 150,
+                 f"{IND['gsy_runup']['value']:+.0f}%", IND["gsy_runup"].get("asof"))
+    # megaipo 是人工旗標，沒有外部資料來源，用 TODAY 是對的
     set_trig("megaipo", bool(params.get("megaipo_done")), "已完成" if params.get("megaipo_done") else "未發生")
 
     # ============ 新聞 ============

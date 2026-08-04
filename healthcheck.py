@@ -35,9 +35,35 @@ def days_ago(s):
         return None
 
 
+def num(x):
+    """只有真的是數字才回傳 float；None／字串／布林一律回 None。"""
+    return float(x) if isinstance(x, (int, float)) and not isinstance(x, bool) else None
+
+
+def near(a, b, tol=0.15):
+    """兩者都是數字、且差距在容忍值內才算相符。
+
+    不要退回舊的 `(a or -999)` 寫法：存檔值合法地等於 0（例如某層全部指標
+    都是 0 分、或 tw 子群算出 0.0）時，`0 or -999` 會變成 -999 而誤報不一致。
+    """
+    fa, fb = num(a), num(b)
+    return fa is not None and fb is not None and abs(fa - fb) <= tol
+
+
 def ok(m): _p("pass", m)
 def warn(m): _p("warn", m)
 def bad(m): _p("fail", m)
+
+
+# 已知會失敗、設計上可降級的來源。
+# 鍵＝`meta.lastAutoRun.fail` 裡出現的字串（由 update_data.py 的 attempt() 標籤決定）；
+# 值＝AGENT_BRIEF.md 第 9 節那一列的辨識關鍵字。
+# 兩者要對得起來：只加進這裡而沒寫進 §9，等於偷偷把一個失敗來源正常化。
+KNOWN_FAIL = {
+    "AAII": "AAII",
+    "CBOE putcall": "CBOE",
+    "TW 台積電權重": "台積電權重",
+}
 
 
 def find_repo(explicit=None):
@@ -98,7 +124,14 @@ def check_data(repo):
 
     # 指標 → 層分數 → 綜合溫度 → 象限：全部重算比對
     inds = d.get("indicators", [])
-    ok(f"indicators 共 {len(inds)} 項") if len(inds) >= 20 else warn(f"indicators 只有 {len(inds)} 項")
+    # 層人數直接決定質化佔比（等權平均），加減指標必須回頭改 brief §4.5 的 28.9%
+    LAYER_N = {"L1": 9, "L2": 7, "L3": 6}
+    got_n = {k: sum(1 for i in inds if i.get("dim") == k) for k in dm}
+    if len(inds) == sum(LAYER_N.values()) and got_n == LAYER_N:
+        ok(f"indicators 共 {len(inds)} 項，層人數符合規格 {LAYER_N}")
+    else:
+        warn(f"指標數 {len(inds)} 項、層人數 {got_n}，規格是 {sum(LAYER_N.values())} 項 {LAYER_N}"
+             "（若是刻意增減，要同步更新 AGENT_BRIEF §4 各層表與 §4.5 的質化佔比 28.9%）")
 
     recomputed = {}
     for dk in dm:
@@ -106,14 +139,14 @@ def check_data(repo):
         recomputed[dk] = round(sum(ss) / len(ss), 1) if ss else 50.0
     stored = d.get("dims", {})
     diffs = [f"{k}: 存 {stored.get(k)} vs 算 {recomputed[k]}" for k in recomputed
-             if abs((stored.get(k) or -999) - recomputed[k]) > 0.15]
+             if not near(stored.get(k), recomputed[k])]
     if diffs:
         bad("層分數與指標不一致（有人改了分數沒重算）：" + "；".join(diffs))
     else:
         ok(f"層分數與指標一致：{recomputed}")
 
     comp = round(sum(dm[k]["w"] * recomputed[k] for k in recomputed), 1)
-    if abs(comp - (d.get("composite") or -999)) > 0.15:
+    if not near(d.get("composite"), comp):
         bad(f"composite 不一致：存 {d.get('composite')} vs 算 {comp}")
     else:
         ok(f"composite 一致：{comp}")
@@ -124,7 +157,7 @@ def check_data(repo):
               "過熱但有撐（melt-up 風險）" if heat >= 55 else
               "健康擴張" if support >= 45 else "失速風險")
     q = d.get("quadrant", {})
-    if abs((q.get("heat") or -999) - heat) > 0.15 or abs((q.get("support") or -999) - support) > 0.15:
+    if not (near(q.get("heat"), heat) and near(q.get("support"), support)):
         bad(f"quadrant 不一致：存 {q} vs 算 heat={heat} support={support}")
     elif q.get("regime") != regime:
         bad(f"regime 不一致：存「{q.get('regime')}」vs 算「{regime}」")
@@ -182,6 +215,17 @@ def check_data(repo):
     if any(t.get("state") not in (0, 1, True, False) for t in tr):
         bad("觸發器 state 必須是 0/1")
 
+    # asof 不可以是未來：那只可能來自「拿今天當來源日期」這類編造
+    future = []
+    for label, rows in (("指標", inds), ("觸發器", tr),
+                        ("tw.items", (d.get("tw") or {}).get("items") or [])):
+        for r in rows:
+            a = days_ago(r.get("asof"))
+            if a is not None and a < 0:
+                future.append(f"{label} {r.get('id')}（{r.get('asof')}）")
+    if future:
+        bad("asof 是未來日期：" + "／".join(future))
+
     # 台灣
     tw = d.get("tw", {})
     TWI = {t["id"]: t for t in tw.get("items", [])}
@@ -197,7 +241,7 @@ def check_data(repo):
         subs[k] = round(sum(ss) / len(ss), 1) if ss else None
     sd = [f"{k}: 存 {tw.get('subs', {}).get(k)} vs 算 {v}" for k, v in subs.items()
           if (tw.get("subs", {}).get(k) is None) != (v is None)
-          or (v is not None and abs((tw.get("subs", {}).get(k) or -999) - v) > 0.15)]
+          or (v is not None and not near(tw.get("subs", {}).get(k), v))]
     if sd:
         bad("tw.subs 不一致：" + "；".join(sd))
     else:
@@ -207,7 +251,7 @@ def check_data(repo):
     ws = sum(wmap[k] for k in valid)
     if ws:
         h = round(sum(v * wmap[k] for k, v in valid.items()) / ws, 1)
-        if abs(h - (tw.get("heat") or -999)) > 0.15:
+        if not near(tw.get("heat"), h):
             bad(f"tw.heat 不一致：存 {tw.get('heat')} vs 算 {h}")
         else:
             ok(f"tw.heat 一致：{h}")
@@ -239,16 +283,61 @@ def check_data(repo):
     trail = [x for x in h if "quad" in x]
     ok(f"象限軌跡目前 {len(trail)} 個點") if trail else bad("象限軌跡沒有任何點")
 
-    # events
+    # events：逐項獨立判斷，不要用 elif 串（第一個問題會蓋掉後面的）
     ev = d.get("events", [])
     if not ev:
         bad("events 空白")
-    elif len(ev) > 12:
-        bad(f"events {len(ev)} 條，超過 12 上限")
-    elif any(not x.get("url") for x in ev):
-        bad("events 有條目缺 url")
     else:
-        ok(f"events {len(ev)} 條、皆有 url（最新 {ev[0].get('d')}）")
+        probs = []
+        if len(ev) > 12:
+            probs.append(f"共 {len(ev)} 條，超過 12 上限")
+        nourl = [str(x.get("t", "?"))[:16] for x in ev if not x.get("url")]
+        if nourl:
+            probs.append(f"{len(nourl)} 條缺 url（{nourl[0]}…）")
+        nod = [str(x.get("t", "?"))[:16] for x in ev if not x.get("d")]
+        if nod:
+            probs.append(f"{len(nod)} 條缺日期 d（{nod[0]}…）")
+        if probs:
+            bad("events：" + "；".join(probs))
+        else:
+            ok(f"events {len(ev)} 條、皆有 url（最新 {ev[0].get('d')}）")
+
+    # stage：純人工維護，最常見的漏更新是「勾選數改了，current 與 note 沒跟著改」
+    st = d.get("stage", {})
+    sprob = []
+    cl = st.get("checklist", [])
+    if len(cl) != 6:
+        sprob.append(f"checklist 應為 6 項，實際 {len(cl)}")
+    badst = [c.get("item", "?")[:12] for c in cl if num(c.get("state")) not in (0.0, 0.5, 1.0)]
+    if badst:
+        sprob.append(f"checklist state 只能是 0／0.5／1，異常：{badst}")
+    cur = num(st.get("current"))
+    if cur is None or not (1 <= cur <= 4):
+        sprob.append(f"stage.current={st.get('current')!r} 應是 1–4 的數")
+    sts = st.get("stages", [])
+    act = [s for s in sts if s.get("active")]
+    if len(sts) != 4:
+        sprob.append(f"stages 應為 4 階，實際 {len(sts)}")
+    if len(act) != 1:
+        sprob.append(f"stages 必須剛好一階 active，實際 {len(act)} 階")
+    elif cur is not None and int(cur) != act[0].get("n"):
+        sprob.append(f"stage.current={cur} 的整數位與 active 階段 n={act[0].get('n')} 不符")
+    if len(act) == 1:
+        an = act[0].get("n") or 0
+        wrong = [s.get("n") for s in sts
+                 if bool(s.get("done")) != ((s.get("n") or 0) < an)]
+        if wrong:
+            sprob.append(f"stages 的 done 應為「n < active 才 True」，不符：{wrong}")
+    # note 開頭的「點亮 X／6」必須等於 checklist 實際加總
+    lit = sum(num(c.get("state")) or 0 for c in cl)
+    m = re.search(r"點亮\s*([0-9.]+)\s*／\s*(\d+)", str(st.get("note", "")))
+    if m and (abs(float(m.group(1)) - lit) > 1e-9 or int(m.group(2)) != len(cl)):
+        sprob.append(f"stage.note 寫「點亮 {m.group(1)}／{m.group(2)}」，"
+                     f"但 checklist 實際是 {lit:g}／{len(cl)}")
+    if sprob:
+        bad("stage：" + "；".join(sprob))
+    else:
+        ok(f"stage 一致：{st.get('label')} current={st.get('current')}，checklist 點亮 {lit:g}／{len(cl)}")
 
     # charts
     ch = d.get("charts", {})
@@ -271,7 +360,7 @@ def check_data(repo):
 
     # lastAutoRun
     lar = meta.get("lastAutoRun", {})
-    KNOWN = {"AAII", "CBOE putcall", "TW 台積電權重"}
+    KNOWN = set(KNOWN_FAIL)
     fails = set(lar.get("fail", []))
     newf = fails - KNOWN
     if newf:
@@ -325,6 +414,43 @@ def check_brief(repo, d):
         bad("brief 錨點與 data.json 不符：" + "；".join(mism))
     else:
         ok(f"brief 錨點與 data.json 相符（比對 {checked} 項）")
+
+    # 台灣指標錨點：tw.items 沒有 anchors 欄位，錨點只寫在引擎的 tupd(...) 裡，
+    # brief §4.6 的表是人手改分數時唯一的規格來源 → 必須機械比對，否則一定漂
+    up = os.path.join(repo, "scripts", "update_data.py")
+    if os.path.isfile(up):
+        eng = engine_tw_anchors(up)
+        bt = {}
+        for line in txt.splitlines():
+            m = re.match(r"\|\s*`(\w+)`\s*\|", line)
+            if not m or m.group(1) not in eng:
+                continue
+            a = re.findall(r"`(\[\[[^`]*\]\])`", line)
+            if a:
+                try:
+                    bt[m.group(1)] = ast.literal_eval(a[0])
+                except Exception:
+                    pass
+        undoc = sorted(set(eng) - set(bt))
+        mism2 = [f"{k}: brief {bt[k]} vs 引擎 {eng[k]}" for k in sorted(bt)
+                 if [[float(x) for x in p] for p in bt[k]]
+                 != [[float(x) for x in p] for p in eng[k]]]
+        if mism2:
+            bad("brief §4.6 的台灣錨點與 update_data.py 不符：" + "；".join(mism2))
+        elif undoc:
+            warn(f"引擎有錨點但 brief §4.6 沒記的台灣指標：{undoc}（手改分數時會沒有依據）")
+        elif bt:
+            ok(f"brief §4.6 台灣錨點與引擎一致（比對 {len(bt)} 項）")
+
+    # §9 已知失效來源 vs healthcheck 的 KNOWN_FAIL 白名單
+    s9 = txt.split("## 9.", 1)[-1].split("\n## 10.", 1)[0]
+    undoc9 = [k for k, kw in KNOWN_FAIL.items() if kw not in s9]
+    if undoc9:
+        bad("healthcheck 把 " + "／".join(undoc9) +
+            " 當成已知可降級的失敗來源，但 brief 第 9 節沒有這一列"
+            "（等於偷偷把失敗正常化）")
+    else:
+        ok(f"brief §9 已知失效來源與 healthcheck 白名單一致（{len(KNOWN_FAIL)} 項）")
 
     # 觸發器門檻文字
     for tid in ("hy80", "ccc12", "gsy150", "cpi4", "policy_gap", "y10_5", "megaipo"):
@@ -400,6 +526,38 @@ def check_fallback(html, d):
         ok(f"#dashboard-data 內嵌快照 history {fh} 筆（data.json {dh} 筆）")
 
 
+def engine_tw_anchors(path):
+    """用 AST 抓出 tupd("id", ..., pw(值, [[錨點]]), ...) 裡的錨點字面值。
+
+    台灣指標的錨點沒有進 data.json（tw.items 沒有 anchors 欄位），只以字面量
+    寫在引擎裡，所以這是唯一能跟 brief §4.6 對帳的來源。抓不到（例如分數不是
+    直接由 pw 算出來）就不列入，寧可少報也不要誤報。
+    """
+    out = {}
+    if not os.path.isfile(path):
+        return out
+    try:
+        tree = ast.parse(open(path, encoding="utf-8").read())
+    except SyntaxError:
+        return out
+    for n in ast.walk(tree):
+        if not (isinstance(n, ast.Call) and isinstance(n.func, ast.Name)
+                and n.func.id == "tupd" and n.args):
+            continue
+        iid = n.args[0]
+        if not (isinstance(iid, ast.Constant) and isinstance(iid.value, str)):
+            continue
+        for sub in ast.walk(n):
+            if (isinstance(sub, ast.Call) and isinstance(sub.func, ast.Name)
+                    and sub.func.id == "pw" and len(sub.args) >= 2):
+                try:
+                    out[iid.value] = ast.literal_eval(sub.args[1])
+                except Exception:
+                    pass
+                break
+    return out
+
+
 def engine_spreads(path):
     """用 AST 找出 update_data.py 寫進 sp[...] 的鍵與欄位。
     回傳 {鍵: {欄位, ...}}；只認得字面量寫法（sp["hy"] = {...}、sp["hy"]["y1"] = ...），
@@ -442,8 +600,14 @@ def check_spreads_keys(repo, html, d):
         return
     js = "\n".join(re.findall(
         r"<script(?![^>]*application/json)[^>]*>(.*?)</script>", html, re.S))
+    # 點記法 sp.hy.m3 與括號記法 sp["hy"]["m3"] 都要認得，否則改個寫法就漏檢
     read_keys = set(re.findall(r"\bsp\.([A-Za-z_]\w*)", js))
-    read_fields = set(re.findall(r"\bsp\.([A-Za-z_]\w*)\.([A-Za-z_]\w*)", js))
+    read_keys |= set(re.findall(r"""\bsp\[\s*["'](\w+)["']\s*\]""", js))
+    # 鍵與欄位各自可能是 .name 或 ["name"]，四種組合都要抓
+    KEY = r"""(?:\.([A-Za-z_]\w*)|\[\s*["'](\w+)["']\s*\])"""
+    read_fields = set()
+    for k1, k2, f1, f2 in re.findall(r"\bsp" + KEY + r"\s*" + KEY, js):
+        read_fields.add(((k1 or k2), (f1 or f2)))
     if not read_keys:
         warn("index.html 沒有讀取任何 charts.spreads 鍵，略過對帳")
         return
@@ -458,6 +622,14 @@ def check_spreads_keys(repo, html, d):
             "，但 update_data.py 沒有寫入（該磚塊會空白或顯示 NaN）")
     else:
         ok(f"charts.spreads 前端讀取的 {len(read_keys)} 個鍵，引擎都有寫入")
+
+    # data.json 還有、但引擎已經不再寫的鍵：現在看起來正常，值卻永遠凍在今天
+    # （不能只用 read_keys - written - live，那會被 live 裡的殘值蓋掉這類退化）
+    regress = sorted((read_keys & set(live)) - set(written))
+    if regress:
+        bad("charts.spreads 的 " + "／".join(regress) +
+            " 仍在 data.json 裡，但 update_data.py 已經不寫了"
+            "（前端照畫，值會停在最後一次寫入的日期，看起來卻很正常）")
 
     unused = sorted(set(written) - read_keys)
     if unused:

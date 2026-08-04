@@ -44,7 +44,7 @@
 | `AGENT_BRIEF.md`（本檔） | **現在的規格與判斷規則**，含 `data.json` schema | 每週質化覆核排程每次完整讀一次；維護者 |
 | 每週排程任務的 prompt | **流程骨架**：順序、分支、人機分工。事實細節指向本檔章節，刻意不重抄 | 排程觸發時執行 |
 | `MAINTENANCE.md` | **維護說明＋事故與決策檔案**（第 6 節）：事故經過、誤判過程、被否決的選項 | 維護者 |
-| `healthcheck.py` | **機械式檢查**：重算層分數／`composite`／象限／`tw` 並與存檔比對、錨點與權重的 brief↔資料比對、workflow 關鍵步驟、`--selftest`、JS 語法 | 維護者每次動手前後各跑一次 |
+| `healthcheck.py` | **機械式檢查**（唯讀、不改任何檔案）：重算層分數／`composite`／象限／`tw` 並與存檔比對、錨點與權重的 brief↔資料比對、workflow 關鍵步驟、`--selftest`、JS 語法，以及內嵌退路快照的 `meta.version` 比對、`charts.spreads` 前端讀取鍵與欄位 vs 引擎 AST 實際寫入的對帳、來源過期偵測 | 維護者每次動手前後各跑一次；每週覆核推送前 **FAIL 必須是 0** |
 | `index.html` 內的 `<script id="update-spec">` | **僅指向本檔的指標**，不再重複規格（v2 起） | 未來讀到這頁 HTML 的工作階段 |
 | skill `bubble-maintain` | **維護入口**：載入現況 → 子代理比對 → 報告 → 才動手 | 維護者輸入 `/bubble-maintain` 時 |
 
@@ -199,6 +199,27 @@ support = 100 − L3             ← 基本面還有多少支撐（L3 越高＝�
 
 `tsmc_weight`（台積電佔加權指數權重）**刻意不屬於任何子群**，只作為集中度的展示項。
 
+#### 台灣指標的錨點
+
+**`tw.items` 的物件裡沒有 `anchors` 欄位**（跟 `indicators` 不一樣），錨點只以字面值寫在引擎的 `tupd(...)` 呼叫裡。所以要手改台灣指標的分數時，唯一的規格來源是下表：
+
+| id | 餵進 `pw()` 的值 | 錨點 |
+|---|---|---|
+| `tsmc_weight` | 權重 %（正向） | `[[30,20],[38,50],[45,80],[52,100]]` |
+| `tsmc_pe` | P/E（正向） | `[[15,0],[22,33],[28,67],[35,100]]` |
+| `odm_pe` | 平均 P/E（正向） | `[[10,0],[15,33],[20,67],[28,100]]` |
+| `tsmc_200dma` | 偏離 %（正向） | `[[0,0],[15,33],[30,67],[50,100]]` |
+| `tsmc_52w` | 52 週漲幅 %（正向） | `[[20,0],[50,33],[90,67],[150,100]]` |
+| `twii_pos` | 52 週位階 %（正向） | `[[50,0],[75,33],[90,67],[100,100]]` |
+| `elec_rel` | 電子相對大盤 pp（正向） | `[[-3,15],[0,35],[4,67],[10,100]]` |
+| `tw_margin` | 融資餘額 20 日變動 %（正向） | `[[-4,10],[0,35],[5,67],[12,100]]` |
+| `tw_rev` | **月營收年增取負** `-comp` | `[[-90,5],[-45,20],[-12,45],[0,65],[15,90]]` |
+| `tw_export` | **海關出口年增取負** `-yoy` | `[[-50,10],[-20,30],[0,60],[10,85]]` |
+
+`tw_rev`／`tw_export` 是反證指標（成長越快越不像泡沫破裂），依 §3.2 的通則**取負號後**再餵錨點——手算時最容易在這裡把符號弄反。
+
+**每月只有 `tsmc_weight` 需要人更新**（TAIFEX 擋機器人，Actions 端固定失敗），其餘九項由引擎每交易日自動更新，屬於 §8.3 的不可重抓欄位。
+
 十檔月營收籃 `TW_BASKET`（依營收加權）：`2330 台積電`、`2317 鴻海`、`2382 廣達`、`3231 緯創`、`6669 緯穎`、`3017 奇鋐`、`2308 台達電`、`3661 世芯-KY`、`3443 創意`、`2345 智邦`。
 
 **台灣是全球 AI 硬體的出貨速度計**：月營收比美國財報早 1–2 個月，是需求裂縫最早的實體訊號。這是 L3 季頻落後問題的三個解方之一。
@@ -224,7 +245,7 @@ def attempt(name, fn):
 | 區塊 | 函式 | 備註 |
 |---|---|---|
 | 基礎 | `http_get` `pw` `vix_score` `zone` | `zone(None)` 回 `"pending"` |
-| 總經 | `fred(series, days=620)` `fred_back(obs, back_days)` `fred_latest_and_back(series, back_days)` | `fredgraph.csv`；要同時取多個回看期時用 `fred()` 抓一次再 `fred_back()` 取值，不要重複抓 |
+| 總經 | `fred(series, days=620)` `fred_back(obs, back_days)` `fred_latest_and_back(series, back_days, days=620)` | `fredgraph.csv`；要同時取多個回看期時用 `fred()` 抓一次再 `fred_back()` 取值，不要重複抓（`fred_latest_and_back` 現在也只是這兩者的組合） |
 | 價格 | `px_rows(ysym, ssym=None, rng="4y")` → **三層備援** `yf_chart`(yfinance) → `yahoo_chart`(raw API) → `stooq` | Stooq 在 Actions runner 被擋，只當最後備援 |
 | 統計 | `series_stats` `gsy_stats` | `gsy_stats` 需 ≥505 筆算 `ret24`、≥758 筆算 `accel` |
 | 估值/情緒 | `multpl_cape` `slickcharts_mag7` `aaii_sentiment` `cboe_putcall` | 後兩者目前在 Actions 端失敗 |
@@ -277,6 +298,9 @@ dimMeta    { L1:{name,w,note}, L2:{...}, L3:{...} }   w 加總必須 = 1.0
 zones      [ {max,label,color} × 5 ]
 indicators [ 22 × {id, dim, name, value, disp, score, zone, anchors, dir,
                    asof, fresh, src, url, note, qual, sub?} ]
+             dir 是**給人看的方向說明字串**（"越高越熱"、"越負越熱"、
+             "質化評分（0-100）"…），純展示、不參與計分——方向相反的指標
+             一律在計分時取負號餵錨點（見 §3.2），不要照 dir 另寫邏輯
 triggers   [ 7 × {id, name, state(0/1), value, note, asof} ]
 quadrant   { heat, support, regime }
 tw         { heat, subs:{動能,估值,籌碼,基本面}, items[10], revTable[10],
@@ -329,7 +353,9 @@ params     { nvda_eps, tsmc_eps, ngdp_nominal, megaipo_done }
 
 ### 8.1 機器負責（GitHub Actions，每交易日）
 
-L1 除 `narrative` 外全部、L2 除三項質化外全部、L3 除 `cloudrev`／`tokens` 外全部、台灣除 `tsmc_weight` 外全部、`events`、`triggers`、`quadrant`、`history`。
+L1 除 `narrative` 外全部、L2 除三項質化外全部、L3 除 `cloudrev`／`tokens` 外全部、台灣除 `tsmc_weight` 外全部，以及 `events`、`triggers`。
+
+`dims`、`composite`、`quadrant`、`tw.subs`／`tw.heat`、`history` 這幾個**導出欄位**每交易日也由引擎重算一次，但它們**不是「機器專屬」**：每週覆核只要動了任何質化分數，就必須依 §8.4 自己重算同一組欄位並補一筆 `history`，否則頁面會停在上一次自動更新的值、跟改過的指標自相矛盾。「機器每天會算」不等於「人可以不算」——下一次自動更新可能是隔天早上，中間這段時間線上就是錯的。
 
 ### 8.2 人（每週覆核排程）負責
 
@@ -341,7 +367,16 @@ L1 除 `narrative` 外全部、L2 除三項質化外全部、L3 除 `cloudrev`�
 
 > `events`、`triggers`，以及所有 §8.1 的自動指標的 `value`／`score`／`asof`。
 
-覆核工作階段的容器只放行 GitHub，重抓那些來源必定失敗或抓到殘值，然後把好的舊值蓋掉。`events` 若真的漏了重大結構性事件，最多**補 1–2 條**（附 url），不要整批重寫。
+原因是覆核容器的網路有**兩條路，能力不一樣**，這點常被誤記成「容器只放行 GitHub」：
+
+| 路徑 | 實測結果 | 意義 |
+|---|---|---|
+| Bash 的 `curl`／`requests`（引擎走這條） | **只通得到 GitHub**；FRED、Stooq、SEC EDGAR、TAIFEX 一律連線失敗 | 在覆核工作階段裡**跑不動 `update_data.py`**，也不能自己 `curl` 補數字 |
+| `WebSearch`／`WebFetch`（走 Anthropic 的抓取服務） | **可以連到外部網站**，包括 FRED 與 TAIFEX | 質化研究（§8.2）與 `tsmc_weight` 月更**做得到**，靠的是這條 |
+
+所以禁令的真正理由不是「連不到網路」，而是：**能連到網路的那條路（WebFetch）拿不到引擎要的東西**。WebFetch 讀 `fredgraph.csv` 這類 CSV／JSON 端點會回傳 binary 亂碼，讀網頁則是經過摘要的文字——兩者都不能取代引擎的數值抓取，硬要用只會抓到殘值或讀錯數字，然後把每日管線抓到的好值蓋掉。
+
+`events` 若真的漏了重大結構性事件，最多**補 1–2 條**（附 url），不要整批重寫。
 
 **注意「重抓」與「重算」的差別**：`quadrant`、`dims`、`composite`、`tw.subs`／`tw.heat` 都是從指標分數**導出**的，質化分數一改就必須跟著重算（見 §8.4）。它們不在重抓禁令裡——把它們當成不可動的欄位，反而會讓頁面自相矛盾。
 
@@ -385,7 +420,7 @@ L1 除 `narrative` 外全部、L2 除三項質化外全部、L3 除 `cloudrev`�
 
 **為什麼改**：把系統寫成維護 skill（`bubble-maintain`）時，用子代理做了一次 brief ↔ 排程 prompt ↔ 引擎 ↔ 前端的獨立比對，抓出一批 v1→v2 改版時留下的殘骸與不同步。
 
-- 引擎：`spreads` 補回 `hy.y1`、`ig.m3`，並實際抓取 `fedfunds`／`usinfo`（v1 淘汰指標後這兩塊停在殘值不再更新）；新增 `fred_back(obs, days)` 讓一次抓取可取多個回看期
+- 引擎：新增 `fred_back(obs, back_days)` 讓一次抓取可取多個回看期；`spreads` 補上 `hy.y1`（`ig.m3` 本來就有，先前誤記為新增），並實際抓取 `fedfunds`／`usinfo`（v1 淘汰指標後這兩塊停在殘值不再更新）。**`hy.y1` 要等下一次自動更新才會出現在 `data.json`**，在那之前 `healthcheck.py` 會以 WARN 提示
 - 前端：信用磚塊改為**缺鍵就不畫**（原本 `sp.hy.y1` 不存在，畫出 `−NaNbp`）；VIX 描述改為隨數值生成，不再寫死「13-18＝自滿區」；來源表的更新頻率改用季頻集合判定（原本把日頻指標全標成「週」、`rpo` 也漏掉）；歷史快照說明由「每週一」更正為「每交易日」
 - 前端：`<script id="dashboard-data">` 離線退路快照由 v1 六維（54.1）重灌為 v2
 - 前端：`<script id="update-spec">` 由 v1 規格全文改為指向本檔的指標，消掉一個漂移面

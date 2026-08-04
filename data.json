@@ -756,7 +756,7 @@
   }
  ],
  "tw": {
-  "heat": 51.3,
+  "heat": 51.5,
   "items": [
    {
     "id": "tw_rev",
@@ -801,9 +801,9 @@
    {
     "id": "tsmc_200dma",
     "name": "台積電距 200 日均線",
-    "value": 21.7,
-    "disp": "+21.7%",
-    "score": 48.2,
+    "value": 22.0,
+    "disp": "+22.0%",
+    "score": 48.8,
     "note": "主升段乖離度。",
     "src": "stockanalysis.com",
     "asof": "2026-08-04"
@@ -811,9 +811,9 @@
    {
     "id": "tsmc_52w",
     "name": "台積電一年漲幅",
-    "value": 101.7,
-    "disp": "+101.7%",
-    "score": 73.5,
+    "value": 102.2,
+    "disp": "+102.2%",
+    "score": 73.7,
     "note": "GSY 式漲幅檢驗的台股版。",
     "src": "Google Finance",
     "asof": "2026-08-04"
@@ -821,9 +821,9 @@
    {
     "id": "twii_pos",
     "name": "台積電 52 週區間位置",
-    "value": 86.3,
-    "disp": "86.3%",
-    "score": 58.6,
+    "value": 86.6,
+    "disp": "86.6%",
+    "score": 59.4,
     "note": "以台積電（佔大盤 44%+）取代加權指數作位置計。",
     "src": "Yahoo Finance",
     "asof": "2026-08-04"
@@ -860,7 +860,7 @@
    }
   ],
   "subs": {
-   "動能": 60.1,
+   "動能": 60.6,
    "估值": 68.8,
    "籌碼": null,
    "基本面": 11.9
@@ -1301,8 +1301,18 @@
   },
   {
    "d": "08-04",
+   "t": "Here's What Key Metrics Tell Us About ON Semiconductor Corp. (ON) Q2 Earnings｜Yahoo Finance",
+   "url": "https://news.google.com/rss/articles/CBMilAFBVV95cUxQc1Atbnc3b3lRa2JOU0RFbUNpZWVlRXJPc0llcUpGSVJyNFl1c2ZpU0lqZHFKeTU0eGFJalVra0NGV2ViVklHLU5YNFcyZ0lmdVd2VGxMNUVVS2xlOFZnc3lVZDk1UTRMa3M5eFN3V0Z3Mm8tYjNRZjdKaEdTNVJwLU5pQ2xXc1Z1X1BMTHFIakFoYjdD?oc=5"
+  },
+  {
+   "d": "08-04",
    "t": "Big Tech's Anthropic and OpenAI stakes are distorting the corporate earnings picture｜CNBC",
    "url": "https://news.google.com/rss/articles/CBMiowFBVV95cUxQLVZ0SlZoODJGekFDdGRyVkJwNll5b09xSGtra3lBRHJuQWtoc0hOZlJxdjk2YUZUZDJXZFJSdFJTcVNfQnhHUFZBMUg0ZTVmTU5qMk1TMkw0am92T2FjZlotdnd2X3RReUNWcHJyRDJxRDZ2MjczUWZ3c0pQeWYxN1d3MUV5LVA4SE5UUXlqRjR3QTM1c3NVOTNpUlh6YTllOE9j0gGoAUFVX3lxTE9jQlpJY3Q1UDdiSHVzWEJhcFdnSHdNbFNyeDQ2cUsxLUhwQ2Vnd0pnTnM4YUlnUkptOFVhUUZpaUw4anZ3R2huVkoxWmt0WkRlQUhNamF2ZE1BZHdlV2ZwMXd0YktDT1VZTmZqVXBfZmVwdVhoaGxkRWc0U2hMOWpmcWtTMlVjdzR5R2dkMFgzYVl6b1V0ZnpnejNEa21NaXctd3lsdThqQw?oc=5"
+  },
+  {
+   "d": "08-04",
+   "t": "ON Semiconductor Corp. (ON) Tops Q2 Earnings and Revenue Estimates｜Yahoo Finance",
+   "url": "https://news.google.com/rss/articles/CBMiogFBVV95cUxOb2I3Ri15NTBudjdDbGF6MFZhSk16Q2V3LXpFb2lKLWx4djFFRTFFSkdqZF9wYV9NS3Z0bnp2WFVUUU1VV3pOMW1CbVQtcUllMjZxMVN6NFB1ejZZeWhhX1dTSXhYUjdIYl9YTmd1eFBuVHBvdXlQcDlTelhmYkRaNWkyQVgwU2paSHhXbVQ3OHhKUkFlTFM1WlFyT3p1U0wyMkE?oc=5"
   },
   {
    "d": "08-04",
@@ -1320,9 +1330,9 @@
    "url": "https://news.google.com/rss/articles/CBMihgFBVV95cUxNTjBZVVF0RnlQTFU3WURXTjMtRFZ5MVJRUlFKSFM3S0JIbTdjcXZkWnREVVFYSFNORXVxanBIVUdDUXpaRU5QRHA4QklreTJnM3dRcGNMcTFXNnlYSVRtSVRSVnROdjhhaDYzR3JmY1dyVHpBMVdxS0YwenQwcEs2b2g1cldHdw?oc=5"
   },
   {
-   "d": "08-03",
-   "t": "Sam Altman reveals the investing advice billionaire Peter Thiel gave him that's led to a $3.3 billion net worth｜Fortune",
-   "url": "https://news.google.com/rss/articles/CBMi0AFBVV95cUxPUHBKVVhwSGNQem9fSTJhZW5VNDF3VG82OW5pQkQ2YlM2ek40SjBheVRLTXBsRlJBcmY2S0RZeGI1Wk8wQUNCMDExSTkxbTQxNkM2aGNoYkFyanRyY18telk5X1RiOXViZHdFc0l5ZVJrelhKSHc5TWpzN2NWRVRDMW9QeTZaeGMzWGRQdFRyVkhmVUE5aWR3MkN6QmJvVC1yd3puVDQzeHpibWp4ZGFFQmRmUHd4YVFIVVNESXdRR3dPbFZ3bFlnekVQbVR1b2ZW?oc=5"
+   "d": "08-04",
+   "t": "'We shouldn't grave dance:' Market pros say don't count Leopold Aschenbrenner out after his hedge-fund blowup｜Business Insider",
+   "url": "https://news.google.com/rss/articles/CBMitgFBVV95cUxPSlVmWmp5Q1V3WkRzNUs2OF9jZVJkNm1IeFhLMnRWZUFsb3Q0Z1pVbXBzZGltZTBNLWFGd1FIOEFjUkxUMU1LMmRweUtiZnZCM1IzLWdqMlMzaHJfR1JGMlBsSlgwd0dJNFIycFRESHFSdi1JekVMc1VVTDZHLWtWOXVsaW5EblJqQVJ3aGpmdnNZaUROSzFjYkRRUWVsbVFfejlxaHFXeEcyTUN4TjNLTFMyRlJNQQ?oc=5"
   },
   {
    "d": "08-03",
@@ -1343,16 +1353,6 @@
    "d": "08-01",
    "t": "Amazon completes $50bn investment in OpenAI｜Financial Times",
    "url": "https://news.google.com/rss/articles/CBMihAFBVV95cUxNaEFvajk1QWYtT0dWV0NBbFd5QTJKR0s4eHNLR3N0eV9yV0Q4NXkyS3R2UjFoRDlXWTROdHNBU1NtTENFS1BGLUVQaVEwc1ViTmhuY2FDeW5NZm5MVDB3azVTRjVKRGtEVTFfSlhETkRLTUdaY0ZVXzRERnRWYUVZNkVEaEs?oc=5"
-  },
-  {
-   "d": "08-01",
-   "t": "Moonshot has Nvidia chip cluster from Alibaba computing deal, Bloomberg News reports｜Reuters",
-   "url": "https://news.google.com/rss/articles/CBMi1gFBVV95cUxOeVViREhmXzZUal83SHNUWjJqSkxJbWt1RXBQc1R6MUVVMm1SWFNwRG5xM0VyR096MVNxN05qNEtRVXdaME5JMXo5TUNwaGJoVUJZTG5WNzBPdTlaQmxxYzlHaWNiMXZsQzdkSHh1ZTA1NVlfdERQZ0t1b0VlcUY0QW45VXVDb0d5SjZleXVINnBDWnNkZTVzd0lEMXZkYUZfVlV3cnRva1p1TXoxcVhOOFRYdnFuRHNUX3FFQ2xzZXpVV2RjeG9SZVdVTXhRR2dxdkdDblR3?oc=5"
-  },
-  {
-   "d": "07-31",
-   "t": "MediaTek plans $5 billion financing for AI data-center chips｜Reuters",
-   "url": "https://news.google.com/rss/articles/CBMitAFBVV95cUxOMHlyNnM2ZnRxc183Q0dmN2V4RC1yWDBYSjdxT2kwYVd1X0U0bXc2M3ctRmpRQkx4amdockRSX3dBa3FFZ2VCMXR6bnlWRnQ4UUFVZHdpSF80UVZWc0ZjV3lvV2xVdzNpVmJoSUFQd0tGSTg4b1Vjb0pQTEFmLW1iRkRWc2RoSVF4Q3huTDhNMkp4bzNHV1lsNjRrOGlzdFJGZDdmUTE4QnJoTUpndmxRT3Q1NWg?oc=5"
   }
  ],
  "history": [
@@ -1559,7 +1559,7 @@
     "L2": 70.3,
     "L3": 36.1
    },
-   "tw": 51.3,
+   "tw": 51.5,
    "quad": [
     63.9,
     65.4
@@ -1579,7 +1579,7 @@
    "state": 0,
    "value": "+1bp/3M",
    "note": "信用市場確認轉向（GS/歷史典型）",
-   "asof": "2026-08-04"
+   "asof": "2026-07-30"
   },
   {
    "id": "ccc12",
@@ -1587,7 +1587,7 @@
    "state": 0,
    "value": "10.06%",
    "note": "最弱信用層壓力達熊市級",
-   "asof": "2026-08-04"
+   "asof": "2026-07-30"
   },
   {
    "id": "gsy150",
@@ -1595,7 +1595,7 @@
    "state": 0,
    "value": "+120%",
    "note": "GSY：歷史崩盤機率 80% 區",
-   "asof": "2026-08-04"
+   "asof": "2026-07-31"
   },
   {
    "id": "cpi4",
@@ -1603,7 +1603,7 @@
    "state": 0,
    "value": "3.5%",
    "note": "Hartnett：通膨迫使實質緊縮＝刺破機制",
-   "asof": "2026-08-04"
+   "asof": "2026-06-01"
   },
   {
    "id": "policy_gap",
@@ -1611,7 +1611,7 @@
    "state": 0,
    "value": "FF 3.63% vs 名目GDP≈4.9%",
    "note": "UBS：貨幣條件由順風轉逆風",
-   "asof": "2026-08-04"
+   "asof": "2026-07-01"
   },
   {
    "id": "y10_5",
@@ -1619,7 +1619,7 @@
    "state": 0,
    "value": "4.75%",
    "note": "長久期 AI 資產的折現硬約束",
-   "asof": "2026-08-04"
+   "asof": "2026-07-31"
   },
   {
    "id": "megaipo",

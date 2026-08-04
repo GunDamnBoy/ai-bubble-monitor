@@ -169,6 +169,17 @@ ul.tight{padding-left:18px;font-size:13px} ul.tight li{margin:4px 0}
 
     <div class="grid2">
       <div class="card">
+        <h2>市場定位象限<span class="mut" style="font-weight:400">　基本面支撐 × 市場資金熱度・每日移動</span></h2>
+        <div id="quadWrap"></div>
+      </div>
+      <div class="card">
+        <h2>引爆觸發器<span class="mut" style="font-weight:400" id="trigCount"></span></h2>
+        <div id="triggers"></div>
+        <div class="mut" style="margin-top:8px">綜合溫度量的是「結構有多熱」，觸發器量的是「距離刺破還有幾道保險絲」——多枚齊亮＝歷史頂部組合（門檻取 GS／BofA／UBS 框架聯集）。</div>
+      </div>
+    </div>
+    <div class="grid2">
+      <div class="card">
         <h2>泡沫階段定位<span class="mut" style="font-weight:400">　網路泡沫融資階段類比</span></h2>
         <div class="stepper" id="stepper"></div>
         <div class="sub" id="stageNote" style="margin-top:8px"></div>
@@ -187,6 +198,7 @@ ul.tight{padding-left:18px;font-size:13px} ul.tight li{margin:4px 0}
       <div class="card">
         <h2>五大雲廠：資本開支 vs 營運現金流<span class="mut" style="font-weight:400">　TTM，$B</span></h2>
         <div class="chart" id="chartCapex"></div>
+        <div class="mut" id="provNote"></div>
       </div>
       <div class="card">
         <h2>Capex／OCF 比率<span class="mut" style="font-weight:400">　單季，%</span></h2>
@@ -214,7 +226,7 @@ ul.tight{padding-left:18px;font-size:13px} ul.tight li{margin:4px 0}
   <!-- ============ TAB 2 指標 ============ -->
   <section class="pane" id="t2">
     <div class="card">
-      <div class="sub">21 項指標依六維度分組。每張卡片：目前值、溫度帶位置（▎為目前位置，綠→黃→橘→紅）、資料時點與來源。標示「資料延遲」者為來源停更或低頻披露，以最後可得值評分。</div>
+      <div class="sub">22 項指標依三層頻率分組：L1 市場與情緒（日頻）、L2 資金與信用（日/週頻）、L3 基本面兌現（月/季 nowcast）。每張卡片：目前值、溫度帶位置（▎為目前位置，綠→黃→橘→紅）、資料時點與來源。標示「資料延遲」者為來源停更或低頻披露，以最後可得值評分。</div>
     </div>
     <div id="indSections"></div>
     <div class="card">
@@ -240,6 +252,15 @@ ul.tight{padding-left:18px;font-size:13px} ul.tight li{margin:4px 0}
           <div class="sub" style="margin-top:10px">獨立於美國綜合溫度計計算（美國框架監測「泡沫是否形成」；台灣面板監測「若破裂，曝險有多大」）。台股供應鏈的動能與估值指標目前<b>顯著熱於美國核心</b>——但請注意其中的結構：過熱集中在台積電的估值重評與指數動能，ODM 環節估值仍溫和。</div>
         </div>
       </div>
+    </div>
+    <div class="card">
+      <h2>四維拆解<span class="mut" style="font-weight:400">　動能30%・估值30%・籌碼20%・基本面20%</span></h2>
+      <div id="twSubs"></div>
+    </div>
+    <div class="card">
+      <h2>AI 供應鏈月營收引擎<span class="mut" style="font-weight:400" id="twRevMonth"></span></h2>
+      <div style="overflow-x:auto"><table id="twRevTable"></table></div>
+      <div class="mut" style="margin-top:6px">資料：TWSE 公開資訊觀測站月營收（官方年增率欄位），每月 10 日後自動更新。台灣供應鏈的月營收是全球 AI 硬體資本開支的「出貨速度計」——比美股財報快一到兩個月反映需求轉折。</div>
     </div>
     <div class="dimSection"><div class="cards" id="twCards"></div></div>
     <div class="card">
@@ -1515,9 +1536,9 @@ ul.tight{padding-left:18px;font-size:13px} ul.tight li{margin:4px 0}
 function boot(DATA){
 "use strict";
 const $ = id => document.getElementById(id);
-const ZC = {green:"var(--good)", yellow:"var(--warn)", orange:"var(--serious)", red:"var(--crit)"};
-const ZL = {green:"綠・低溫", yellow:"黃・警戒", orange:"橘・偏熱", red:"紅・過熱"};
-const zoneOf = s => s<33?"green":(s<67?"yellow":(s<84?"orange":"red"));
+const ZC = {green:"var(--good)", yellow:"var(--warn)", orange:"var(--serious)", red:"var(--crit)", pending:"var(--muted)"};
+const ZL = {green:"綠・低溫", yellow:"黃・警戒", orange:"橘・偏熱", red:"紅・過熱", pending:"待數據"};
+const zoneOf = s => (s==null?"pending":(s<33?"green":(s<67?"yellow":(s<84?"orange":"red"))));
 const esc = t => String(t).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const fmt1 = v => Number(v).toLocaleString("en-US",{maximumFractionDigits:1});
 
@@ -1542,6 +1563,7 @@ function zoneBarHTML(score){
     + `<span class="marker" style="left:calc(${score}% - 1.5px)"></span>`;
 }
 function meterHTML(score){
+  if (score == null) return `<div class="meter"><div class="track" style="background:var(--grid)"></div></div>`;
   const c = ZC[zoneOf(score)];
   return `<div class="meter"><div class="track" style="background:color-mix(in srgb,${c} 14%,var(--surface-1))"></div>
     <div class="fill" style="width:${Math.max(score,2)}%;background:${c}"></div></div>`;
@@ -1549,7 +1571,7 @@ function meterHTML(score){
 function stripHTML(score){
   const segs = [[33,"good"],[34,"warn"],[17,"serious"],[16,"crit"]];
   return `<div class="strip">` + segs.map(([w,c]) => `<div style="width:${w}%;background:color-mix(in srgb,var(--${c}) 30%,var(--surface-1))"></div>`).join("")
-    + `<span class="mk" style="left:calc(${Math.min(score,99)}% - 1px)"></span></div>`;
+    + (score==null?"":`<span class="mk" style="left:calc(${Math.min(score,99)}% - 1px)"></span>`) + `</div>`;
 }
 
 /* ---------- hero ---------- */
@@ -1562,8 +1584,41 @@ $("zoneLabels").textContent = "冷靜期｜健康擴張｜過熱警戒｜泡沫�
 $("dimRows").innerHTML = Object.entries(DATA.dimMeta).map(([k,m]) => {
   const s = DATA.dims[k];
   return `<div class="dimRow"><div class="dimName">${esc(m.name)} <span class="mut">${Math.round(m.w*100)}%</span></div>
-    ${meterHTML(s)}<div class="dimScore" style="color:${ZC[zoneOf(s)]}">${s}</div></div>`;
+    ${meterHTML(s)}<div class="dimScore" style="color:${ZC[zoneOf(s)]}">${s??"—"}</div></div>`;
 }).join("");
+
+/* ---------- quadrant & triggers (v2) ---------- */
+(function renderQuad(){
+  const el = $("quadWrap"); if (!el) return;
+  const q = DATA.quadrant;
+  if (!q || q.heat == null){ el.innerHTML = '<div class="mut">首次自動更新後顯示</div>'; return; }
+  const W=360,H=290,L=44,R=12,T=14,B=34;
+  const X=v=>L+(W-L-R)*(v/100), Y=v=>T+(H-T-B)*(1-v/100);
+  let g="";
+  [[0,45,55,100,"crit","泡沫危險區"],[45,100,55,100,"serious","過熱但有撐"],
+   [45,100,0,55,"good","健康擴張"],[0,45,0,55,"warn","失速風險"]].forEach(([x0,x1,y0,y1,c,lb])=>{
+    g+=`<rect x="${X(x0)}" y="${Y(y1)}" width="${X(x1)-X(x0)}" height="${Y(y0)-Y(y1)}" fill="color-mix(in srgb,var(--${c}) 9%,var(--surface-1))"/>`;
+    g+=`<text x="${(X(x0)+X(x1))/2}" y="${(Y(y0)+Y(y1))/2+3}" text-anchor="middle" font-size="10" fill="var(--muted)">${lb}</text>`;});
+  g+=`<line x1="${X(45)}" x2="${X(45)}" y1="${T}" y2="${H-B}" stroke="var(--grid)"/><line x1="${L}" x2="${W-R}" y1="${Y(55)}" y2="${Y(55)}" stroke="var(--grid)"/>`;
+  const tr = DATA.history.filter(x=>x.quad).map(x=>x.quad);
+  if (tr.length>1) g+=`<polyline points="${tr.map(p=>X(p[0])+","+Y(p[1])).join(" ")}" fill="none" stroke="var(--s1)" stroke-width="1.5" opacity=".45"/>`;
+  tr.slice(0,-1).forEach(p=>{g+=`<circle cx="${X(p[0])}" cy="${Y(p[1])}" r="2.5" fill="var(--s1)" opacity=".45"/>`;});
+  g+=`<circle cx="${X(q.support)}" cy="${Y(q.heat)}" r="7" fill="var(--s1)" stroke="var(--surface-1)" stroke-width="2.5"/>`;
+  el.innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="市場定位象限圖">${g}
+    <text x="${(L+W-R)/2}" y="${H-5}" text-anchor="middle" font-size="10.5" fill="var(--ink-2)">基本面支撐 →</text>
+    <text x="11" y="${(T+H-B)/2}" font-size="10.5" fill="var(--ink-2)" text-anchor="middle" transform="rotate(-90 11 ${(T+H-B)/2})">市場＋資金熱度 →</text></svg>
+    <div style="margin-top:6px;font-size:13px"><b>目前定位：${esc(q.regime)}</b><span class="mut">　熱度 ${q.heat}・支撐 ${q.support}（軌跡＝每日足跡）</span></div>`;
+})();
+(function renderTriggers(){
+  const el = $("triggers"); if (!el || !DATA.triggers) return;
+  const lit = DATA.triggers.filter(t=>t.state).length;
+  $("trigCount").textContent = `　點亮 ${lit}／${DATA.triggers.length}`;
+  el.innerHTML = DATA.triggers.map(t=>`
+    <div style="display:grid;grid-template-columns:18px 1fr auto;gap:8px;padding:5px 0;border-bottom:1px solid var(--grid);font-size:12.5px;align-items:baseline">
+      <span style="color:${t.state?"var(--crit)":"var(--muted)"};font-weight:700">${t.state?"●":"○"}</span>
+      <span><b>${esc(t.name)}</b><div class="mut" style="font-size:11px">${esc(t.note||"")}</div></span>
+      <span class="mut" style="font-variant-numeric:tabular-nums">${esc(t.value??"—")}</span></div>`).join("");
+})();
 
 /* ---------- stage / checklist / events / tiles ---------- */
 $("stepper").innerHTML = DATA.stage.stages.map(s =>
@@ -1612,6 +1667,7 @@ function niceTicks(lo, hi, n=4){
 function makeTip(host){ const d = document.createElement("div"); d.className = "tooltip"; host.appendChild(d); return d; }
 
 function lineChart(hostId, labels, series, opts={}){
+  // opts.prov: 最後一點為「初步值」→ 空心標記＋標籤加註
   const host = $(hostId); if (!host) return; host.innerHTML = "";
   const W = 520, H = opts.h||230, L = 48, R = 52, T = 14, B = 26;
   const all = series.flatMap(s => s.data).concat(opts.ref!=null?[opts.ref]:[]);
@@ -1626,7 +1682,7 @@ function lineChart(hostId, labels, series, opts={}){
     <text x="${L-7}" y="${Y(t)+3.5}" text-anchor="end" font-size="10" fill="var(--muted)" style="font-variant-numeric:tabular-nums">${fmt1(t)}</text>`; });
   const xEvery = Math.ceil(labels.length/6);
   labels.forEach((lb,i) => { if (i%xEvery===0 || i===labels.length-1)
-    g += `<text x="${X(i)}" y="${H-7}" text-anchor="middle" font-size="9.5" fill="var(--muted)">${esc(lb)}</text>`; });
+    g += `<text x="${X(i)}" y="${H-7}" text-anchor="middle" font-size="9.5" fill="var(--muted)">${esc(lb)}${(opts.prov&&i===labels.length-1)?"※":""}</text>`; });
   if (opts.ref != null)
     g += `<line x1="${L}" x2="${W-R}" y1="${Y(opts.ref)}" y2="${Y(opts.ref)}" stroke="var(--crit)" stroke-width="1" opacity=".55"/>
       <text x="${W-R}" y="${Y(opts.ref)-4}" text-anchor="end" font-size="9.5" fill="var(--crit)">${esc(opts.refLabel||opts.ref)}</text>`;
@@ -1635,8 +1691,9 @@ function lineChart(hostId, labels, series, opts={}){
     if (s.area && s.data.length>1) g += `<polygon points="${X(0)},${Y(Math.max(lo,0))} ${pts} ${X(s.data.length-1)},${Y(Math.max(lo,0))}" fill="${s.color}" opacity=".10"/>`;
     if (s.data.length>1) g += `<polyline points="${pts}" fill="none" stroke="${s.color}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`;
     s.data.forEach((v,i) => { const last = i===s.data.length-1;
+      const hollow = opts.prov && last;
       if (last || s.data.length===1 || opts.dots)
-        g += `<circle cx="${X(i)}" cy="${Y(v)}" r="4.5" fill="${s.color}" stroke="var(--surface-1)" stroke-width="2"/>`; });
+        g += `<circle cx="${X(i)}" cy="${Y(v)}" r="4.5" fill="${hollow?"var(--surface-1)":s.color}" stroke="${hollow?s.color:"var(--surface-1)"}" stroke-width="2"/>`; });
     const lv = s.data[s.data.length-1];
     g += `<text x="${X(s.data.length-1)+7}" y="${Y(lv)+3.5}" font-size="11" font-weight="600" fill="var(--ink-2)" style="font-variant-numeric:tabular-nums">${fmt1(lv)}${opts.unit||""}</text>`;
   });
@@ -1680,7 +1737,7 @@ function barChart(hostId, labels, data, opts={}){
     const path = v >= 0
       ? `M${x},${y0} L${x},${top+r} Q${x},${top} ${x+r},${top} L${x+bw-r},${top} Q${x+bw},${top} ${x+bw},${top+r} L${x+bw},${y0} Z`
       : `M${x},${y0} L${x+bw},${y0} L${x+bw},${top+hgt-r} Q${x+bw},${top+hgt} ${x+bw-r},${top+hgt} L${x+r},${top+hgt} Q${x},${top+hgt} ${x},${top+hgt-r} Z`;
-    g += `<path d="${path}" fill="${opts.color||"var(--s1)"}" data-i="${i}" class="bar"/>`;
+    g += `<path d="${path}" fill="${opts.color||"var(--s1)"}" data-i="${i}" class="bar"${(opts.prov&&i===data.length-1)?' opacity="0.45"':''}/>`;
     if (v===mx || v===mn || i===data.length-1)
       g += `<text x="${X(i)}" y="${(v>=0?top-5:top+hgt+11)}" text-anchor="middle" font-size="10" font-weight="600" fill="var(--ink-2)" style="font-variant-numeric:tabular-nums">${fmt1(v)}</text>`;
   });
@@ -1700,14 +1757,18 @@ function barChart(hostId, labels, data, opts={}){
 
 function drawCharts(){
   const ttm = DATA.charts.ttm, aq = DATA.charts.aggQ, dbt = DATA.charts.debt;
+  const aqProv = aq.length && !!aq[aq.length-1].prov;
+  const ttmProv = ttm.length && !!ttm[ttm.length-1].prov;
   lineChart("chartCapex", ttm.map(r=>r.q),
     [{name:"資本開支 Capex", color:"var(--s1)", data:ttm.map(r=>r.capex)},
      {name:"營運現金流 OCF", color:"var(--s2)", data:ttm.map(r=>r.ocf)}],
-    {aria:"五大雲廠 TTM 資本開支與營運現金流", zero:false});
+    {aria:"五大雲廠 TTM 資本開支與營運現金流", zero:false, prov: ttmProv});
   lineChart("chartRatio", aq.map(r=>r.q),
     [{name:"Capex/OCF", color:"var(--s1)", data:aq.map(r=>r.ratio), area:true}],
-    {ref:100, refLabel:"100%＝現金流全數投入", unit:"%", aria:"單季資本開支佔營運現金流比率"});
-  barChart("chartFcf", aq.map(r=>r.q), aq.map(r=>r.fcf), {unit:"B", aria:"五大雲廠單季自由現金流"});
+    {ref:100, refLabel:"100%＝現金流全數投入", unit:"%", aria:"單季資本開支佔營運現金流比率", prov: aqProv});
+  barChart("chartFcf", aq.map(r=>r.q), aq.map(r=>r.fcf), {unit:"B", aria:"五大雲廠單季自由現金流", prov: aqProv});
+  const provNote = aqProv ? `※ ${aq[aq.length-1].q} 為初步值（${aq[aq.length-1].have||"?"}／5 家已申報，缺者沿用上季），五家到齊後自動轉正式。` : "";
+  if ($("provNote")) $("provNote").textContent = provNote;
   lineChart("chartDebt", dbt.labels, [{name:"長期債務", color:"var(--s1)", data:dbt.values}], {aria:"五大雲廠長期債務合計"});
   $("debtNote").textContent = dbt.note;
   const h = DATA.history;
@@ -1754,6 +1815,26 @@ $("twCards").innerHTML = DATA.tw.items.map(i => `
     <div class="meta"><span></span><span>${esc(i.asof)}・${esc(i.src)}</span></div>
   </div>`).join("");
 
+/* ---------- TW v2: subs & revenue table ---------- */
+(function renderTwV2(){
+  const subs = DATA.tw.subs || {};
+  const el = $("twSubs");
+  if (el) el.innerHTML = Object.entries(subs).map(([k,v])=>`
+    <div class="dimRow"><div class="dimName">${esc(k)}</div>${meterHTML(v)}
+      <div class="dimScore" style="color:${ZC[zoneOf(v)]}">${v??"—"}</div></div>`).join("") ||
+    '<div class="mut">首次自動更新後顯示</div>';
+  const tb = $("twRevTable"), rt = DATA.tw.revTable;
+  if (tb && rt && rt.length){
+    if ($("twRevMonth")) $("twRevMonth").textContent = `　資料月份 ${DATA.tw.revMonth||""}`;
+    tb.innerHTML = `<tr><th>代號</th><th>名稱</th><th>角色</th><th style="text-align:right">月營收年增</th><th style="text-align:right">月增</th><th style="text-align:right">當月營收(十億)</th></tr>` +
+      rt.map(r=>{
+        const c = r.yoy>=40?"var(--up-good)":(r.yoy>=0?"var(--ink-1)":"var(--crit)");
+        return `<tr><td>${esc(r.code)}</td><td>${esc(r.name)}</td><td class="mut">${esc(r.role)}</td>
+          <td class="num" style="color:${c};font-weight:600">${r.yoy>0?"+":""}${r.yoy}%</td>
+          <td class="num">${r.mom>0?"+":""}${r.mom}%</td><td class="num">${r.rev}</td></tr>`;}).join("");
+  } else if (tb) { tb.innerHTML = '<tr><td class="mut">首次自動更新後顯示（每月 10 日後有當月資料）</td></tr>'; }
+})();
+
 /* ---------- method tab tables ---------- */
 $("wTable").innerHTML = `<tr><th>維度</th><th>權重</th><th>指標數</th><th>目前維度分</th><th>定位</th></tr>` +
   DIMS.map(dk => { const m = DATA.dimMeta[dk], n = DATA.indicators.filter(i=>i.dim===dk).length;
@@ -1765,7 +1846,7 @@ $("srcTable").innerHTML = `<tr><th>指標</th><th>來源</th><th>更新頻率</t
     <td>${i.qual?"WebSearch＋評分準則":"自動抓取"}</td></tr>`).join("");
 $("histTable").innerHTML = `<tr><th>日期</th><th>綜合</th>${DIMS.map(d=>`<th>${esc(DATA.dimMeta[d].name.slice(0,2))}</th>`).join("")}<th>台股</th></tr>` +
   DATA.history.map(h => `<tr><td>${esc(h.date)}</td><td class="num"><b>${h.composite}</b></td>
-    ${DIMS.map(d=>`<td class="num">${h.dims[d]}</td>`).join("")}<td class="num">${h.tw}</td></tr>`).join("");
+    ${DIMS.map(d=>`<td class="num">${h.dims[d]??"—"}</td>`).join("")}<td class="num">${h.tw??"—"}</td></tr>`).join("");
 }
 (async function(){
   let d = null;

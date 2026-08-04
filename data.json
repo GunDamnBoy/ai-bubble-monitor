@@ -1,9 +1,9 @@
 {
  "meta": {
-  "version": 1,
+  "version": 2,
   "built": "2026-08-04",
   "builtTime": "2026-08-04（GitHub Actions 自動更新）",
-  "nextUpdate": "每交易日自動更新（GitHub Actions）｜質化指標每週覆核",
+  "nextUpdate": "每交易日自動更新（GitHub Actions）｜質化指標每週覆核｜v2 三層架構",
   "artifactId": "ai-bubble-monitor",
   "lastAutoRun": {
    "date": "2026-08-04",
@@ -40,35 +40,20 @@
   "D6": 58.0
  },
  "dimMeta": {
-  "D1": {
-   "name": "估值與集中度",
-   "w": 0.25,
-   "note": "原文缺失的維度（本框架新增）"
+  "L1": {
+   "name": "市場與情緒",
+   "w": 0.35,
+   "note": "日頻｜價格統計（GSY）＋估值＋集中度＋情緒"
   },
-  "D2": {
-   "name": "需求與變現",
-   "w": 0.15,
-   "note": "反證維度：綠＝基本面真實"
+  "L2": {
+   "name": "資金與信用",
+   "w": 0.35,
+   "note": "日/週頻｜2026 共識斷層線：債務、利差、循環融資"
   },
-  "D3": {
-   "name": "現金流與資本開支",
-   "w": 0.25,
-   "note": "原文第二維，EDGAR 全自動"
-  },
-  "D4": {
-   "name": "融資與信用",
-   "w": 0.2,
-   "note": "原文第三維＋循環融資紅旗"
-  },
-  "D5": {
-   "name": "市場動能與情緒",
-   "w": 0.1,
-   "note": "本框架新增（價格動態）"
-  },
-  "D6": {
-   "name": "宏觀與外部約束",
-   "w": 0.05,
-   "note": "原文第四維，降權修正"
+  "L3": {
+   "name": "基本面兌現",
+   "w": 0.3,
+   "note": "月/季 nowcast｜capex 消化度、RPO、變現"
   }
  },
  "zones": [
@@ -101,7 +86,7 @@
  "indicators": [
   {
    "id": "cape",
-   "dim": "D1",
+   "dim": "L1",
    "name": "Shiller CAPE（標普500）",
    "value": 41.51,
    "disp": "41.5×",
@@ -130,12 +115,12 @@
    "fresh": "ok",
    "src": "multpl.com",
    "url": "https://www.multpl.com/shiller-pe",
-   "note": "歷史均值 17.4×、2000年網路泡沫峰值 44.2×（1999/12）。目前 42.2× 已達峰值的 95%——估值面最刺眼的單一數字。",
+   "note": "歷史均值 17.4×、2000 年峰值 44.2×。估值層的慢變數錨。",
    "qual": false
   },
   {
    "id": "mag7",
-   "dim": "D1",
+   "dim": "L1",
    "name": "Mag7 佔標普500市值比重",
    "value": 33.8,
    "disp": "33.8%",
@@ -164,13 +149,13 @@
    "fresh": "ok",
    "src": "SlickCharts",
    "url": "https://www.slickcharts.com/sp500",
-   "note": "前十大合計 38.1%。2000年泡沫頂點前十大約 25-27%——目前集中度超過當年，指數與七家公司的 AI 資本開支決策深度綁定。",
+   "note": "集中度：2000 年頂點前十大約 25-27%。UBS 七條件與 BofA 集中度警訊的核心變數。",
    "qual": false
   },
   {
    "id": "nvdape",
-   "dim": "D1",
-   "name": "NVIDIA 本益比（TTM）",
+   "dim": "L1",
+   "name": "NVIDIA 本益比（即時價÷TTM EPS）",
    "value": 32.75,
    "disp": "32.7×",
    "score": 28.0,
@@ -196,220 +181,192 @@
    "dir": "越高越熱",
    "asof": "2026-08-03",
    "fresh": "ok",
-   "src": "Google Finance / stockanalysis",
+   "src": "Yahoo/Stooq＋財報 EPS",
    "url": "https://stockanalysis.com/stocks/nvda/",
-   "note": "對照 2000 年 Cisco 峰值 130×+。31.8×（Forward 20.8×）顯示本輪龍頭由真實盈利支撐——這是與 2000 年最大的不同，也是「尚未全面泡沫化」的核心證據。",
+   "note": "對照 2000 年 Cisco 130×+。龍頭是否仍由盈利支撐的即時檢驗；GS 2026-08 改口「盈利泡沫」後，這裡要與 LTG 預期一起看。",
    "qual": false
   },
   {
-   "id": "cloudrev",
-   "dim": "D2",
-   "name": "三大雲業務營收年增率",
-   "value": 54.0,
-   "disp": "平均 +54.0%",
-   "score": 0,
-   "zone": "green",
+   "id": "gsy_runup",
+   "dim": "L1",
+   "name": "GSY 泡沫判準：24個月漲幅（SOXX）",
+   "value": null,
+   "disp": "—",
+   "score": null,
+   "zone": "pending",
    "anchors": [
-    [
-     5,
-     100
-    ],
-    [
-     15,
-     67
-    ],
     [
      25,
-     33
-    ],
-    [
-     40,
      0
-    ]
-   ],
-   "dir": "越低越熱（減速＝變現失靈）",
-   "asof": "2026-07-30",
-   "fresh": "ok",
-   "src": "CNBC / 各公司財報",
-   "url": "https://www.cnbc.com/2026/04/30/google-microsoft-and-amazon-all-report-cloud-beats-in-earnings.html",
-   "note": "2026 日曆 Q2（7/29-30 公布）三大雲全面加速：Google Cloud +82%、Azure +43%（升自 +40%）、AWS +37%（2021 年來最快）——平均約 +54%，需求端加速、泡沫反證強化（本維度維持綠燈）。旁注：Microsoft 將 2026 資本開支下修至 ~$175B（自 ~$190B，靠將資料中心/辦公資產耐用年限由 15 延長至 25 年）——留意此舉同時遞延折舊、可能淡化折舊牆。若後續季度出現連續減速而資本開支不減，才是真正裂縫。",
-   "qual": false
-  },
-  {
-   "id": "ramp",
-   "dim": "D2",
-   "name": "美國企業 AI 付費採用率（Ramp）",
-   "value": 50.6,
-   "disp": "50.6%",
-   "score": 0,
-   "zone": "green",
-   "anchors": [
-    [
-     -2,
-     100
-    ],
-    [
-     0,
-     50
-    ],
-    [
-     1,
-     33
-    ],
-    [
-     3,
-     0
-    ]
-   ],
-   "dir": "趨勢向下＝轉熱（錨定：每季變化 pp）",
-   "asof": "2026-04（6月起 Ramp 停發整體值）",
-   "fresh": "stale",
-   "src": "Ramp AI Index",
-   "url": "https://ramp.com/data/ai-index",
-   "note": "1月 46.8% → 4月 50.6%，持續上升。注意：文章引用的 55% 與 Ramp 實際披露（50.6%）有出入，且 Ramp 6 月起不再發布整體付費率，此指標面臨斷檔，改以趨勢方向評分。",
-   "qual": false
-  },
-  {
-   "id": "tokens",
-   "dim": "D2",
-   "name": "OpenRouter Token 用量（3個月成長）",
-   "value": 200,
-   "disp": "約 3 倍/3個月",
-   "score": 0,
-   "zone": "green",
-   "anchors": [
-    [
-     -20,
-     100
-    ],
-    [
-     0,
-     67
-    ],
-    [
-     15,
-     33
     ],
     [
      50,
-     0
-    ]
-   ],
-   "dir": "轉負＝需求退潮",
-   "asof": "2026-05（第三方彙整）",
-   "fresh": "stale",
-   "src": "OpenRouter / 第三方追蹤",
-   "url": "https://openrouter.ai/rankings",
-   "note": "2月 >30T/月 → 5月 ~100T/月。樣本偏誤警告：OpenRouter 反映開發者/API 聚合流量，非全球 AI 用量；大企業直連 Azure/Bedrock 不經此平台。文章稱中國模型佔 56%，OpenRouter 實測約 32%——口徑差異大，方向可參考、水平不可比。",
-   "qual": false
-  },
-  {
-   "id": "capexocf",
-   "dim": "D3",
-   "name": "五大雲廠 Capex／營運現金流（TTM）",
-   "value": 75.3,
-   "disp": "75.3%",
-   "score": 59.0,
-   "zone": "yellow",
-   "anchors": [
-    [
-     40,
-     0
+     25
     ],
     [
-     60,
-     33
+     100,
+     60
     ],
     [
-     80,
-     67
+     150,
+     85
     ],
     [
-     110,
+     250,
      100
     ]
    ],
    "dir": "越高越熱",
-   "asof": "2026Q1",
+   "asof": "待首次更新",
    "fresh": "ok",
-   "src": "SEC EDGAR XBRL",
-   "url": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany",
-   "note": "八季一路走高：42.9%→75.3%；最新單季已達 94.0%（與中金測算一致）。Epoch AI 獨立模型推估 2026Q3 前後整體突破 100%——屆時經營現金流將完全不夠花，全面依賴外部融資。",
-   "qual": false,
-   "sub": "最新單季 94.0%"
-  },
-  {
-   "id": "fcf",
-   "dim": "D3",
-   "name": "五大雲廠自由現金流（TTM 年減率）",
-   "value": -29.1,
-   "disp": "-29.1%",
-   "score": 57.7,
-   "zone": "yellow",
-   "anchors": [
-    [
-     10,
-     0
-    ],
-    [
-     0,
-     33
-    ],
-    [
-     -40,
-     67
-    ],
-    [
-     -80,
-     100
-    ]
-   ],
-   "dir": "越負越熱",
-   "asof": "2026Q1",
-   "fresh": "ok",
-   "src": "SEC EDGAR XBRL",
-   "url": "https://data.sec.gov/",
-   "note": "TTM FCF 從 $223B 縮至 $158B；最新單季只剩 $9.5B、年減 78%。獲利豐厚的巨頭正在把現金流全數換成資料中心。",
-   "qual": false,
-   "sub": "單季 FCF $9.5B（年增 -77.6%）"
-  },
-  {
-   "id": "dnagap",
-   "dim": "D3",
-   "name": "折舊成長 vs 營收成長缺口",
-   "value": 35.8,
-   "disp": "+35.8pp",
-   "score": 100.0,
-   "zone": "red",
-   "anchors": [
-    [
-     0,
-     0
-    ],
-    [
-     5,
-     33
-    ],
-    [
-     15,
-     67
-    ],
-    [
-     35,
-     100
-    ]
-   ],
-   "dir": "越大越熱",
-   "asof": "2026Q1",
-   "fresh": "ok",
-   "src": "SEC EDGAR XBRL",
-   "url": "https://data.sec.gov/",
-   "note": "五家平均折舊年增 55.6% vs 營收年增 21.2%。這是「AI 增量資本回報被稀釋」的最直接證據——比文章引用的整體 ROIC>WACC 更誠實（後者混入了廣告/電商存量業務的回報）。折舊牆已成形，未來 2-3 年將持續壓縮 EPS。",
+   "src": "Greenwood-Shleifer (JFE 2019)",
+   "url": "https://www.nber.org/papers/w23191",
+   "note": "唯一有崩盤機率校準的訊號：產業 24 個月漲幅 ≥100% → 其後 24 個月崩盤（-40%）機率 53%；≥150% → 80%。每日以 SOXX 計算。",
    "qual": false
   },
   {
+   "id": "gsy_accel",
+   "dim": "L1",
+   "name": "GSY 加速度（後12月−前12月）",
+   "value": null,
+   "disp": "—",
+   "score": null,
+   "zone": "pending",
+   "anchors": [
+    [
+     -30,
+     5
+    ],
+    [
+     0,
+     30
+    ],
+    [
+     30,
+     60
+    ],
+    [
+     80,
+     90
+    ],
+    [
+     150,
+     100
+    ]
+   ],
+   "dir": "凸性越強越熱",
+   "asof": "待首次更新",
+   "fresh": "ok",
+   "src": "Greenwood-Shleifer (JFE 2019)",
+   "url": "https://www.nber.org/papers/w23191",
+   "note": "漲勢的凸性：後段加速是崩盤組 vs 續漲組的顯著判別特徵。負值＝動能自然衰減（健康）。",
+   "qual": false
+  },
+  {
+   "id": "volchg",
+   "dim": "L1",
+   "name": "已實現波動率一年變化（SOXX）",
+   "value": null,
+   "disp": "—",
+   "score": null,
+   "zone": "pending",
+   "anchors": [
+    [
+     -6,
+     10
+    ],
+    [
+     0,
+     33
+    ],
+    [
+     5,
+     67
+    ],
+    [
+     15,
+     100
+    ]
+   ],
+   "dir": "上升越多越熱",
+   "asof": "待首次更新",
+   "fresh": "ok",
+   "src": "Greenwood-Shleifer / State Street",
+   "url": "https://www.nber.org/papers/w23191",
+   "note": "GSY 樣本中最強的判別特徵：崩盤前波動率平均 +9pp、續漲組 −3pp。價格還在漲但波動放大＝結構惡化。",
+   "qual": false
+  },
+  {
+   "id": "soxmom",
+   "dim": "L1",
+   "name": "半導體相對動能（SOXX−SPY，3個月）",
+   "value": 3.9,
+   "disp": "+4pp",
+   "score": 12.8,
+   "zone": "green",
+   "anchors": [
+    [
+     0,
+     0
+    ],
+    [
+     10,
+     33
+    ],
+    [
+     25,
+     67
+    ],
+    [
+     60,
+     100
+    ]
+   ],
+   "dir": "越高越熱",
+   "asof": "2026-08-03",
+   "fresh": "ok",
+   "src": "Yahoo/Stooq",
+   "url": "https://stockanalysis.com/etf/soxx/",
+   "note": "AI 交易的短期擁擠度。與 GSY 統計互補：這是 3 個月窗口、GSY 是 24 個月窗口。",
+   "qual": false
+  },
+  {
+   "id": "senti",
+   "dim": "L1",
+   "name": "情緒與投機溫度（合成）",
+   "value": null,
+   "disp": "—",
+   "score": null,
+   "zone": "pending",
+   "anchors": null,
+   "dir": "合成規則（AAII＋P/C＋VIX）",
+   "asof": "待首次更新",
+   "fresh": "ok",
+   "src": "AAII / CBOE / FRED",
+   "url": "https://www.aaii.com/sentimentsurvey",
+   "note": "橋水問題③④的公開替代：AAII 多空差（散戶信念）、CBOE 個股 Put/Call（投機行為）、VIX（自滿度）等權合成。目前特徵是「不信任的上漲」——散戶淨空但個股選擇權貪婪。",
+   "qual": false
+  },
+  {
+   "id": "narrative",
+   "dim": "L1",
+   "name": "泡沫敘事熱度",
+   "value": 4.0,
+   "disp": "第 4 級（自近 5 級回落）",
+   "score": 70,
+   "zone": "orange",
+   "anchors": null,
+   "dir": "質化評分（1-5級→10/30/50/70/90）",
+   "asof": "2026-08-01",
+   "fresh": "ok",
+   "src": "綜合媒體監測",
+   "url": "https://gundamnboy.github.io/ai-bubble-monitor/",
+   "note": "本週由 4.5 下修至 4.0（score 80→70）：敘事仍高熱但單向恐慌回落。7/24 當週科技市值蒸發約 $890B、Oracle/CoreWeave CDS 警報、NPR 稱『華爾街對 AI 投資泡沫日益不安』（7/30）；惟 7/31 起明顯反彈（WSJ『AI 股回穩』、南韓股市單月 +18%、半導體收復失土），且看多方（Yardeni 等）續發聲。已自『逼近第 5 級』回到『第 4 級（廣泛討論分歧＋信用疑慮，但非崩盤共識）』。",
+   "qual": true
+  },
+  {
    "id": "debt",
-   "dim": "D4",
+   "dim": "L2",
    "name": "五大雲廠長期債務（年增率）",
    "value": 92.1,
    "disp": "+92.1%",
@@ -438,13 +395,13 @@
    "fresh": "ok",
    "src": "SEC EDGAR XBRL",
    "url": "https://data.sec.gov/",
-   "note": "一年內 $209B→$372B。AMZN 單季 +$53B、GOOGL 一年 7 倍。2026 前五個月五巨頭發債 ~$159B，已超 2025 全年 $121B——資本開支的資金來源正從「內部現金流」切換到「公開債市」，正是網路泡沫第二階段的定義性特徵。",
+   "note": "資本開支資金來源從現金流切換到債市的直接證據——網路泡沫第二階段定義性特徵。申報當日自動入帳。",
    "qual": false
   },
   {
    "id": "hyoas",
-   "dim": "D4",
-   "name": "美高收益債利差（HY OAS）",
+   "dim": "L2",
+   "name": "高收益債利差（3個月變化）",
    "value": 2.84,
    "disp": "2.84%",
    "score": 25.8,
@@ -471,35 +428,94 @@
      100
     ]
    ],
-   "dir": "3個月走闊幅度（bp）越大越熱",
+   "dir": "走闊越多越熱",
    "asof": "2026-07-30",
    "fresh": "ok",
    "src": "FRED (ICE BofA)",
    "url": "https://fred.stlouisfed.org/series/BAMLH0A0HYM2",
-   "note": "3個月變化 −14bp（收斂）、絕對水位處於歷史低檔。目前信用市場對 AI 債務零風險定價——這既是「尚未觸發」的訊號，也是自滿的燃料。觸發線：3個月內走闊 +80bp。",
+   "note": "系統性信用壓力的觸發計。門檻：+80bp/3M＝歷史上泡沫進入第三階段的典型確認訊號。",
    "qual": false,
    "sub": "IG OAS 0.80%"
   },
   {
-   "id": "vc",
-   "dim": "D4",
-   "name": "VC 融資規模與 AI 集中度",
-   "value": 70,
-   "disp": "AI 佔 Q2 VC >70%",
-   "score": 65,
-   "zone": "yellow",
-   "anchors": null,
-   "dir": "質化評分（0-100）",
-   "asof": "2026-07-02",
+   "id": "ccc",
+   "dim": "L2",
+   "name": "CCC 級利差（最弱信用層）",
+   "value": null,
+   "disp": "—",
+   "score": null,
+   "zone": "pending",
+   "anchors": [
+    [
+     5,
+     0
+    ],
+    [
+     7,
+     33
+    ],
+    [
+     10,
+     60
+    ],
+    [
+     13,
+     85
+    ],
+    [
+     16,
+     100
+    ]
+   ],
+   "dir": "越高越熱",
+   "asof": "待首次更新",
    "fresh": "ok",
-   "src": "Crunchbase News",
-   "url": "https://news.crunchbase.com/venture/global-startup-exits-ipo-ma-soar-ai-q2-h1-2026/",
-   "note": "2026 H1 全球 VC $510B 創歷史紀錄、Q2 $205B 中 AI 佔 >70%（北美 86%）；Anthropic $65B 輪（投後估值居私募之冠）為史上最大，OpenAI＋Anthropic 合計約 $217B、佔 H1 全部融資 43%——集中度極端。規模已達 2000 年級別，但資金集中於頭部盈利路徑較清晰者、尚未擴散到長尾（『未廣泛擴散』的判斷成立，此為與 1999 全民撒錢的關鍵差異）。季度指標，Q3 數據待 10 月更新。",
-   "qual": true
+   "src": "FRED BAMLH0A3HYC",
+   "url": "https://fred.stlouisfed.org/series/BAMLH0A3HYC",
+   "note": "信用市場的礦坑金絲雀總表：HY 整體被大型優質發行人稀釋時，CCC 層先反映壓力。2022 熊市高點約 12%。",
+   "qual": false
+  },
+  {
+   "id": "orclbond",
+   "dim": "L2",
+   "name": "Oracle 2055 長債殖利率",
+   "value": null,
+   "disp": "—",
+   "score": null,
+   "zone": "pending",
+   "anchors": [
+    [
+     5,
+     10
+    ],
+    [
+     6,
+     35
+    ],
+    [
+     7,
+     60
+    ],
+    [
+     8,
+     80
+    ],
+    [
+     10,
+     100
+    ]
+   ],
+   "dir": "越高越熱",
+   "asof": "待首次更新",
+   "fresh": "ok",
+   "src": "Public.com 債券報價",
+   "url": "https://public.com/bonds/corporate/oracle-corp/orcl-4.375-05-15-2055-68389xbg9",
+   "note": "AI 槓桿買家的日頻個券壓力計——取代拿不到的 CDS。JPM Cembalest 點名的債務外溢觀察點。",
+   "qual": false
   },
   {
    "id": "circular",
-   "dim": "D4",
+   "dim": "L2",
    "name": "循環融資強度（供應商融資）",
    "value": 540,
    "disp": "NVDA 2026 已宣布 >$540B 交易",
@@ -516,7 +532,7 @@
   },
   {
    "id": "weakcredit",
-   "dim": "D4",
+   "dim": "L2",
    "name": "弱資質信用單點（金絲雀）",
    "value": 855,
    "disp": "CRWV CDS ~855bp・ORCL 破 18 年高",
@@ -526,211 +542,243 @@
    "dir": "質化評分（0-100）",
    "asof": "2026-07-29",
    "fresh": "ok",
-   "src": "Motley Fool / S&P Global",
-   "url": "https://www.fool.com/investing/2026/07/19/oracle-just-hit-a-fresh-52-week-low-and-had-its-cr/",
+   "src": "市場報導",
+   "url": "https://realinvestmentadvice.com/",
    "note": "本週由 80 升至 83。CoreWeave 5 年 CDS 飆至約 855bp（7/29，隱含 5 年違約機率 ~50%，較上週 ~675bp 明顯走闊）、7/29 股價單日 −9%（Nebius −10%），信用違約成本開始衝擊 AI 雲板塊。Oracle 5 年 CDS 走闊至逾 215bp（創約 18 年高、領漲整體 hyperscaler CDS 利差），延續 7 月 S&P 降評至 BBB-（僅高於垃圾一級、點名 OpenAI 未履約合約集中度）。反向緩衝：Oracle 仍屬投資級、CoreWeave 尚無違約或再融資失敗。指標性主體 CDS 創高、壓力升溫但仍集中個案（符 67-84 級）。",
    "qual": true
   },
   {
-   "id": "soxmom",
-   "dim": "D5",
-   "name": "半導體相對動能（SOXX−SPY，3個月）",
-   "value": 3.9,
-   "disp": "+4pp",
-   "score": 12.8,
-   "zone": "green",
+   "id": "vc",
+   "dim": "L2",
+   "name": "VC／IPO 熱度與集中度",
+   "value": 70,
+   "disp": "AI 佔 Q2 VC >70%",
+   "score": 65,
+   "zone": "yellow",
+   "anchors": null,
+   "dir": "質化評分（0-100）＋巨型IPO旗標",
+   "asof": "2026-07-02",
+   "fresh": "ok",
+   "src": "Crunchbase News",
+   "url": "https://news.crunchbase.com/",
+   "note": "2026 H1 全球 VC $510B 創歷史紀錄、Q2 $205B 中 AI 佔 >70%（北美 86%）；Anthropic $65B 輪（投後估值居私募之冠）為史上最大，OpenAI＋Anthropic 合計約 $217B、佔 H1 全部融資 43%——集中度極端。規模已達 2000 年級別，但資金集中於頭部盈利路徑較清晰者、尚未擴散到長尾（『未廣泛擴散』的判斷成立，此為與 1999 全民撒錢的關鍵差異）。季度指標，Q3 數據待 10 月更新。（BofA Hartnett：OpenAI/SpaceX 巨型 IPO 完成＝頂部訊號之一，已列入觸發器。）",
+   "qual": true
+  },
+  {
+   "id": "capexocf",
+   "dim": "L3",
+   "name": "五大雲廠 Capex／營運現金流（TTM）",
+   "value": 75.3,
+   "disp": "75.3%",
+   "score": 59.0,
+   "zone": "yellow",
    "anchors": [
     [
-     0,
+     40,
      0
-    ],
-    [
-     10,
-     33
-    ],
-    [
-     25,
-     67
     ],
     [
      60,
-     100
-    ]
-   ],
-   "dir": "越高越熱",
-   "asof": "2026-08-03",
-   "fresh": "ok",
-   "src": "ETFdb / stockanalysis",
-   "url": "https://etfdb.com/etf/SOXX/",
-   "note": "SOXX 3個月 +71% vs SPY +14%——4月崩跌後的拋物線式修復，一年報酬 +116~148%。這種「深跌後急拉」的價格動態正是泡沫後期特徵（爆炸性動態檢驗會亮燈的形狀）。注意 7/14-16 已連續回檔 ~4%。",
-   "qual": false
-  },
-  {
-   "id": "nvda200",
-   "dim": "D5",
-   "name": "NVIDIA 距 200 日均線乖離",
-   "value": 6.9,
-   "disp": "+6.9%",
-   "score": 15.2,
-   "zone": "green",
-   "anchors": [
-    [
-     0,
-     0
-    ],
-    [
-     15,
      33
     ],
     [
-     30,
+     80,
      67
     ],
     [
-     50,
+     110,
      100
     ]
    ],
    "dir": "越高越熱",
-   "asof": "2026-08-03",
+   "asof": "2026Q1",
    "fresh": "ok",
-   "src": "stockanalysis.com",
-   "url": "https://stockanalysis.com/stocks/nvda/statistics/",
-   "note": "龍頭本身並不狂熱（一年僅 +21.5%，與大盤持平）。過熱集中在記憶體/HBM、客製 ASIC、電力等第二梯隊——「縮圈」不是縮向 NVDA，而是輪動到補漲板塊，結構比 2000 年單點集中更分散、也更難用單一股票判讀。",
-   "qual": false
+   "src": "SEC EDGAR XBRL",
+   "url": "https://data.sec.gov/",
+   "note": "資本開支吞噬現金流的核心比率。v2 新增初步季度 nowcast：三家以上申報即先算初步值（缺者沿用上季），不再等五家到齊。",
+   "qual": false,
+   "sub": "最新單季 94.0%"
   },
   {
-   "id": "vix",
-   "dim": "D5",
-   "name": "VIX 恐慌指數",
-   "value": 15.99,
-   "disp": "16.0",
-   "score": 50.0,
+   "id": "fcf",
+   "dim": "L3",
+   "name": "五大雲廠自由現金流（TTM 年增率）",
+   "value": -29.1,
+   "disp": "-29.1%",
+   "score": 57.7,
    "zone": "yellow",
-   "anchors": null,
-   "dir": "13-18＝自滿區（非單調）",
-   "asof": "2026-07-31",
-   "fresh": "ok",
-   "src": "CBOE / Google Finance",
-   "url": "https://www.google.com/finance/quote/VIX:INDEXCBOE",
-   "note": "低波動＋高估值＋緊利差＝典型的「風平浪靜甲板」。VIX <13 為極端自滿、>35 為壓力引爆，目前 16.7 落在自滿偏高區。",
-   "qual": true
-  },
-  {
-   "id": "narrative",
-   "dim": "D5",
-   "name": "泡沫敘事熱度",
-   "value": 4.0,
-   "disp": "第 4 級（自近 5 級回落）",
-   "score": 70,
-   "zone": "orange",
-   "anchors": null,
-   "dir": "質化評分（1-5 級）",
-   "asof": "2026-08-01",
-   "fresh": "ok",
-   "src": "綜合媒體監測",
-   "url": "https://fortune.com/2026/07/17/china-moonshot-kimi-k3-markets-china-ai/",
-   "note": "本週由 4.5 下修至 4.0（score 80→70）：敘事仍高熱但單向恐慌回落。7/24 當週科技市值蒸發約 $890B、Oracle/CoreWeave CDS 警報、NPR 稱『華爾街對 AI 投資泡沫日益不安』（7/30）；惟 7/31 起明顯反彈（WSJ『AI 股回穩』、南韓股市單月 +18%、半導體收復失土），且看多方（Yardeni 等）續發聲。已自『逼近第 5 級』回到『第 4 級（廣泛討論分歧＋信用疑慮，但非崩盤共識）』。",
-   "qual": true
-  },
-  {
-   "id": "fed",
-   "dim": "D6",
-   "name": "聯準會政策狀態",
-   "value": 3.63,
-   "disp": "3.63%（年變動 -70bp）",
-   "score": 45,
-   "zone": "yellow",
-   "anchors": null,
-   "dir": "寬鬆＋資產新高＝加溫",
-   "asof": "2026-07-01",
-   "fresh": "ok",
-   "src": "FRED FEDFUNDS",
-   "url": "https://fred.stlouisfed.org/series/FEDFUNDS",
-   "note": "本週由60→50→45：7/29 FOMC 連續第五次按兵不動（維持 3.50-3.75%）但轉鷹——3 位委員（Hammack、Kashkari、Logan）主張升息 25bp，市場已改為預期 2026 內兩次升息（9 月、12 月）；聲明稱通膨仍高於 2% 目標（點名能源供給衝擊），6 月點陣圖上修年底利率至 3.6-4.1%。降息週期終止、升息風險浮現，貨幣燃料進一步減少，『1998-99 降息給泡沫最後一腳油門』情境續弱。中性檔（45）。",
-   "qual": true
-  },
-  {
-   "id": "us10y",
-   "dim": "D6",
-   "name": "美債 10 年期殖利率",
-   "value": 4.75,
-   "disp": "4.75%（3個月 +36bp）",
-   "score": 67.5,
-   "zone": "orange",
    "anchors": [
     [
-     3.5,
-     20
-    ],
-    [
-     4.2,
-     40
-    ],
-    [
-     4.8,
-     70
-    ],
-    [
-     5.5,
+     -80,
      100
-    ]
-   ],
-   "dir": "走升壓縮長久期投資",
-   "asof": "2026-07-31",
-   "fresh": "ok",
-   "src": "US Treasury",
-   "url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates",
-   "note": "3個月 +31bp。AI 是超長久期資產（回收期 5-10 年），利率走升同時侵蝕估值與債務融資成本——若突破 5% 將是外部約束的硬觸發。",
-   "qual": false
-  },
-  {
-   "id": "itjobs",
-   "dim": "D6",
-   "name": "美國資訊業就業（YoY）",
-   "value": -3.1,
-   "disp": "-3.1%",
-   "score": 61.4,
-   "zone": "yellow",
-   "anchors": [
+    ],
     [
-     2,
-     0
+     -40,
+     67
     ],
     [
      0,
      33
     ],
     [
-     -3,
-     60
+     10,
+     0
+    ]
+   ],
+   "dir": "越負越熱",
+   "asof": "2026Q1",
+   "fresh": "ok",
+   "src": "SEC EDGAR XBRL",
+   "url": "https://data.sec.gov/",
+   "note": "獲利巨頭把現金流全數換成資料中心的速度。",
+   "qual": false,
+   "sub": "單季 FCF $9.5B（年增 -77.6%）"
+  },
+  {
+   "id": "dnagap",
+   "dim": "L3",
+   "name": "折舊成長 vs 營收成長缺口",
+   "value": 35.8,
+   "disp": "+35.8pp",
+   "score": 100.0,
+   "zone": "red",
+   "anchors": [
+    [
+     0,
+     0
     ],
     [
-     -6,
+     5,
+     33
+    ],
+    [
+     15,
+     67
+    ],
+    [
+     35,
      100
     ]
    ],
-   "dir": "背景指標（因果雙向）",
-   "asof": "2026-06-01",
+   "dir": "越大越熱",
+   "asof": "2026Q1",
    "fresh": "ok",
-   "src": "FRED USINFO (BLS)",
-   "url": "https://fred.stlouisfed.org/series/USINFO",
-   "note": "2,774k 人、一年減 87k。注意因果模糊：既可能是「AI 替代→利潤改善」（利多），也可能是需求萎縮前兆。列為背景參考，低權重——這是對原文「外部約束」維度的修正之一。",
+   "src": "SEC EDGAR XBRL",
+   "url": "https://data.sec.gov/",
+   "note": "「折舊牆」：增量資本回報被稀釋的最直接證據。JPM 情境：折舊年限若從 5-6 年回到 3 年，hyperscaler EPS −6~8%、Oracle −17%。",
    "qual": false
+  },
+  {
+   "id": "rpo",
+   "dim": "L3",
+   "name": "合約儲備 RPO 年增（MSFT＋GOOGL＋ORCL）",
+   "value": null,
+   "disp": "—",
+   "score": null,
+   "zone": "pending",
+   "anchors": null,
+   "dir": "成長越快支撐越強（反證維度）",
+   "asof": "待首次更新",
+   "fresh": "ok",
+   "src": "SEC EDGAR XBRL",
+   "url": "https://data.sec.gov/",
+   "note": "已簽約未認列收入＝AI 需求的前瞻檢驗。ORCL 137B→638B、GOOGL 108B→519B 的暴增是本輪與 2000 年最大的基本面差異；若 RPO 成長熄火而 capex 不減，缺口直接擴大。",
+   "qual": false
+  },
+  {
+   "id": "cloudrev",
+   "dim": "L3",
+   "name": "三大雲業務營收年增率",
+   "value": 54.0,
+   "disp": "平均 +54.0%",
+   "score": 0,
+   "zone": "green",
+   "anchors": [
+    [
+     5,
+     100
+    ],
+    [
+     15,
+     67
+    ],
+    [
+     25,
+     33
+    ],
+    [
+     40,
+     0
+    ]
+   ],
+   "dir": "減速＝變現失靈（反證維度）",
+   "asof": "2026-07-30",
+   "fresh": "ok",
+   "src": "各公司財報（季）",
+   "url": "https://www.cnbc.com/",
+   "note": "2026 日曆 Q2（7/29-30 公布）三大雲全面加速：Google Cloud +82%、Azure +43%（升自 +40%）、AWS +37%（2021 年來最快）——平均約 +54%，需求端加速、泡沫反證強化（本維度維持綠燈）。旁注：Microsoft 將 2026 資本開支下修至 ~$175B（自 ~$190B，靠將資料中心/辦公資產耐用年限由 15 延長至 25 年）——留意此舉同時遞延折舊、可能淡化折舊牆。若後續季度出現連續減速而資本開支不減，才是真正裂縫。",
+   "qual": true
+  },
+  {
+   "id": "tokens",
+   "dim": "L3",
+   "name": "Token 經濟（用量×單價）",
+   "value": 200,
+   "disp": "約 3 倍/3個月",
+   "score": 0,
+   "zone": "green",
+   "anchors": null,
+   "dir": "質化評分（0-100）",
+   "asof": "2026-05（第三方彙整）",
+   "fresh": "stale",
+   "src": "OpenRouter / 第三方",
+   "url": "https://openrouter.ai/rankings",
+   "note": "2月 >30T/月 → 5月 ~100T/月。樣本偏誤警告：OpenRouter 反映開發者/API 聚合流量，非全球 AI 用量；大企業直連 Azure/Bedrock 不經此平台。文章稱中國模型佔 56%，OpenRouter 實測約 32%——口徑差異大，方向可參考、水平不可比。（CEPR/Apollo 的核心監測：中國模型市占與 token 降價對變現路徑的擠壓。）",
+   "qual": true
   }
  ],
  "tw": {
   "heat": 61.9,
   "items": [
    {
+    "id": "tw_rev",
+    "name": "AI 供應鏈月營收動能（10檔加權年增）",
+    "value": null,
+    "disp": "—",
+    "score": null,
+    "note": "台灣是全球 AI 硬體的出貨速度計：台積電＋伺服器鏈月營收加權年增。成長極強＝基本面支撐（降溫）；轉弱＝需求裂縫最早的實體訊號。月頻、每月10日後更新。",
+    "src": "TWSE/官方公開資料",
+    "asof": "待首次更新"
+   },
+   {
+    "id": "tw_export",
+    "name": "台灣海關出口年增",
+    "value": null,
+    "disp": "—",
+    "score": null,
+    "note": "總體交叉驗證：關務署月度出口統計（月頻）。",
+    "src": "TWSE/官方公開資料",
+    "asof": "待首次更新"
+   },
+   {
     "id": "tsmc_pe",
-    "name": "台積電本益比（TTM）",
+    "name": "台積電本益比（TWSE 官方）",
     "value": 28.11,
     "disp": "28.1×",
     "score": 67.5,
-    "note": "歷史區間約 15-28×，目前 32.7× 高於區間上緣（Forward ~22.8×）。市場已把 AI 超級週期充分定價——EPS 若不再上修，估值沒有安全墊。",
+    "note": "改用證交所官方日更本益比，不再自算。歷史區間約 15-28×。",
     "src": "Google Finance / stockanalysis",
     "asof": "2026-07-31"
+   },
+   {
+    "id": "odm_pe",
+    "name": "AI 伺服器供應鏈本益比（官方）",
+    "value": 17.8,
+    "disp": "平均 17.8×",
+    "score": 52.1,
+    "note": "鴻海/廣達/緯創/緯穎官方 PE 平均。",
+    "src": "Google Finance",
+    "asof": "2026-07-16"
    },
    {
     "id": "tsmc_200dma",
@@ -738,7 +786,7 @@
     "value": 27.85,
     "disp": "+27.8%",
     "score": 62.1,
-    "note": "2,470 vs 200DMA 1,715——乖離幅度遠超美股龍頭（NVDA 僅 +7.9%），台股 AI 主升段的動能已呈拋物線。",
+    "note": "主升段乖離度。",
     "src": "stockanalysis.com",
     "asof": "2026-07-31"
    },
@@ -748,31 +796,52 @@
     "value": 114.6,
     "disp": "+114.6%",
     "score": 80.5,
-    "note": "52 週區間 1,115→2,535。一年翻 2.3 倍，波動放大（52週低點到高點 2.3×）。",
+    "note": "GSY 式漲幅檢驗的台股版。",
     "src": "Google Finance",
     "asof": "2026-07-31"
-   },
-   {
-    "id": "odm_pe",
-    "name": "AI 伺服器供應鏈本益比",
-    "value": 17.8,
-    "disp": "平均 17.8×",
-    "score": 52.1,
-    "note": "鴻海 17.4×、廣達 18.3×、緯穎 17.8×——組裝/ODM 環節估值仍溫和，過熱集中在台積電的估值重評與股價動能，而非全供應鏈。",
-    "src": "Google Finance",
-    "asof": "2026-07-16"
    },
    {
     "id": "twii_pos",
-    "name": "加權指數位於 52 週區間位置",
+    "name": "台積電 52 週區間位置",
     "value": 81.3,
     "disp": "81.3%",
     "score": 47.3,
-    "note": "46,781 點，距歷史高點 48,219 僅 3%；52 週低點 22,190（一年內指數曾腰斬後翻倍）。台股對美國 AI 資本開支週期的 β 遠大於 1——若美方進入第三階段出現信用事件，台股供應鏈是重災首選。",
+    "note": "以台積電（佔大盤 44%+）取代加權指數作位置計。",
     "src": "Yahoo Finance",
     "asof": "2026-07-31"
+   },
+   {
+    "id": "elec_rel",
+    "name": "電子類指數相對加權（20日）",
+    "value": null,
+    "disp": "—",
+    "score": null,
+    "note": "電子 vs 大盤的相對動能（TWSE 官方指數，序列自動累積）。",
+    "src": "TWSE/官方公開資料",
+    "asof": "待首次更新"
+   },
+   {
+    "id": "tw_margin",
+    "name": "融資餘額（20日變化）",
+    "value": null,
+    "disp": "—",
+    "score": null,
+    "note": "散戶槓桿溫度計（TWSE 信用交易統計，日頻）。",
+    "src": "TWSE/官方公開資料",
+    "asof": "待首次更新"
+   },
+   {
+    "id": "tsmc_weight",
+    "name": "台積電佔加權指數權重",
+    "value": null,
+    "disp": "—",
+    "score": null,
+    "note": "集中度風險儀：2026-07 已達 44.78%——超過 Mag7 佔標普的總和。單一公司＝半個市場。",
+    "src": "TWSE/官方公開資料",
+    "asof": "待首次更新"
    }
-  ]
+  ],
+  "subs": {}
  },
  "charts": {
   "aggQ": [
@@ -1308,5 +1377,61 @@
  "params": {
   "nvda_eps": 6.31,
   "tsmc_eps": 86.27
+ },
+ "triggers": [
+  {
+   "id": "hy80",
+   "name": "HY 利差 3個月走闊 ≥80bp",
+   "state": 0,
+   "value": "—",
+   "note": "信用市場確認轉向（GS/歷史典型）"
+  },
+  {
+   "id": "ccc12",
+   "name": "CCC 利差 ≥12%（2022 熊市水位）",
+   "state": 0,
+   "value": "—",
+   "note": "最弱信用層壓力達熊市級"
+  },
+  {
+   "id": "gsy150",
+   "name": "SOXX 24個月漲幅 ≥150%",
+   "state": 0,
+   "value": "—",
+   "note": "GSY：歷史崩盤機率 80% 區"
+  },
+  {
+   "id": "cpi4",
+   "name": "CPI 年增 ≥4%",
+   "state": 0,
+   "value": "—",
+   "note": "Hartnett：通膨迫使實質緊縮＝刺破機制"
+  },
+  {
+   "id": "policy_gap",
+   "name": "政策利率 ≥ 名目GDP成長",
+   "state": 0,
+   "value": "—",
+   "note": "UBS：貨幣條件由順風轉逆風"
+  },
+  {
+   "id": "y10_5",
+   "name": "美債10年 ≥5%",
+   "state": 0,
+   "value": "—",
+   "note": "長久期 AI 資產的折現硬約束"
+  },
+  {
+   "id": "megaipo",
+   "name": "OpenAI／SpaceX 巨型 IPO 完成",
+   "state": 0,
+   "value": "未發生",
+   "note": "Hartnett：大頂前的最後供給事件（每週人工覆核）"
+  }
+ ],
+ "quadrant": {
+  "heat": null,
+  "support": null,
+  "regime": "待首次更新"
  }
 }

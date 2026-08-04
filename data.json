@@ -42,7 +42,41 @@
    "fail": [
     "AAII",
     "TW 台積電權重"
-   ]
+   ],
+   "streak": {
+    "px SOXX": 1,
+    "px SPY": 1,
+    "px NVDA": 1,
+    "px 2330": 1,
+    "calc GSY": 1,
+    "calc soxmom": 1,
+    "calc nvdape": 1,
+    "multpl CAPE": 1,
+    "slickcharts Mag7": 1,
+    "CBOE putcall": 1,
+    "FRED VIX": 1,
+    "calc senti": 1,
+    "FRED HY": 1,
+    "FRED CCC": 1,
+    "ORCL bond": 1,
+    "FRED IG": 1,
+    "FRED FEDFUNDS 磚塊": 1,
+    "FRED USINFO 磚塊": 1,
+    "EDGAR RPO": 1,
+    "EDGAR quarterly": 1,
+    "TW 月營收": 1,
+    "TW 官方PE": 1,
+    "calc TW 2330": 1,
+    "TW 電子指數": 1,
+    "TW 融資餘額": 1,
+    "TW 海關出口": 1,
+    "FRED CPI": 1,
+    "FRED FEDFUNDS": 1,
+    "FRED DGS10": 1,
+    "Google News": 1,
+    "AAII": 0,
+    "TW 台積電權重": 0
+   }
   }
  },
  "composite": 56.6,
@@ -241,7 +275,7 @@
   {
    "id": "gsy_accel",
    "dim": "L1",
-   "name": "GSY 加速度（後12月−前12月）",
+   "name": "GSY 加速度（當下24月漲幅 − 一年前24月漲幅）",
    "value": 76.9,
    "disp": "+77pp",
    "score": 88.1,
@@ -353,12 +387,12 @@
    "score": 65.3,
    "zone": "yellow",
    "anchors": null,
-   "dir": "合成規則（AAII＋P/C＋VIX）",
+   "dir": "合成規則（本次：CBOE 個股 Put/Call＋VIX）",
    "asof": "2026-08-04",
    "fresh": "ok",
-   "src": "AAII / CBOE / FRED",
-   "url": "https://www.aaii.com/sentimentsurvey",
-   "note": "橋水問題③④的公開替代：AAII 多空差（散戶信念）、CBOE 個股 Put/Call（投機行為）、VIX（自滿度）等權合成。目前特徵是「不信任的上漲」——散戶淨空但個股選擇權貪婪。",
+   "src": "CBOE 個股 Put/Call / VIX",
+   "url": "https://www.cboe.com/us/options/market_statistics/",
+   "note": "橋水問題③④的公開替代：以散戶信念（AAII 多空差）、投機行為（CBOE 個股 Put/Call，取負）、自滿度（VIX 非單調計分）三個角度衡量情緒，當次抓得到幾個就等權平均幾個——實際參與的來源見上方 sub。",
    "qual": false,
    "sub": "CBOE 個股 Put/Call（日）＋VIX（日）等權合成"
   },
@@ -765,8 +799,9 @@
     "disp": "加權年增 +63.6%",
     "score": 13.8,
     "note": "台灣是全球 AI 硬體的出貨速度計：台積電＋伺服器鏈月營收加權年增。成長極強＝基本面支撐（降溫）；轉弱＝需求裂縫最早的實體訊號。月頻、每月10日後更新。",
-    "src": "TWSE/官方公開資料",
-    "asof": "2026-06"
+    "src": "TWSE 公開資訊觀測站月營收",
+    "asof": "2026-06",
+    "url": "https://openapi.twse.com.tw/v1/opendata/t187ap05_L"
    },
    {
     "id": "tw_export",
@@ -775,8 +810,9 @@
     "disp": "+54.6%（2026-05）",
     "score": 10.0,
     "note": "總體交叉驗證：關務署月度出口統計（月頻）。",
-    "src": "TWSE/官方公開資料",
-    "asof": "2026-05"
+    "src": "財政部關務署 海關出口統計",
+    "asof": "2026-05",
+    "url": "https://opendata.customs.gov.tw/"
    },
    {
     "id": "tsmc_pe",
@@ -785,8 +821,9 @@
     "disp": "31.9×（官方）",
     "score": 85.2,
     "note": "改用證交所官方日更本益比，不再自算。歷史區間約 15-28×。",
-    "src": "Google Finance / stockanalysis",
-    "asof": "2026-08-03"
+    "src": "TWSE 官方本益比（BWIBBU）",
+    "asof": "2026-08-03",
+    "url": "https://openapi.twse.com.tw/v1/exchangeReport/BWIBBU_ALL"
    },
    {
     "id": "odm_pe",
@@ -795,8 +832,9 @@
     "disp": "平均 17.9×（官方）",
     "score": 52.4,
     "note": "鴻海/廣達/緯創/緯穎官方 PE 平均。",
-    "src": "Google Finance",
-    "asof": "2026-08-03"
+    "src": "TWSE 官方本益比（BWIBBU）",
+    "asof": "2026-08-03",
+    "url": "https://openapi.twse.com.tw/v1/exchangeReport/BWIBBU_ALL"
    },
    {
     "id": "tsmc_200dma",
@@ -805,8 +843,9 @@
     "disp": "+21.7%",
     "score": 48.2,
     "note": "主升段乖離度。",
-    "src": "stockanalysis.com",
-    "asof": "2026-08-04"
+    "src": "2330.TW 價格序列（yfinance→Yahoo→Stooq 三層備援）",
+    "asof": "2026-08-04",
+    "url": "https://finance.yahoo.com/quote/2330.TW/"
    },
    {
     "id": "tsmc_52w",
@@ -815,8 +854,9 @@
     "disp": "+101.7%",
     "score": 73.5,
     "note": "GSY 式漲幅檢驗的台股版。",
-    "src": "Google Finance",
-    "asof": "2026-08-04"
+    "src": "2330.TW 價格序列（yfinance→Yahoo→Stooq 三層備援）",
+    "asof": "2026-08-04",
+    "url": "https://finance.yahoo.com/quote/2330.TW/"
    },
    {
     "id": "twii_pos",
@@ -825,8 +865,9 @@
     "disp": "86.3%",
     "score": 58.6,
     "note": "以台積電（佔大盤 44%+）取代加權指數作位置計。",
-    "src": "Yahoo Finance",
-    "asof": "2026-08-04"
+    "src": "2330.TW 價格序列（yfinance→Yahoo→Stooq 三層備援）",
+    "asof": "2026-08-04",
+    "url": "https://finance.yahoo.com/quote/2330.TW/"
    },
    {
     "id": "elec_rel",
@@ -835,8 +876,9 @@
     "disp": "序列累積中（1/21 交易日）",
     "score": null,
     "note": "電子 vs 大盤的相對動能（TWSE 官方指數，序列自動累積）。",
-    "src": "TWSE/官方公開資料",
-    "asof": "2026-08-03"
+    "src": "TWSE 官方指數 MI_INDEX",
+    "asof": "2026-08-03",
+    "url": "https://openapi.twse.com.tw/v1/exchangeReport/MI_INDEX"
    },
    {
     "id": "tw_margin",
@@ -845,8 +887,9 @@
     "disp": "515 十億元（序列累積中 1/21）",
     "score": null,
     "note": "散戶槓桿溫度計（TWSE 信用交易統計，日頻）。",
-    "src": "TWSE/官方公開資料",
-    "asof": "2026-08-03"
+    "src": "TWSE 信用交易統計 MI_MARGN",
+    "asof": "2026-08-03",
+    "url": "https://www.twse.com.tw/rwd/zh/marginTrading/MI_MARGN"
    },
    {
     "id": "tsmc_weight",
@@ -855,8 +898,9 @@
     "disp": "44.78%",
     "score": 79.8,
     "note": "集中度風險儀：2026-07 已達 44.78%——超過 Mag7 佔標普的總和。單一公司＝半個市場。（TAIFEX 頁面擋自動抓取，本值由每週覆核自 TAIFEX 官方頁維護，月頻）",
-    "src": "TWSE/官方公開資料",
-    "asof": "2026-07-31"
+    "src": "TAIFEX 官方（每月人工更新）",
+    "asof": "2026-07-31",
+    "url": "https://www.taifex.com.tw/cht/9/futuresQADetail"
    }
   ],
   "subs": {
@@ -864,6 +908,12 @@
    "估值": 68.8,
    "籌碼": null,
    "基本面": 11.9
+  },
+  "subWeights": {
+   "動能": 0.3,
+   "估值": 0.3,
+   "籌碼": 0.2,
+   "基本面": 0.2
   },
   "revTable": [
    {

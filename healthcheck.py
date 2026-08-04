@@ -75,6 +75,18 @@ KNOWN_FAIL = {
 # CBOE 是「時好時壞」不是「已修好」（2026-08-04 成功，之前多次失敗），所以留在名單裡。
 # 把它拿掉的話，下一個抓失敗的日子會變成 FAIL 而擋住每週推送——而那正是這個系統
 # 設計上允許降級的情況。真正修好、連續數週都成功之後才移除，並同步刪掉 brief §9 那一列。
+#
+# 「連續數週都成功」以前沒有依據可查（data.json 只留最後一次自動更新），所以那條維護
+# 規則寫了也執行不了。現在引擎會累計 meta.lastAutoRun.streak，超過這個門檻就 WARN，
+# 提醒把該來源從 §9 與本名單一起移除。15 次自動更新 ≈ 三週（每週五個交易日）。
+OK_STREAK_RETIRE = 15
+
+# 質化指標的 asof 過期門檻（天），依各項的自然更新頻率分開設，見 AGENT_BRIEF §4.5。
+# 未列在這裡的質化 id 一律套 45 天預設——新增第七個質化指標時記得補一列。
+# 放在模組層是因為 index.html 來源表的 QUALF 分級也要拿它對帳。
+QUAL_MAXAGE = {"narrative": 21, "circular": 21, "weakcredit": 21,  # 每週覆核
+               "tokens": 75,                                       # 月度第三方彙整
+               "vc": 130, "cloudrev": 130}                         # 季度
 
 
 def find_repo(explicit=None):
@@ -223,9 +235,7 @@ def check_data(repo):
     #   (2) note 裡要有一個看得出來的日期／月份，否則理由無從判斷是否過期
     #   (3) asof 停太久 → 這一項已經連續好幾次覆核沒被真正看過
     #       門檻依各指標的自然更新頻率分開設，不用同一個數字。
-    QUAL_MAXAGE = {"narrative": 21, "circular": 21, "weakcredit": 21,  # 每週覆核
-                   "tokens": 75,                                       # 月度第三方彙整
-                   "vc": 130, "cloudrev": 130}                         # 季度
+    # （QUAL_MAXAGE 已移到模組層，因為 check_brief 也要拿它跟 index.html 的 QUALF 對帳）
     # 「本週由 4.5 下修至 4.0（score 80→70）」「本週由橙(82)轉紅(85)」都要抓得到
     TRAIL = [re.compile(r"(\d+(?:\.\d+)?)\s*(?:→|->)\s*(\d+(?:\.\d+)?)"),
              re.compile(r"本週由\D{0,4}(\d+(?:\.\d+)?)\D{0,6}?"
@@ -433,6 +443,30 @@ def check_data(repo):
         bad(f"出現新的失敗來源（非已知清單）：{sorted(newf)}")
     if fails & KNOWN:
         warn(f"已知失敗來源（設計上可降級）：{sorted(fails & KNOWN)}")
+    # §9 的反向規則：白名單裡的來源若已連續成功夠久，就該退場，否則它會安靜地留著，
+    # 下次真的壞掉只會是 WARN 而不是 FAIL。沒有 streak 欄位代表引擎還沒跑過新版，不報錯。
+    # 抓不到就 WARN，不是靜默跳過照印 PASS——後者可以無聲關掉整個比對，
+    # 這正是 §4.5 那條「舊版寫成『抓不到就跳過』比沒有檢查更糟」的教訓。
+    stk = lar.get("streak")
+    if not isinstance(stk, dict) or not stk:
+        warn("meta.lastAutoRun.streak 不存在或為空，白名單退場檢查跳過"
+             "（引擎跑過一次新版就會有；若已跑過還是空的，就是引擎那段沒生效）")
+    else:
+        retire = {k: stk[k] for k in KNOWN if stk.get(k, 0) >= OK_STREAK_RETIRE}
+        if retire:
+            warn("已連續成功 ≥%d 次、可考慮從 brief §9 與 KNOWN_FAIL 移除：%s"
+                 % (OK_STREAK_RETIRE, ", ".join(f"{k}({v})" for k, v in sorted(retire.items()))))
+        else:
+            # 沒出現在 streak 裡的白名單來源標成「—」：它代表該來源這次既沒成功也沒失敗，
+            # 通常表示 attempt() 標籤被改了而 §9／KNOWN_FAIL 沒跟上。
+            ok("白名單來源的連續成功次數都還沒到退場門檻（%d 次執行）：%s" % (
+                OK_STREAK_RETIRE,
+                ", ".join(f"{k}={stk[k]}" if k in stk else f"{k}=—（本次未執行）"
+                          for k in sorted(KNOWN))))
+        absent = [k for k in KNOWN if k not in stk]
+        if absent:
+            warn("白名單來源本次既不在 ok 也不在 fail（attempt 標籤可能已改名）：%s"
+                 % ", ".join(sorted(absent)))
     ok(f"最近一次自動更新 {lar.get('date')}：成功 {len(lar.get('ok', []))} 項、失敗 {len(fails)} 項")
     return d
 
@@ -507,6 +541,54 @@ def check_brief(repo, d):
             warn(f"引擎有錨點但 brief §4.6 沒記的台灣指標：{undoc}（手改分數時會沒有依據）")
         elif bt:
             ok(f"brief §4.6 台灣錨點與引擎一致（比對 {len(bt)} 項）")
+
+    # 台股子群權重：brief §4.6 的表 ↔ 引擎的 wmap ↔ data.json 的 tw.subWeights。
+    # 三處一致的規則本來只寫在文件裡，依 MAINTENANCE §6.7／§6.8 的結論改成機器把關。
+    up_ = os.path.join(repo, "scripts", "update_data.py")
+    if os.path.isfile(up_):
+        msrc = re.search(r"wmap\s*=\s*(\{[^}]*\})", open(up_, encoding="utf-8").read())
+        if not msrc:
+            warn("update_data.py 找不到 wmap，台股子群權重無法對帳（是不是改名了？）")
+        else:
+            eng_w = {k: float(v) for k, v in ast.literal_eval(msrc.group(1)).items()}
+            bw = {}
+            for line in txt.split("\n"):
+                m = re.match(r"\|\s*(動能|估值|籌碼|基本面)\s*\|\s*([\d.]+)\s*\|", line)
+                if m:
+                    bw[m.group(1)] = float(m.group(2))
+            dw = {k: float(v) for k, v in (d.get("tw", {}).get("subWeights") or {}).items()}
+            if bw != eng_w:
+                bad(f"brief §4.6 子群權重 {bw} 與引擎 wmap {eng_w} 不符")
+            elif not dw:
+                warn("data.json 缺 tw.subWeights（前端會少印子群權重；引擎跑過一次就會有）")
+            elif dw != eng_w:
+                bad(f"data.json 的 tw.subWeights {dw} 與引擎 wmap {eng_w} 不符")
+            elif abs(sum(eng_w.values()) - 1.0) > 1e-9:
+                bad(f"台股子群權重加總 {sum(eng_w.values())} ≠ 1.0")
+            else:
+                ok(f"台股子群權重三處一致且加總 = 1.0：{eng_w}")
+
+    # index.html 來源表的質化頻率分級（QUALF）↔ 本檔的 QUAL_MAXAGE。
+    # 兩份分級各自寫死，改一邊不會有人記得改另一邊——正是要靠機器盯的那種。
+    ih = os.path.join(repo, "index.html")
+    if os.path.isfile(ih):
+        mq = re.search(r"const QUALF = (\{.*?\});", open(ih, encoding="utf-8").read(), re.S)
+        if not mq:
+            warn("index.html 找不到 QUALF，質化頻率分級無法對帳")
+        else:
+            fe = dict(re.findall(r"(\w+)\s*:\s*\"([^\"]+)\"", mq.group(1)))
+            # 天數門檻 → 該落在哪個頻率字眼
+            def band(days):
+                return "週" if days <= 30 else ("月" if days <= 90 else "季")
+            mism = [f"{k}: 來源表寫「{fe[k]}」但 QUAL_MAXAGE={QUAL_MAXAGE[k]} 天（應為{band(QUAL_MAXAGE[k])}頻）"
+                    for k in QUAL_MAXAGE if k in fe and not fe[k].startswith(band(QUAL_MAXAGE[k]))]
+            missq = sorted(set(QUAL_MAXAGE) - set(fe))
+            if mism:
+                bad("index.html 來源表的質化頻率與 QUAL_MAXAGE 不符：" + "；".join(mism))
+            elif missq:
+                warn(f"QUAL_MAXAGE 有、index.html 的 QUALF 沒列的質化指標：{missq}（會落到預設值）")
+            else:
+                ok(f"index.html 來源表質化頻率與 QUAL_MAXAGE 一致（{len(fe)} 項）")
 
     # §9 已知失效來源 vs healthcheck 的 KNOWN_FAIL 白名單
     s9 = txt.split("## 9.", 1)[-1].split("\n## 10.", 1)[0]

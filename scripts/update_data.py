@@ -656,6 +656,22 @@ def main():
         sub = ("＋".join(srcs) + "等權合成") if len(srcs) > 1 else \
               (srcs[0] + "單一輸入（其餘情緒來源本次抓取失敗）")
         upd("senti", round(sum(parts) / len(parts), 1), "｜".join(notes), sum(parts) / len(parts), sub=sub)
+        # dir/src/url/note 原本寫死「AAII＋P/C＋VIX」並連向持續被擋的 AAII，等於 sub 誠實、
+        # 同一張卡的其餘四欄卻繼續謊報。upd() 不碰這幾欄，所以在這裡一起帶。
+        names = [s.split("（")[0] for s in srcs]
+        IND["senti"]["dir"] = "合成規則（本次：" + "＋".join(names) + "）"
+        IND["senti"]["src"] = " / ".join(names)
+        # url 要跟著 src 的第一個來源走。原本只判斷 VIX 在不在，
+        # 「VIX 失敗、AAII 成功」那天 src 會寫 AAII 而 url 連去 CBOE。
+        SENTI_URL = {"AAII": "https://www.aaii.com/sentimentsurvey",
+                     "CBOE 個股 Put/Call": "https://www.cboe.com/us/options/market_statistics/",
+                     "VIX": "https://fred.stlouisfed.org/series/VIXCLS"}
+        IND["senti"]["url"] = SENTI_URL.get(names[0], SENTI_URL["VIX"])
+        # note 只留不隨來源浮動的結構性說明（§6.4 的通則）。原本寫死「三者等權合成」
+        # 與「散戶淨空」——後者是 AAII 導出的判斷，AAII 被擋的日子就是憑空的。
+        IND["senti"]["note"] = ("橋水問題③④的公開替代：以散戶信念（AAII 多空差）、投機行為"
+                                "（CBOE 個股 Put/Call，取負）、自滿度（VIX 非單調計分）三個角度"
+                                "衡量情緒，當次抓得到幾個就等權平均幾個——實際參與的來源見上方 sub。")
     attempt("calc senti", f_senti)
 
     # ============ L2 資金與信用 ============
@@ -727,6 +743,27 @@ def main():
 
     # ============ 台灣供應鏈 v2 ============
     TWI = {i["id"]: i for i in tw["items"]}
+    # 台股卡片的 src 原本只有 data.json 的種子值、tupd 從不覆寫，於是 v1 的來源一路留到
+    # 現在（tsmc_pe 早就改抓 TWSE 官方了，卡片還寫 Google Finance，同卡 note 自己在打臉）。
+    # 改成由引擎每次一起寫，來源就不可能再跟實際抓取路徑脫節。
+    TW_SRC = {
+        "tw_rev":      ("TWSE 公開資訊觀測站月營收", "https://openapi.twse.com.tw/v1/opendata/t187ap05_L"),
+        "tw_export":   ("財政部關務署 海關出口統計", "https://opendata.customs.gov.tw/"),
+        "tsmc_pe":     ("TWSE 官方本益比（BWIBBU）", "https://openapi.twse.com.tw/v1/exchangeReport/BWIBBU_ALL"),
+        "odm_pe":      ("TWSE 官方本益比（BWIBBU）", "https://openapi.twse.com.tw/v1/exchangeReport/BWIBBU_ALL"),
+        "tsmc_200dma": ("2330.TW 價格序列（yfinance→Yahoo→Stooq 三層備援）", "https://finance.yahoo.com/quote/2330.TW/"),
+        "tsmc_52w":    ("2330.TW 價格序列（yfinance→Yahoo→Stooq 三層備援）", "https://finance.yahoo.com/quote/2330.TW/"),
+        "twii_pos":    ("2330.TW 價格序列（yfinance→Yahoo→Stooq 三層備援）", "https://finance.yahoo.com/quote/2330.TW/"),
+        "elec_rel":    ("TWSE 官方指數 MI_INDEX", "https://openapi.twse.com.tw/v1/exchangeReport/MI_INDEX"),
+        "tw_margin":   ("TWSE 信用交易統計 MI_MARGN", "https://www.twse.com.tw/rwd/zh/marginTrading/MI_MARGN"),
+        "tsmc_weight": ("TAIFEX 官方（每月人工更新）", "https://www.taifex.com.tw/cht/9/futuresQADetail"),
+    }
+    # 無條件套用，不放在 tupd 裡：tsmc_weight 是人工項、永遠不經過 tupd，
+    # 放在 tupd 裡它就會是唯一漏網的那一張卡。
+    for _iid, (_s, _u) in TW_SRC.items():
+        if _iid in TWI:
+            TWI[_iid]["src"], TWI[_iid]["url"] = _s, _u
+
     def tupd(iid, value, disp, score, asof=None):
         t = TWI[iid]
         t["value"], t["disp"] = value, disp
@@ -815,6 +852,9 @@ def main():
         subs[k] = round(sum(ss) / len(ss), 1) if ss else None
     tw["subs"] = subs
     wmap = {"動能": 0.3, "估值": 0.3, "籌碼": 0.2, "基本面": 0.2}
+    # 寫進 data.json，讓前端讀同一份而不是自己抄一份（原本 index.html 的
+    # 「動能30%・估值30%…」是寫死的第二份拷貝，改 wmap 不會動到它）。
+    tw["subWeights"] = dict(wmap)
     valid = {k: v for k, v in subs.items() if v is not None}
     wsum = sum(wmap[k] for k in valid)
     if wsum: tw["heat"] = round(sum(v * wmap[k] for k, v in valid.items()) / wsum, 1)
@@ -896,7 +936,14 @@ def main():
     data["history"] = hist[-400:]
     data["meta"]["built"] = str(TODAY)
     data["meta"]["builtTime"] = f"{TODAY}（GitHub Actions 自動更新）"
-    data["meta"]["lastAutoRun"] = {"date": str(TODAY), "ok": ok, "fail": fail}
+    # 每個來源的「連續成功次數」。AGENT_BRIEF §9 要求「表上列的來源若已連續數週出現在
+    # ok 裡，就該把它從表與白名單一起移除」——但 data.json 只留最後一次自動更新，這條
+    # 規則過去沒有任何依據可查，寫了等於執行不了。改由引擎自己累計，healthcheck 才抓得到。
+    _prev = (data["meta"].get("lastAutoRun") or {}).get("streak") or {}
+    streak = {n: 0 for n in fail}
+    for n in ok:
+        streak[n] = int(_prev.get(n, 0)) + 1
+    data["meta"]["lastAutoRun"] = {"date": str(TODAY), "ok": ok, "fail": fail, "streak": streak}
 
     DATA.write_text(json.dumps(data, ensure_ascii=False, indent=1))
     log(f"done. composite={data['composite']} dims={dims} tw={tw.get('heat')} regime={regime} ok={len(ok)} fail={len(fail)}")

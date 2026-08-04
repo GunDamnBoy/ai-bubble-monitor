@@ -77,7 +77,14 @@
 
 **指標之間刻意不設個別權重。** 加減指標就等於改權重，這是有意的設計：權重集中在層級（3 個數字），比 22 個數字容易審查也不容易漂移。要調某個主題的份量，正確做法是在那一層增減指標，不是加權重欄位。
 
-分數一律 0–100，**越高越熱**。方向相反的原始值（FCF 年增、月營收年增、RPO 年增等）在計分時取負號餵進錨點，不要另設 `dir` 邏輯。
+分數一律 0–100，**越高越熱**。方向相反的原始值有**兩套慣例並存**，`dir` 欄位一律不參與計分：
+
+| 慣例 | 適用指標 | 做法 |
+|---|---|---|
+| **取負號** | `rpo`、`tw_rev`、`tw_export`、`senti` 的個股 P/C 子輸入 | 錨點的 x 遞增、y 遞增，餵進去的值先加負號（`pw(-yoy, ...)`） |
+| **遞減錨點** | `fcf`、`cloudrev` | 值照原樣餵，錨點自己的 y 由高到低（`[[-80,100],…,[10,0]]`），第 4 節標「（反向）」的就是這種 |
+
+**手改分數前先看該指標屬於哪一套**，弄錯會得到完全相反的分數。判斷方法：`anchors` 的 y 是遞減的就是第二套，遞增的就是第一套。新增反向指標時**優先用取負號**——遞減錨點會讓 §3.4 的燈號界不直觀，這兩個是歷史遺留。
 
 ### 3.3 象限定位（v2 新增，比單一溫度更有訊息量）
 
@@ -130,7 +137,7 @@ support = 100 − L3             ← 基本面還有多少支撐（L3 越高＝�
 | `mag7` | Mag7 佔標普500市值比重 | 自動 | SlickCharts | `[[20,0],[25,33],[32,67],[38,100]]` |
 | `nvdape` | NVIDIA 本益比 | 自動 | Yahoo/Stooq ÷ `params.nvda_eps` | `[[20,0],[35,33],[55,67],[90,100]]` |
 | `gsy_runup` | **GSY 24 個月漲幅（SOXX）** | 自動 | 價格序列 | `[[25,0],[50,25],[100,60],[150,85],[250,100]]` |
-| `gsy_accel` | GSY 加速度（後12月−前12月） | 自動 | 價格序列 | `[[-30,5],[0,30],[30,60],[80,90],[150,100]]` |
+| `gsy_accel` | GSY 加速度（**當下 24 月漲幅 − 一年前 24 月漲幅**） | 自動 | 價格序列 | `[[-30,5],[0,30],[30,60],[80,90],[150,100]]` |
 | `volchg` | 已實現波動率一年變化 | 自動 | 價格序列 | `[[-6,10],[0,33],[5,67],[15,100]]` |
 | `soxmom` | 半導體相對動能（SOXX−SPY，3個月） | 自動 | 價格序列 | `[[0,0],[10,33],[25,67],[60,100]]` |
 | `senti` | 情緒與投機溫度（合成） | 自動 | AAII＋CBOE P/C＋VIX **等權平均** | 見 4.4 |
@@ -165,9 +172,23 @@ support = 100 − L3             ← 基本面還有多少支撐（L3 越高＝�
 
 ### 4.4 特殊計分規則
 
-- **分段線性 `pw(v, anchors)`**：錨點須依 x 遞增；區間內線性內插，兩端夾住。**分數只在 Python 端計算**，前端不重算、只渲染 `data.json` 裡的 `score` 與 `zone`（v1 曾在前端另算一份，兩邊會漂）。
+- **分段線性 `pw(v, anchors)`**：錨點須依 x 遞增；區間內線性內插，兩端夾住。**分數只在 Python 端計算**，前端不重算、只渲染 `data.json` 裡的 `score`（v1 曾在前端另算一份，兩邊會漂）。
+  **燈號 `zone` 是例外**：`indicators[]` 有存 `zone`、前端直接渲染，但 `tw.items[]` 沒有（`tupd()` 不寫），所以台股卡片與 TAB4 引用台股指標時是由前端的 `zoneOf(score)` 現算。也就是說 §3.4 的 `<33/33–67/67–84/≥84` 這組界**在引擎的 `zone()` 與前端的 `zoneOf()`／`stripHTML()` 各有一份實作，沒有機器在比對**。改這組界要三個地方一起改。
 - **VIX 非單調特例**（`vix_score`）：`≥35→95`／`28–35→67~95 線性`／`18–28→33`／`13–18→50`／`<13→70`。低 VIX 是自滿、高 VIX 是恐慌，兩端都不是「健康」。
-- **`senti` 是合成指標**：AAII 多空差、CBOE 個股 Put/Call（取負）、VIX 特例分數，**三者可得幾項就平均幾項**。哪幾項真的參與了合成，看卡片的 `sub`——它由引擎依當次成功的來源生成，不是寫死的。目前穩定被擋的只有 AAII，CBOE 時好時壞，見第 9 節。
+- **`senti` 是合成指標**：AAII 多空差、CBOE 個股 Put/Call（取負）、VIX 特例分數，**三者可得幾項就平均幾項**。哪幾項真的參與了合成，看卡片的 `sub`——`sub`／`dir`／`src`／`url` 這四欄都由引擎依當次成功的來源生成，不是寫死的（v2.0.2 前 `dir`／`src`／`url`／`note` 寫死三來源，只有 `sub` 誠實）。`note` 已改寫成不提「這次合成了哪幾個」的結構性說明（原本還寫著「散戶淨空」，那是 AAII 導出的判斷，AAII 被擋的日子就是憑空的）。目前穩定被擋的只有 AAII，CBOE 時好時壞，見第 9 節。
+  兩個子輸入的錨點：AAII 多空差 `[[-25,5],[0,40],[20,75],[35,100]]`、**取負後**的個股 P/C `[[-1.0,10],[-0.8,33],[-0.62,67],[-0.45,100]]`。
+
+#### 錨點不在 `data.json` 裡的三個指標
+
+`healthcheck.py` 的 brief↔資料錨點對帳只比得到 `indicators[].anchors` 有值的項目，下面三個一律跳過，所以**本文件是它們唯一的規格來源**（跟 §4.6 的台灣指標同一種情況）：
+
+| id | 狀況 |
+|---|---|
+| `senti` | `anchors: null`（合成指標），兩個子輸入的錨點見上一行，寫死在 `f_senti()` |
+| `rpo` | `anchors: null`，取負後的錨點只寫在 `refresh_edgar()` 的 `pw(-yoy, ...)` 呼叫裡 |
+| `ccc` | `anchors` 只存水位錨；**3 個月變化錨不在 `data.json`**，寫死在引擎，且 healthcheck 的比對只取第一組 |
+
+改這三項的錨點時，記得**兩邊都要改**，而且沒有機器會提醒你。
 
 ### 4.5 質化指標評分 rubric
 
@@ -209,6 +230,7 @@ support = 100 − L3             ← 基本面還有多少支撐（L3 越高＝�
 | 基本面 | 0.20 | `tw_rev`、`tw_export` |
 
 子群內等權平均、忽略 null；`tw.heat` 依上表加權，**null 的子群剔除後重新歸一**。
+這組權重由引擎寫進 `data.json` 的 `tw.subWeights`，前端讀它、不再自己抄一份（v2.0.2 前 `index.html` 有第二份寫死拷貝，改 `wmap` 不會動到頁面）。改權重要同時改上表與引擎的 `wmap`——**`healthcheck.py` 會比對上表 ↔ `wmap` ↔ `tw.subWeights` 三處並檢查加總 = 1.0，不一致直接 FAIL。**
 
 `tsmc_weight`（台積電佔加權指數權重）**刻意不屬於任何子群**，只作為集中度的展示項。
 
@@ -232,6 +254,10 @@ support = 100 − L3             ← 基本面還有多少支撐（L3 越高＝�
 `tw_rev`／`tw_export` 是反證指標（成長越快越不像泡沫破裂），依 §3.2 的通則**取負號後**再餵錨點——手算時最容易在這裡把符號弄反。
 
 **每月只有 `tsmc_weight` 需要人更新**（TAIFEX 擋機器人，Actions 端固定失敗），其餘九項由引擎每交易日自動更新，屬於 §8.3 的不可重抓欄位。
+
+**`tw.items` 的 `src`／`url` 由引擎的 `TW_SRC` 表無條件寫入**，不再是 `data.json` 的種子值（v2.0.2 前 `tupd()` 只寫數值，於是 `tsmc_pe` 早就改抓 TWSE 官方了、卡片卻還掛著 Google Finance，同一張卡的 `note` 自己在打臉）。換資料源時改 `TW_SRC`，不要改 `data.json`。
+
+但 `TW_SRC` 是**靜態表，不是當次真正走的路徑**：`tsmc_200dma`／`tsmc_52w`／`twii_pos` 走 `px_rows()` 的三層備援，實際命中哪一層每天可能不同，所以它們的 `src` 寫成「三層備援」而不指名單一來源。要顯示當次真正的來源，得比照 `senti` 的 `sub` 做法由引擎生成——目前沒做，這是刻意的取捨（台股卡片沒有 `sub` 欄位）。
 
 十檔月營收籃 `TW_BASKET`（依營收加權）：`2330 台積電`、`2317 鴻海`、`2382 廣達`、`3231 緯創`、`6669 緯穎`、`3017 奇鋐`、`2308 台達電`、`3661 世芯-KY`、`3443 創意`、`2345 智邦`。
 
@@ -260,10 +286,10 @@ def attempt(name, fn):
 | 基礎 | `http_get` `pw` `vix_score` `zone` | `zone(None)` 回 `"pending"` |
 | 總經 | `fred(series, days=620)` `fred_back(obs, back_days)` `fred_latest_and_back(series, back_days, days=620)` | `fredgraph.csv`；要同時取多個回看期時用 `fred()` 抓一次再 `fred_back()` 取值，不要重複抓（`fred_latest_and_back` 現在也只是這兩者的組合） |
 | 價格 | `px_rows(ysym, ssym=None, rng="4y")` → **三層備援** `yf_chart`(yfinance) → `yahoo_chart`(raw API) → `stooq` | Stooq 在 Actions runner 被擋，只當最後備援 |
-| 統計 | `series_stats` `gsy_stats` | `gsy_stats` 需 ≥505 筆算 `ret24`、≥758 筆算 `accel` |
+| 統計 | `series_stats` `gsy_stats` | `gsy_stats` 需 ≥505 筆算 `ret24`、≥758 筆算 `accel`、≥505 筆算 `vol1y`（`volchg` 用） |
 | 估值/情緒 | `multpl_cape` `slickcharts_mag7` `aaii_sentiment` `cboe_putcall` | `aaii_sentiment` 持續在 Actions 端被擋；`cboe_putcall` 時好時壞（見 §9）|
 | 信用 | `orcl_bond_yield` | Public.com 報價頁 |
-| 季報 | `edgar_rows` `to_quarters` `bucket` `refresh_edgar` `rpo_backlog` | 見 5.3 |
+| 季報 | `edgar_rows` `to_quarters` `bucket` `refresh_edgar` `rpo_backlog` | 見 5.3。另有兩個藏在實作裡的門檻：`rpo_backlog` 若前期端點與目標日相差 >75 天就跳過該公司；`debt` 年增要求回看 ≥330 天 |
 | 台灣 | `tw_monthly_rev` `tw_bwibbu` `tw_margin_balance` `tw_index_today` `taifex_tsmc_weight` `tw_customs_export_yoy` | 見 5.4 |
 | 新聞 | `_parse_news_items` `fetch_news` | 見 5.5 |
 | 主流程 | `main()` `selftest()` | `python scripts/update_data.py --selftest` |
@@ -304,7 +330,12 @@ def attempt(name, fn):
 
 ```
 meta      { version:2, built, builtTime, nextUpdate, artifactId,
-            lastAutoRun:{date, ok:[...], fail:[...]} }
+            lastAutoRun:{date, ok:[...], fail:[...], streak:{來源:連續成功次數}} }
+             streak 由引擎累計：成功 +1、失敗歸零、**本次沒跑到的來源整個消失**
+             （鍵集合永遠等於 ok ∪ fail）。單位是「引擎執行次數」不是天數——
+             workflow_dispatch 與推程式碼觸發的那幾次也會 +1，所以它是下限而非日曆週。
+             用途只有一個：讓 §9 那條「連續數週成功就該退場」的維護規則變成
+             healthcheck 抓得到的東西。§9 表上「追蹤＝無」的那兩列不會有 streak
 composite  number                       綜合溫度 0–100
 dims       { L1, L2, L3 }               層分數
 dimMeta    { L1:{name,w,note}, L2:{...}, L3:{...} }   w 加總必須 = 1.0
@@ -312,12 +343,15 @@ zones      [ {max,label,color} × 5 ]
 indicators [ 22 × {id, dim, name, value, disp, score, zone, anchors, dir,
                    asof, fresh, src, url, note, qual, sub?} ]
              dir 是**給人看的方向說明字串**（"越高越熱"、"越負越熱"、
-             "質化評分（0-100）"…），純展示、不參與計分——方向相反的指標
-             一律在計分時取負號餵錨點（見 §3.2），不要照 dir 另寫邏輯
+             "質化評分（0-100）"…），純展示、不參與計分。方向相反的指標走
+             **§3.2 的兩套慣例之一**（取負號／遞減錨點），不要照 dir 另寫邏輯
 triggers   [ 7 × {id, name, state(0/1), value, note, asof} ]
 quadrant   { heat, support, regime }
-tw         { heat, subs:{動能,估值,籌碼,基本面}, items[10], revTable[10],
+tw         { heat, subs:{動能,估值,籌碼,基本面}, subWeights:{同上四鍵:權重},
+             items[10], revTable[10],
              revMonth, officialPE{代號:{pe,pb}}, idx_hist[≤90], margin_hist[≤90] }
+             items 每筆 {id,name,value,disp,score,note,src,url,asof}——**沒有 zone**，
+             燈號由前端 zoneOf(score) 現算（讀 i.zone 會拿到 undefined）
 charts     { aggQ[], ttm[], debt{labels,values,note}, spreads{hy,ig,us10y,vix,
              fedfunds,usinfo,ccc,orclbond} }
              aggQ/ttm 每筆 {q,capex,ocf,fcf,ratio}，初步季另有 {prov,have,missing}
@@ -335,13 +369,15 @@ params     { nvda_eps, ngdp_nominal, megaipo_done }
 
 ### schema 改動的「三處一組」
 
-改 `data.json` 結構時，**這三處必須一起改**：本檔第 6 節、`scripts/update_data.py`、`index.html` 的對應 render 函式（`renderQuad` / `renderTriggers` / `renderTwV2` / 圖表區）。漏掉第三處時頁面不會報錯，只會靜靜地少畫一塊。
+改 `data.json` 結構時，**這三處必須一起改**：本檔第 6 節、`scripts/update_data.py`、`index.html` 的對應 render 函式（`renderQuad` / `renderTriggers` / `renderTwV2` / **`renderTwProse`** / 圖表區）。漏掉第三處時頁面不會報錯，只會靜靜地少畫一塊。`renderTwProse` 最容易被忘記——它讀 `tw.items`、`tw.heat`、`composite` 生成台股解讀文字，`healthcheck.py` 已把它列為必檢的四個 v2 render 函式之一。
 
 **第四處**：`index.html` 內嵌的 `<script id="dashboard-data">` 是 fetch 失敗時的離線退路快照。它不需要每天更新，但**改 schema 或改版時必須重新灌一次**，否則離線開啟會退回舊架構的頁面（v1→v2 期間就發生過，退路快照停在六維 54.1）。`healthcheck.py` 會比對它的 `meta.version`、v2 必要區塊、`history` 筆數，以及 `composite`／`meta.built` 是否與 `data.json` 明顯脫節。
 
 **第五處，而且最常被漏掉：`healthcheck.py` 自己。** 它為了能獨立驗算，硬寫了幾組常數——`LAYER_N`（各層指標項數）、`QUAL`（質化指標集合）、`TRIG`（觸發器 id）、`KNOWN_FAIL`（已知失效來源白名單）。**加減指標、改層歸屬、換觸發器、或某個來源恢復／新壞掉時，這個檔案也要改。** 它是把關每週推送的工具（FAIL 必須是 0），所以漏改它的下場不是靜靜少畫一塊，而是整條每週流程被自己的檢查擋住。
 
-不過**四組常數的嚴厲程度不一樣**，別記成一律 FAIL：`QUAL`、`TRIG`、`KNOWN_FAIL` 對不上是 **FAIL**（擋住推送），`LAYER_N` 對不上只是 **WARN**。這個差別是刻意的——前三組不一致必然代表有人漏改，而層人數本來就會因為「刻意增減指標」而變動，那時該提醒的是「記得回頭改 §4 各層表與 §4.5 的 28.9%」，不是把人擋在門外。
+不過**四組常數的嚴厲程度不一樣**，別記成一律 FAIL：`QUAL`、`TRIG`、`KNOWN_FAIL` 對不上是 **FAIL**（擋住推送），`LAYER_N` 與 `data.json` 對不上只是 **WARN**。這個差別是刻意的——前三組不一致必然代表有人漏改，而層人數本來就會因為「刻意增減指標」而變動，那時該提醒的是「記得回頭改 §4 各層表與 §4.5 的 28.9%」，不是把人擋在門外。
+
+**但 `LAYER_N` 有第二個用途，那個是 FAIL**：`index.html` 那句「N 項指標依三層頻率分組」也拿它對帳，數字對不上直接擋住推送。理由是那句話是**寫給使用者看的**，錯了就是在頁面上說謊，跟「內部常數暫時落後」不是同一件事。所以增減指標時，`index.html` 那個數字是**必改**的，不是提醒。
 
 ---
 
@@ -424,7 +460,7 @@ https://gundamnboy.github.io/ai-bubble-monitor///data.json    ← 第 3 次用�
 6. `history` 附加一筆（同日去重，含 `quad`）
 7. **`meta.built` 改成今天、`meta.builtTime` 改成 `YYYY-MM-DD（每週質化覆核）`**
 
-第 7 步不能省。`healthcheck.py` 硬性要求 `history` 最後一筆的日期等於 `meta.built`；覆核在週一附加一筆今天的 `history`，而 `meta.built` 還停在上週五自動更新的日期，就會直接 FAIL 卡住推送。而且第 5 節線上核對是靠 `meta.built` 變化來確認 Pages 已重建——沒改的話那一步永遠驗不過，會誤判成佈建失敗。
+第 7 步不能省。`healthcheck.py` 硬性要求 `history` 最後一筆的日期等於 `meta.built`；覆核在週一附加一筆今天的 `history`，而 `meta.built` 還停在上週五自動更新的日期，就會直接 FAIL 卡住推送。而且 §8.3 的線上核對是靠 `meta.built` 變化來確認 Pages 已重建——沒改的話那一步永遠驗不過，會誤判成佈建失敗。
 
 **但 `meta.lastAutoRun` 絕對不要動。** 它描述的是「最後一次**自動**更新」的成敗，人工覆核不是自動更新；改了會讓 `AAII` 這類已知失效來源的追蹤斷掉。
 
@@ -439,21 +475,66 @@ https://gundamnboy.github.io/ai-bubble-monitor///data.json    ← 第 3 次用�
 
 ## 9. 已知失效來源與降級行為
 
-| 來源 | 狀況 | 目前處置 |
-|---|---|---|
-| AAII 情緒調查 | Actions runner 持續被擋 | `senti` 少一個輸入，不報錯 |
-| CBOE 個股 Put/Call | **時好時壞**（2026-08-04 成功，之前多次失敗） | 成功就進 `senti`，失敗就退出當次平均 |
-| TAIFEX 台積電權重 | 擋機器人 | 由每週覆核人工更新（種子值 44.78%，2026-07-31） |
-| Stooq | Actions runner 被擋 | 已降為價格三層備援的最後一層 |
-| 美國商務部資料中心營建支出 | 需免費 API 金鑰 | 未納入，列為 v2.1 待辦 |
+| 來源 | 追蹤 | 狀況 | 目前處置 |
+|---|---|---|---|
+| AAII 情緒調查 | `attempt("AAII")` | Actions runner 持續被擋 | `senti` 少一個輸入，不報錯 |
+| CBOE 個股 Put/Call | `attempt("CBOE putcall")` | **時好時壞**（2026-08-04 成功，之前多次失敗） | 成功就進 `senti`，失敗就退出當次平均 |
+| TAIFEX 台積電權重 | `attempt("TW 台積電權重")` | 擋機器人 | 由每週覆核人工更新（種子值 44.78%，2026-07-31） |
+| Stooq | **無**（`px_rows()` 內部第三層備援，沒有自己的 `attempt()`） | Actions runner 被擋 | 已降為價格三層備援的最後一層 |
+| 美國商務部資料中心營建支出 | **無**（還沒有程式碼） | 需免費 API 金鑰 | 未納入，列為 v2.1 待辦 |
 
-**這張表要跟 `healthcheck.py` 的 `KNOWN_FAIL` 白名單一致**（機器會比對；白名單裡有、這張表沒有的會 FAIL）。但**反方向沒有機器能抓**——某個來源恢復正常之後，它會安靜地留在白名單裡，下次真的壞掉就只會是 WARN 而不是 FAIL。所以每週覆核要看 `meta.lastAutoRun.ok`：**表上列的來源若已連續數週出現在 `ok` 裡，就該把它從表與白名單一起移除。**
+「追蹤」欄位是刻意加的：**後兩列在定義上永遠不會出現在 `ok` 或 `fail` 任一邊**，因為 `meta.lastAutoRun` 的字串來自 `attempt()` 的標籤。下面那條退場規則對它們不適用，別去 `ok` 裡找它們然後困惑。
+
+**這張表要跟 `healthcheck.py` 的 `KNOWN_FAIL` 白名單一致**（機器會比對；白名單裡有、這張表沒有的會 FAIL）。
+
+**反方向以前沒有機器能抓**——某個來源恢復正常之後，它會安靜地留在白名單裡，下次真的壞掉就只會是 WARN 而不是 FAIL。過去這條規則寫成「表上列的來源若已連續數週出現在 `ok` 裡就移除」，但 `data.json` 只保留最後一次自動更新，「連續數週」根本查不到，等於寫了卻執行不了。現在引擎會累計 `meta.lastAutoRun.streak`（成功 +1、失敗歸零），**連續成功 ≥15 次引擎執行（`healthcheck.py` 的 `OK_STREAK_RETIRE`）就 WARN**，提醒把該來源從這張表與 `KNOWN_FAIL` 一起移除。
+
+**「15 次」是執行次數不是三週**：workflow 除了 cron 還有 `workflow_dispatch` 與推程式碼觸發，同日重跑也會重複累加（`history` 有同日去重、`streak` 沒有）。所以 15 次是「至少三週」的下限，不是日曆意義上的三週——它的用途是提醒你回來看一眼，不是自動下結論。
 
 **`senti` 的輸入數會浮動**（穩定的只有 VIX），情緒面因此偏鈍。若要修，方向是加一個不擋機器人的情緒源，而不是把 `senti` 拿掉——拿掉等於改了 L1 的權重結構。
 
 ---
 
 ## 10. 變更紀錄
+
+### v2.0.2（2026-08-04）第二輪子代理比對：拔掉六個漂移面
+
+**為什麼改**：v2.0.1 那次比對只掃過一輪就收工。這次再叫一次子代理獨立比對 brief ↔ 引擎 ↔ 前端，又抓出一批 v1 殘骸——**其中兩處已經在線上互相矛盾**（TAB4 說循環融資 >$40B、同一頁的指標卡說 >$540B；TAB4 說「Oracle CDS 創歷史新高」、`weakcredit.note` 說「創約 18 年高」）。共同型態是 §6.4 那顆定時炸彈的變體：**寫死的敘述躲在 render 函式或 `data.json` 的靜態欄位裡，數值每天更新、文字停在建置當天。**
+
+改的不只是把錯字改對，而是**把每一處寫死拷貝改成從資料現算**，讓同一種錯誤不會第三次發生：
+
+- 前端：TAB4／TAB5 的判語全部改由資料生成——循環融資規模、弱資質信用、NVDA 估值反證、折舊牆、IPO 狂熱、綜合溫度分區標籤、觸發器項數（兩處），一律讀 `data.json`
+- 前端：**分區界線與名稱原本在頁面上有五份寫死拷貝**（`zoneLabels`、`zoneBarHTML` 的區段陣列、兩處刻度、TAB5 內文），改 `zones` 只會改到 `data.json`。現在全部由 `zoneSegs()` 從 `DATA.zones` 生成
+- 前端：觸發器項數的**第三份**拷貝（頁尾框架依據那句）與檢查清單「六項」也改為現算；HY 觸發線 `3 個月 +80bp` 改為引用 `triggers[hy80].name`；TAB4 的「AMZN 單季 +$53B、GOOGL 一年 7 倍」改為讀 `debt.sub`
+- 前端：`renderTwProse` 的「歷史區間約 15–28×」改為燈號（該區間早已被現值突破，敘述落後於數值）
+- 前端：`findInd` 回退到 `tw.items` 時原本讀 `i.zone`，但 `tw.items` 沒有這個欄位——只要有人在 TAB4 引用一個台股 id，`ZL[undefined].slice(2)` 會 TypeError 讓整頁空白。改為一律 `zoneOf(score)` 現算
+- 前端：來源表原本把**全部六項質化指標一律標「週」**，與 §4.5 的 `QUAL_MAXAGE` 分級牴觸（`tokens` 月頻、`vc`／`cloudrev` 季頻，而 `tokens.asof` 停在 2026-05 還被說成每週更新）。改為依 id 分級
+- 前端／引擎／schema：台股子群權重原本在 `index.html` 寫死第二份，改為引擎寫 `tw.subWeights`、前端讀它；標題「四維拆解」改為「子群拆解」與 brief 用語一致
+- 引擎：`tw.items` 的 `src`／`url` 改由 `TW_SRC` 表無條件寫入。原本 `tupd()` 只寫數值，於是 `tsmc_pe`／`odm_pe` 早已改抓 TWSE 官方、卡片卻還掛 Google Finance（同卡 `note` 自己在打臉），`tw_export` 是關務署卻標 TWSE，`tsmc_weight` 是 TAIFEX 也標 TWSE
+- 引擎：`senti` 的 `dir`／`src`／`url` 改由當次成功的來源生成。原本 `sub` 已經誠實了，同一張卡的其餘三欄仍寫死「AAII＋P/C＋VIX」並連向持續被擋的 AAII
+- 引擎／schema／`healthcheck.py`：新增 `meta.lastAutoRun.streak`（每個來源的連續成功次數）。**這是為了讓 §9 那條「連續數週成功就該退場」的規則變成可執行的**——`data.json` 只留最後一次自動更新，那條規則過去沒有任何依據可查
+- brief §3.2：原本寫「方向相反的一律取負號」，但引擎其實有兩套慣例並存（`fcf`／`cloudrev` 走遞減錨點不取負），而 §4.3 自己標了「（反向）」跟 §3.2 打架。照 §3.2 手改 `fcf` 會得到完全相反的分數
+- brief §4.4：補上 `senti` 兩個子輸入的錨點，並新增「錨點不在 `data.json` 裡」的三指標清單（`senti`／`rpo`／`ccc`）——healthcheck 的錨點對帳會跳過它們，本文件是唯一規格來源
+- brief：`gsy_accel` 定義由「後12月−前12月」更正為「當下 24 月漲幅 − 一年前 24 月漲幅」（兩窗重疊 12 個月），`data.json` 的 `name` 同步更正
+- brief §6：「三處一組」清單補上 `renderTwProse`；`LAYER_N` 的嚴厲度描述更正——它與 `data.json` 對不上是 WARN，但拿去核 `index.html` 那句「N 項指標」時是 FAIL
+- brief §8.4：「第 5 節線上核對」是無效交叉引用（§5 是資料管線），更正為 §8.3
+- brief §5.2：補 `volchg` 的 ≥505 筆門檻、`rpo_backlog` 的 75 天與 `debt` 的 330 天門檻
+- brief §9：加「追蹤」欄位標明 Stooq 與商務部資料**在定義上不會出現在 `ok`／`fail`**（沒有自己的 `attempt()`），退場規則對它們不適用
+- `MAINTENANCE.md`：§4 的「網址加 `?v=時間戳`」已被同節後段的事故紀錄否定卻沒改，改為分清「瀏覽器快取」與「WebFetch／Pages 邊緣快取（要換路徑）」；`fail` 長期清單更正（CBOE 不在裡面）
+- `index.html` 的內嵌退路快照隨 schema 變動重灌
+
+**第二輪複驗（同日）**：改完之後又叫一次子代理獨立複驗，抓到這一批修改自己製造的問題，一併修掉——
+
+- **真 bug**：`senti` 的 `url` 條件只看 VIX 在不在，「VIX 失敗、AAII 成功」那天 `src` 會寫 AAII 而 `url` 連到 CBOE。改為跟著 `src` 的第一個來源走
+- **真 bug**：`evalNvdaCmp` 的「遠不及集中度」只判斷 `nvdape` 的燈號、沒比較 `mag7`，`mag7` 較低時會輸出被自己括號否證的句子。改為兩者都看，並把被刪掉的 Cisco 130× 歷史錨放回來（原句的論證支點，只留內部溫度分等於抽掉參照物）
+- `senti.note` 仍寫著「三者等權合成」與「散戶淨空」（後者由 AAII 導出，而 AAII 被擋）。改由引擎寫成不隨來源浮動的結構性說明——**修了 `dir`／`src`／`url` 卻留下 `note` 講另一個故事，是同一顆炸彈只拆一半**
+- `evalIpo` 的判斷句（「OpenAI IPO 是最重要的試金石」）原本只在「未點亮」那一支出現，而目前狀態是半亮，判斷整句消失。三個分支都補回
+- TAB4 循環融資改寫後弄丟了「擴散到哪些對手方」這個支撐「循環」二字的證據，補回指向卡片明細
+- `TW_SRC` 把三個走 `px_rows()` 三層備援的價格項寫成「yfinance／Yahoo」，走 Stooq 那天一樣說謊。改為明寫三層備援
+- `healthcheck.py` 的 streak 檢查原本「抓不到就靜默跳過照印 PASS」——**正是 §4.5 明文批判過的模式，同一份 repo 的同一個教訓又犯一次**。改為抓不到就 WARN，並新增「白名單來源本次既不在 `ok` 也不在 `fail`」的偵測
+- 前端防禦不一致：`DATA.tw.items.map` 少了 `|| []`（同檔另兩處都有）、`comp` 為 null 時 `null <= 25` 會印出「null／100（冷靜期）」。都補上
+- 新增兩項機械檢查，把這次新增的「兩處要一致」規則按 `MAINTENANCE.md` §6.7 的標準辦：台股子群權重 brief ↔ `wmap` ↔ `tw.subWeights` 三處對帳（FAIL 級）、`index.html` 的 `QUALF` ↔ `QUAL_MAXAGE` 頻率分級對帳
+- 文件更正：§6 schema 仍寫「一律取負號」（與新的 §3.2 打架）、§3.2 漏列 `senti` 的 P/C 子輸入、§4.4「分數只在 Python 端計算」與 `tw.items` 沒有 `zone` 的事實牴觸、`streak` 的單位是執行次數不是日曆週、`MAINTENANCE.md` 的快取交叉引用指錯節、「四份／兩份拷貝」的數字更正
 
 ### v2.0.1（2026-08-04）文件化與同步修正
 

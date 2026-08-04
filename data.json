@@ -46,42 +46,42 @@
    "streak": {
     "AAII": 0,
     "TW 台積電權重": 0,
-    "px SOXX": 2,
-    "px SPY": 2,
-    "px NVDA": 2,
-    "px 2330": 2,
-    "calc GSY": 2,
-    "calc soxmom": 2,
-    "calc nvdape": 2,
-    "multpl CAPE": 2,
-    "slickcharts Mag7": 2,
-    "CBOE putcall": 2,
-    "FRED VIX": 2,
-    "calc senti": 2,
-    "FRED HY": 2,
-    "FRED CCC": 2,
-    "ORCL bond": 2,
-    "FRED IG": 2,
-    "FRED FEDFUNDS 磚塊": 2,
-    "FRED USINFO 磚塊": 2,
-    "EDGAR RPO": 2,
-    "EDGAR quarterly": 2,
-    "TW 月營收": 2,
-    "TW 官方PE": 2,
-    "calc TW 2330": 2,
-    "TW 電子指數": 2,
-    "TW 融資餘額": 2,
-    "TW 海關出口": 2,
-    "FRED CPI": 2,
-    "FRED FEDFUNDS": 2,
-    "FRED DGS10": 2,
-    "Google News": 2
+    "px SOXX": 3,
+    "px SPY": 3,
+    "px NVDA": 3,
+    "px 2330": 3,
+    "calc GSY": 3,
+    "calc soxmom": 3,
+    "calc nvdape": 3,
+    "multpl CAPE": 3,
+    "slickcharts Mag7": 3,
+    "CBOE putcall": 3,
+    "FRED VIX": 3,
+    "calc senti": 3,
+    "FRED HY": 3,
+    "FRED CCC": 3,
+    "ORCL bond": 3,
+    "FRED IG": 3,
+    "FRED FEDFUNDS 磚塊": 3,
+    "FRED USINFO 磚塊": 3,
+    "EDGAR RPO": 3,
+    "EDGAR quarterly": 3,
+    "TW 月營收": 3,
+    "TW 官方PE": 3,
+    "calc TW 2330": 3,
+    "TW 電子指數": 3,
+    "TW 融資餘額": 3,
+    "TW 海關出口": 3,
+    "FRED CPI": 3,
+    "FRED FEDFUNDS": 3,
+    "FRED DGS10": 3,
+    "Google News": 3
    }
   }
  },
- "composite": 56.5,
+ "composite": 56.6,
  "dims": {
-  "L1": 60.3,
+  "L1": 60.4,
   "L2": 70.3,
   "L3": 36.1
  },
@@ -168,9 +168,9 @@
    "id": "mag7",
    "dim": "L1",
    "name": "Mag7 佔標普500市值比重",
-   "value": 33.71,
+   "value": 33.74,
    "disp": "33.7%",
-   "score": 76.4,
+   "score": 76.6,
    "zone": "orange",
    "anchors": [
     [
@@ -1351,8 +1351,23 @@
   },
   {
    "d": "08-04",
-   "t": "Here's What Key Metrics Tell Us About ON Semiconductor Corp. (ON) Q2 Earnings｜Yahoo Finance",
-   "url": "https://news.google.com/rss/articles/CBMilAFBVV95cUxQc1Atbnc3b3lRa2JOU0RFbUNpZWVlRXJPc0llcUpGSVJyNFl1c2ZpU0lqZHFKeTU0eGFJalVra0NGV2ViVklHLU5YNFcyZ0lmdVd2VGxMNUVVS2xlOFZnc3lVZDk1UTRMa3M5eFN3V0Z3Mm8tYjNRZjdKaEdTNVJwLU5pQ2xXc1Z1X1BMTHFIakFoYjdD?oc=5"
+   "t": "SoftBank's AI funding plans to face reckoning at earnings｜Reuters",
+   "url": "https://news.google.com/rss/articles/CBMirgFBVV95cUxPLVVNdUd0Vmswa1FpLWI4VU9yZVRGVlZiQ2hvNXFPVTNqSkN0bl9XWEt3ZnhuSDJlSnhBNzZwWHVrYWRVZ2tIbkhkTXJTckxxVG9QWWR4dGI2VzVHcDFfcDNqcWJKdnRuOEE5NC1xbjdERVAxUkJpUlRWR21DdTFvNkQwWDJ3dS1pSHo0ZV82dHZOV1hmUk5aSXExcC1DejJSbzh0THRyb0pQdWdEMVE?oc=5"
+  },
+  {
+   "d": "08-04",
+   "t": "AI demand to keep near-term inflation pressures elevated: Allspring Global Investments｜CNBC",
+   "url": "https://news.google.com/rss/articles/CBMiqAFBVV95cUxNU1MwTlc3YjJham0yLWY3dU5pd0lidWRBeTNVaWxmRlR5N2ZEWVF0b09tM05xWWh4cnpfZ2NQZTNCd09ocWxmMlBtVTQ3U0Y2dEN2STF3Rl9NR3laa3lUZW5tS3lyNG5USWF1MGdFbjAxLUpyNWg3NHRESm11U2R5UzZWZDg3UVgxNmwyXzVQbVk0ekRHVlBGRWYzSjRXb0FJbmFsSjZyT0g?oc=5"
+  },
+  {
+   "d": "08-04",
+   "t": "Big Tech's Anthropic and OpenAI stakes are distorting the corporate earnings picture｜CNBC",
+   "url": "https://news.google.com/rss/articles/CBMiowFBVV95cUxQLVZ0SlZoODJGekFDdGRyVkJwNll5b09xSGtra3lBRHJuQWtoc0hOZlJxdjk2YUZUZDJXZFJSdFJTcVNfQnhHUFZBMUg0ZTVmTU5qMk1TMkw0am92T2FjZlotdnd2X3RReUNWcHJyRDJxRDZ2MjczUWZ3c0pQeWYxN1d3MUV5LVA4SE5UUXlqRjR3QTM1c3NVOTNpUlh6YTllOE9j0gGoAUFVX3lxTE9jQlpJY3Q1UDdiSHVzWEJhcFdnSHdNbFNyeDQ2cUsxLUhwQ2Vnd0pnTnM4YUlnUkptOFVhUUZpaUw4anZ3R2huVkoxWmt0WkRlQUhNamF2ZE1BZHdlV2ZwMXd0YktDT1VZTmZqVXBfZmVwdVhoaGxkRWc0U2hMOWpmcWtTMlVjdzR5R2dkMFgzYVl6b1V0ZnpnejNEa21NaXctd3lsdThqQw?oc=5"
+  },
+  {
+   "d": "08-04",
+   "t": "Stocks making the biggest moves after hours: Palantir, On Semiconductor, Snap & more｜CNBC",
+   "url": "https://news.google.com/rss/articles/CBMimAFBVV95cUxQSHprU1oxa1ZnVTY4R09BdC1ZejFVcjhkRW8tZmFfdnNlN1Fscy1TU3Z0MVpBNnNKNmVBUlBVSTdJRU5XNDd2bkNBM1ZoXzZyeFYtVDEzc1J5SUFIMTlRTHpsT3U2T0NBOXBkTmU4MHJsSzQyMENvVXpvMnpENXVJdF9EY1lGVk5kMk9qVDlwOFF4YkdKakI1Mw?oc=5"
   },
   {
    "d": "08-04",
@@ -1363,21 +1378,6 @@
    "d": "08-04",
    "t": "On Semiconductor Rises on Solid Earnings Beat as AI Data Center Revenue Grows｜Barron's",
    "url": "https://news.google.com/rss/articles/CBMihgFBVV95cUxNTjBZVVF0RnlQTFU3WURXTjMtRFZ5MVJRUlFKSFM3S0JIbTdjcXZkWnREVVFYSFNORXVxanBIVUdDUXpaRU5QRHA4QklreTJnM3dRcGNMcTFXNnlYSVRtSVRSVnROdjhhaDYzR3JmY1dyVHpBMVdxS0YwenQwcEs2b2g1cldHdw?oc=5"
-  },
-  {
-   "d": "08-04",
-   "t": "SpaceX is testing market gravity｜Axios",
-   "url": "https://news.google.com/rss/articles/CBMibkFVX3lxTFBSaURhcmNFR05rWXByM1pPU0J5Uk9md2NQYXc0Ym5fal8zUnRlUktTYmhJSjBySzdHN3Bjb1BUZ0hZazlQWktkTE5BaVgwTzJhNTQyVE1mR0RIQUs4d0s3c1dWWEZGVUtibmp2Mnln?oc=5"
-  },
-  {
-   "d": "08-04",
-   "t": "Wall Street bulls are starting to admit the earnings bubble is real—and the 60/40 portfolio may be the first casualty｜Fortune",
-   "url": "https://news.google.com/rss/articles/CBMipgFBVV95cUxQVGJxOVN1T211RW9KcERVWm9UZVVQMEE2UUdIQkRVaHVMX3Rhc3ptRHdTQVNBclItZXhVQnlkUlZkZUJUN3IyY3UwN0FERGNQcEIxaWtUa1N2NU5tQjVYNUxvM3ZLT0tuZTBZbFpLVkZRLThlWXZKdEc0WEhkVXI5MW9tQnFSclZ3WjhWb0JvN0x6YmkzdW9KODhjRi1JV3hudDBidjVn?oc=5"
-  },
-  {
-   "d": "08-03",
-   "t": "Sam Altman reveals the investing advice billionaire Peter Thiel gave him that's led to a $3.3 billion net worth｜Fortune",
-   "url": "https://news.google.com/rss/articles/CBMi0AFBVV95cUxPUHBKVVhwSGNQem9fSTJhZW5VNDF3VG82OW5pQkQ2YlM2ek40SjBheVRLTXBsRlJBcmY2S0RZeGI1Wk8wQUNCMDExSTkxbTQxNkM2aGNoYkFyanRyY18telk5X1RiOXViZHdFc0l5ZVJrelhKSHc5TWpzN2NWRVRDMW9QeTZaeGMzWGRQdFRyVkhmVUE5aWR3MkN6QmJvVC1yd3puVDQzeHpibWp4ZGFFQmRmUHd4YVFIVVNESXdRR3dPbFZ3bFlnekVQbVR1b2ZW?oc=5"
   },
   {
    "d": "08-03",
@@ -1603,9 +1603,9 @@
   },
   {
    "date": "2026-08-04",
-   "composite": 56.5,
+   "composite": 56.6,
    "dims": {
-    "L1": 60.3,
+    "L1": 60.4,
     "L2": 70.3,
     "L3": 36.1
    },

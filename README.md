@@ -27,4 +27,5 @@
   東西之前先讀它。
 - `MAINTENANCE.md`——事故與決策檔案：踩過的坑、為什麼這樣設計、待辦。
 - `healthcheck.py`——唯讀機械檢查（`python3 healthcheck.py`）。**FAIL 必須是 0 才可以推送。**
-- Cowork 內用 `/bubble-maintain` 進維護流程。
+- `skills/bubble-maintain/SKILL.md`——維護流程本身（Cowork 內用 `/bubble-maintain` 觸發）。
+  這份是權威副本；帳號端的 skill 若遺失或走鐘，從這裡重新上傳即可。改流程時兩邊要一起改。

@@ -318,12 +318,29 @@ def check_data(repo):
     wmap = {"動能": .3, "估值": .3, "籌碼": .2, "基本面": .2}
     valid = {k: v for k, v in subs.items() if v is not None}
     ws = sum(wmap[k] for k in valid)
+    if not ws:
+        # 四組全 null：分母為 0，heat 算不出來。以前這裡直接跳過，連 heat 一致性
+        # 都不檢查，等於整塊靜默——正是 §4.5 批判過的「抓不到就跳過」。
+        bad("tw.subs 四組全為 null，tw.heat 無法計算（台股資料整批失效？）")
     if ws:
         h = round(sum(v * wmap[k] for k, v in valid.items()) / ws, 1)
         if not near(tw.get("heat"), h):
             bad(f"tw.heat 不一致：存 {tw.get('heat')} vs 算 {h}")
         else:
             ok(f"tw.heat 一致：{h}")
+        # 分母不是 1.0 時要講出來。null 子群被剔除後重新歸一是設計，但它意味著
+        # **那個子群補回來的那一天，tw.heat 會不連續地跳一下**——看起來會像資料出錯。
+        # 沉默地 PASS 等於把一個未來一定會發生的誤判留給下一個人。
+        if ws < 0.999:
+            gone = [k for k in subs if subs[k] is None]
+            base = sum(v * wmap[kk] for kk, v in valid.items())   # 分子（尚未歸一）
+            sim = ""
+            if len(gone) == 1:
+                g = gone[0]
+                sim = "，屆時約為 " + "／".join(
+                    f"{g} {x} 分→heat {round(base + wmap[g] * x, 1)}" for x in (35, 50, 67))
+            warn(f"tw.heat 目前以 {len(valid)}/4 組歸一（分母 {ws:.1f}，缺：{'、'.join(gone)}）"
+                 f"——補齊那天 heat 會不連續跳動（現值 {tw.get('heat')}）{sim}")
     if "tsmc_weight" in TWI:
         aw = TWI["tsmc_weight"].get("asof")
         try:
@@ -567,6 +584,32 @@ def check_brief(repo, d):
                 bad(f"台股子群權重加總 {sum(eng_w.values())} ≠ 1.0")
             else:
                 ok(f"台股子群權重三處一致且加總 = 1.0：{eng_w}")
+
+        # 子群的**成員組成**（不只權重）：brief §4.6 的表 ↔ 引擎的 subs_def。
+        # 「籌碼是唯一的單點子群」這句話在 brief 與 MAINTENANCE 各有一份拷貝，
+        # 改了成員而沒同步就會無聲變成假的——依 §6.8 的教訓，交給機器守。
+        esrc = re.search(r"subs_def\s*=\s*(\{.*?\})\s*\n", open(up_, encoding="utf-8").read(), re.S)
+        if not esrc:
+            warn("update_data.py 找不到 subs_def，台股子群成員無法對帳")
+        else:
+            try:
+                eng_m = {k: sorted(v) for k, v in ast.literal_eval(esrc.group(1)).items()}
+            except Exception:
+                eng_m = None
+                warn("update_data.py 的 subs_def 解析失敗，台股子群成員無法對帳")
+            if eng_m:
+                bm = {}
+                for line in txt.split("\n"):
+                    m = re.match(r"\|\s*(動能|估值|籌碼|基本面)\s*\|\s*[\d.]+\s*\|(.+?)\|", line)
+                    if m:
+                        bm[m.group(1)] = sorted(re.findall(r"`(\w+)`", m.group(2)))
+                if bm != eng_m:
+                    diff = [f"{k}: brief {bm.get(k)} vs 引擎 {eng_m.get(k)}"
+                            for k in set(bm) | set(eng_m) if bm.get(k) != eng_m.get(k)]
+                    bad("brief §4.6 子群成員與引擎 subs_def 不符：" + "；".join(diff))
+                else:
+                    singles = [k for k, v in eng_m.items() if len(v) == 1]
+                    ok(f"台股子群成員 brief↔引擎一致（單點子群：{singles or '無'}）")
 
     # index.html 來源表的質化頻率分級（QUALF）↔ 本檔的 QUAL_MAXAGE。
     # 兩份分級各自寫死，改一邊不會有人記得改另一邊——正是要靠機器盯的那種。

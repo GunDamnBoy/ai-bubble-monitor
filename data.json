@@ -1,8 +1,8 @@
 {
  "meta": {
   "version": 2,
-  "built": "2026-08-08",
-  "builtTime": "2026-08-08（GitHub Actions 自動更新）",
+  "built": "2026-08-10",
+  "builtTime": "2026-08-10（每週質化覆核）",
   "nextUpdate": "每交易日自動更新（GitHub Actions）｜質化指標每週覆核｜v2 三層架構",
   "artifactId": "ai-bubble-monitor",
   "lastAutoRun": {
@@ -79,11 +79,11 @@
    }
   }
  },
- "composite": 58.1,
+ "composite": 59.9,
  "dims": {
   "L1": 65.8,
   "L2": 69.4,
-  "L3": 36.1
+  "L3": 41.9
  },
  "dimMeta": {
   "L1": {
@@ -401,16 +401,16 @@
    "dim": "L1",
    "name": "泡沫敘事熱度",
    "value": 4.0,
-   "disp": "第 4 級（自近 5 級回落）",
+   "disp": "第 4 級（維持）",
    "score": 70,
    "zone": "orange",
    "anchors": null,
    "dir": "質化評分（1-5級→10/30/50/70/90）",
-   "asof": "2026-08-01",
+   "asof": "2026-08-08",
    "fresh": "ok",
    "src": "綜合媒體監測",
    "url": "https://gundamnboy.github.io/ai-bubble-monitor/",
-   "note": "本週由 4.5 下修至 4.0（score 80→70）：敘事仍高熱但單向恐慌回落。7/24 當週科技市值蒸發約 $890B、Oracle/CoreWeave CDS 警報、NPR 稱『華爾街對 AI 投資泡沫日益不安』（7/30）；惟 7/31 起明顯反彈（WSJ『AI 股回穩』、南韓股市單月 +18%、半導體收復失土），且看多方（Yardeni 等）續發聲。已自『逼近第 5 級』回到『第 4 級（廣泛討論分歧＋信用疑慮，但非崩盤共識）』。",
+   "note": "維持第 4 級（score 70→70）：敘事仍在高檔但未形成崩盤共識。7/29 晶片股單日市值蒸發逾 $1 兆（CNBC 2026-07-29）、南韓晶片股重挫（Bloomberg 7/28）、NPR 稱「華爾街對 AI 投資泡沫日益不安」（7/30）、Fortune（8/3）稱華爾街多方開始承認獲利泡沫為真、American Prospect（8/3）已在討論「AI 紓困」。但 8/3–8/7 該週 AI 股大幅回補（CNBC 8/8「massive rebound」），同時 BofA Bull & Bear 情緒指標升至 9.7、為 2021 年以來最高（8/8）——恐慌論述與極端貪婪同時存在，正是第 4 級「廣泛討論分歧＋信用疑慮、非恐慌共識」的樣態。GS 另指 Q2 標普 EPS 年增 45% 中近半來自帳面價值重評價而非營益擴張（8/8），為敘事的品質面伏筆。",
    "qual": true
   },
   {
@@ -578,7 +578,7 @@
    "fresh": "ok",
    "src": "CNBC / Bloomberg",
    "url": "https://www.cnbc.com/2026/05/09/nvidia-embraces-ai-investor-topping-40-billion-in-equity-bets-2026.html",
-   "note": "本週由橙(82)轉紅(85)。NVIDIA 2026 迄今宣布逾 $540B 交易（不含 OpenAI 潛在案），另揭露對 OpenAI 最高約 $600B 融資框架（含 $250B 租賃付款擔保＋約 $350B 晶片採購融資，早期洽談）、與 SK 集團約 $500B（記憶體＋超級電腦）、Naver $1B。AMD 對 Anthropic 投資最高 $5B 換得數十億晶片訂單（7/22 Bloomberg/CNBC）；銀行擬對 Google 支持的 Anthropic 資料中心放款 $15B（7/31 WSJ）；Amazon 對 Anthropic 持股本季認列約 $53B 帳面利得。循環融資自 NVIDIA 單點擴散至多家晶片與雲廠，並出現『供應商擔保客戶租約＋融資客戶購買自家晶片』的結構性新特徵——已趨近『供應商融資成為需求主要來源』（84+ 級）。誠實保留：最大宗 OpenAI 框架仍屬早期洽談、未定案。",
+   "note": "上週由橙(82)轉紅(85)，本週維持（score 85→85）。本週佐證：Bloomberg 以「AI 循環融資回歸」為題（2026-07-27／07-28）證實 NVIDIA 相關交易規模約 $750B（含 SK 集團），Axios（7/27）確認其中約 $250B 為俄亥俄 OpenAI 資料中心的融資擔保、約 $350B 為 OpenAI 採購 NVIDIA 晶片的融資，仍屬洽談階段；消息當日 NVDA 跌 4.5%，相關 CDS 出現 2025-11 主動交易以來最大單日漲幅。規模與結構相對上週未再擴大，維持紅燈不加碼。既有明細：NVIDIA 2026 迄今宣布逾 $540B 交易、與 SK 集團約 $500B、Naver $1B；AMD 對 Anthropic 投資最高 $5B 換得數十億晶片訂單（7/22）；銀行擬對 Google 支持的 Anthropic 資料中心放款 $15B（7/31 WSJ）；Amazon 對 Anthropic 持股本季認列約 $53B 帳面利得。誠實保留：最大宗的 OpenAI 框架仍未定案。",
    "qual": true
   },
   {
@@ -586,16 +586,16 @@
    "dim": "L2",
    "name": "弱資質信用單點（金絲雀）",
    "value": 855,
-   "disp": "CRWV CDS ~855bp・ORCL 破 18 年高",
+   "disp": "CRWV CDS ~855bp・新貸利差 +125bp",
    "score": 83,
    "zone": "orange",
    "anchors": null,
    "dir": "質化評分（0-100）",
-   "asof": "2026-07-29",
+   "asof": "2026-08-03",
    "fresh": "ok",
    "src": "市場報導",
    "url": "https://realinvestmentadvice.com/",
-   "note": "本週由 80 升至 83。CoreWeave 5 年 CDS 飆至約 855bp（7/29，隱含 5 年違約機率 ~50%，較上週 ~675bp 明顯走闊）、7/29 股價單日 −9%（Nebius −10%），信用違約成本開始衝擊 AI 雲板塊。Oracle 5 年 CDS 走闊至逾 215bp（創約 18 年高、領漲整體 hyperscaler CDS 利差），延續 7 月 S&P 降評至 BBB-（僅高於垃圾一級、點名 OpenAI 未履約合約集中度）。反向緩衝：Oracle 仍屬投資級、CoreWeave 尚無違約或再融資失敗。指標性主體 CDS 創高、壓力升溫但仍集中個案（符 67-84 級）。",
+   "note": "上週由 80 升至 83，本週維持（score 83→83）。壓力自次級市場擴散到初級市場：CoreWeave $26 億延遲提取定期貸款於 2026-08-03 定價，由初始 SOFR+425~450／99 元讓步至 SOFR+550／97 元（利差走闊 100–125bp、到期殖利率 10.44%、2031-09 到期），並被迫接受 DSCR 1.35 倍、最低流動性 $1.125 億與全額攤還等契約條款——covenant-lite 常態下少見的實質債權人反制；同週另有 Proofpoint $50 億再融資（約 9.3%）、Ancestry $20 億等多家借款人同步讓步。CoreWeave 5 年 CDS 仍約 855bp（7/29，隱含 5 年違約機率約 50%）、2026Q1 自由現金流 −$47.1 億；Oracle 5 年 CDS 逾 215bp（2025 年底約 145bp）創約 18 年高，延續 7 月 S&P 降評至 BBB-。AI 相關 CDS 成交量 2026Q2 約 $6.5 億（季增 20%、年增 600%）。反向緩衝：該筆貸款最終仍足額募得、無違約亦無再融資失敗，未達 84+「再融資失敗／違約事件」門檻，故維持橙燈 83 不進紅區。",
    "qual": true
   },
   {
@@ -775,17 +775,17 @@
    "id": "tokens",
    "dim": "L3",
    "name": "Token 經濟（用量×單價）",
-   "value": 200,
-   "disp": "約 3 倍/3個月",
-   "score": 0,
-   "zone": "green",
+   "value": 58,
+   "disp": "中國模型佔美企 token 58%",
+   "score": 35,
+   "zone": "yellow",
    "anchors": null,
    "dir": "質化評分（0-100）",
-   "asof": "2026-05（第三方彙整）",
-   "fresh": "stale",
+   "asof": "2026-07-28",
+   "fresh": "ok",
    "src": "OpenRouter / 第三方",
    "url": "https://openrouter.ai/rankings",
-   "note": "2月 >30T/月 → 5月 ~100T/月。樣本偏誤警告：OpenRouter 反映開發者/API 聚合流量，非全球 AI 用量；大企業直連 Azure/Bedrock 不經此平台。文章稱中國模型佔 56%，OpenRouter 實測約 32%——口徑差異大，方向可參考、水平不可比。（CEPR/Apollo 的核心監測：中國模型市占與 token 降價對變現路徑的擠壓。）",
+   "note": "本週由綠燈轉黃燈（score 0→35）：低價替代明顯侵蝕美系模型的量價結構。OpenRouter 上中國模型佔美國企業路由 token 由一年前約 30% 升至 58%（2026-07-22，7 月初曾達 63%），DeepSeek 17.6%、Qwen 13.9%，美系模型由約 70% 降至約 30%；價差 60–90%（DeepSeek V4 Flash $0.14／百萬 input tokens vs GPT-5.5 $5.00，2026-06）。Forbes（2026-07-28）指 token 單價年降約 10 倍、企業級供應商面臨新的毛利擠壓。反向緩衝：用量仍在爆發（Google 月 token 由 2023 年 9.7T 增至 3.2 千兆，2026-05 Google I/O），且 SemiAnalysis 稱 Anthropic 推理毛利率 2026 年由 38% 升至逾 70%、OpenAI 約 33%——尚無「推理毛利轉負」的報導，故僅落在 33–67 級距的下緣而非中段。誠實說明：本項 asof 自 2026-05 起未動，此次調整含追平既有事實的成分，非全屬本週新增惡化。",
    "qual": true
   }
  ],
@@ -1316,7 +1316,7 @@
   }
  },
  "stage": {
-  "current": 2.6,
+  "current": 2.7,
   "label": "第二階段後段（外部公開市場融資主導）",
   "stages": [
    {
@@ -1349,35 +1349,35 @@
    {
     "item": "負現金流主體大額發債常態化",
     "state": 0.5,
-    "evi": "Oracle 遭 S&P 降評 BBB-、5 年 CDS 逾 215bp 創約 18 年高、擬增發 $20B；CoreWeave 5 年 CDS ~855bp（隱含違約機率 ~50%）、負現金流——大額發債／高違約定價擴散但仍屬個案"
+    "evi": "CoreWeave（2026Q1 FCF −$47.1 億）8/3 仍足額募得 $26 億定期貸款，但代價是利差 +100–125bp、YTM 10.44% 並接受 DSCR 1.35x／最低流動性 $1.125 億等契約；Oracle 遭 S&P 降評 BBB-、5 年 CDS 逾 215bp 創約 18 年高——大額發債仍走得通但已非無條件，債權人開始要價"
    },
    {
     "item": "供應商融資（循環交易）規模化",
     "state": 1,
-    "evi": "NVIDIA 2026 迄今 >$540B 交易＋對 OpenAI 最高約 $600B 融資框架（租賃擔保＋晶片採購融資）、AMD $5B 投資 Anthropic、銀行擬放款 $15B 予 Google 支持的 Anthropic 資料中心——循環融資橫向擴散、結構化（本週指標轉紅）"
+    "evi": "Bloomberg 7/27–28「AI 循環融資回歸」：NVIDIA 相關交易約 $750B，含對 OpenAI 約 $250B 資料中心融資擔保＋約 $350B 晶片採購融資（Axios 7/27）、SK 集團約 $500B；另 AMD $5B 投資 Anthropic、銀行擬放款 $15B 予 Google 支持的 Anthropic 資料中心（7/31 WSJ）——供應商融資已結構化且橫向擴散"
    },
    {
     "item": "信用利差趨勢性走闊（HY 3個月 +80bp）",
     "state": 0,
-    "evi": "HY OAS 2.84%、3 個月反收斂（−14bp）——未觸發（觸發線 3 個月 +80bp）"
+    "evi": "HY OAS 2.71%、3 個月反收斂（−8bp，2026-08-06）——未觸發（觸發線 3 個月 +80bp）；CCC 10.17% 亦低於 12% 熊市線"
    },
    {
     "item": "AI 巨頭 IPO 潮與首日暴漲",
     "state": 0.5,
-    "evi": "OpenAI（6/8）、Anthropic（6/1）已保密申請 IPO；尚無定價或首日暴漲——供給端就緒、未引爆"
+    "evi": "Anthropic 已展開 IPO 前投資人會議、由 GS／JPM／MS 主辦，公開版 S-1 可能於 8–9 月遞交、最快 10 月掛牌（CNBC 7/15，估值 $965B）；OpenAI（6/8）亦已保密申請。尚無定價區間與首日表現——供給端就緒、未引爆"
    },
    {
     "item": "私募信貸/表外融資佔比激增",
-    "state": 0.5,
-    "evi": "銀行擬放款 $15B 予 Google 支持的 Anthropic 資料中心（7/31 WSJ）、SocGen 近成 $5B SRT 含資料中心債（7/30）、私募信貸持續擴張；公開數據有限、需人工追蹤"
+    "state": 1,
+    "evi": "表外化已成主要槓桿管道：Moody's 估大型科技公司資料中心租賃約 $6,620 億未列於資產負債表，Meta 單一公司揭露未來資料中心租賃承諾 $2,790 億，合計租賃與採購承諾規模遠高於六大廠約 $4,600 億的直接負債；另 SocGen 近成 $5B SRT 含資料中心債（7/30）、銀行對 Anthropic 資料中心擬放款 $15B（7/31 WSJ）"
    },
    {
     "item": "弱資質主體信用事件",
     "state": 0,
-    "evi": "尚無違約／再融資失敗"
+    "evi": "尚無違約／再融資失敗；CoreWeave 8/3 的貸款雖大幅讓價仍完成募集"
    }
   ],
-  "note": "點亮 2.5／6（本週無新增點亮）。弱資質信用壓力續升（CoreWeave 5 年 CDS ~855bp／隱含違約 ~50%、Oracle CDS 逾 215bp 創約 18 年高），循環融資由橙轉紅、擴散為多家晶片與雲廠常態並出現『供應商擔保＋融資客戶購買自家晶片』結構；但均未觸發違約或 HY 利差趨勢性走闊。第二階段（外部公開市場融資）證據充分；距第三階段（擴散至弱資質）的關鍵仍在 Oracle/CoreWeave 是否由個案擴散成面、HY 利差是否趨勢性走闊。"
+  "note": "點亮 3／6（本週由 2.5 增為 3.0：「私募信貸／表外融資佔比激增」由半格轉為點亮）。關鍵變化是壓力由次級市場的 CDS 定價，擴散到初級市場的實際融資條件——CoreWeave 8/3 的 $26 億貸款利差走闊 100–125bp 並被迫接受 DSCR 與流動性契約，是本輪首見的實質債權人反制；同時表外租賃承諾（Moody's 估約 $6,620 億、Meta 單家 $2,790 億）規模已明顯超過直接負債，融資重心外移的證據足夠。但 HY 利差 3 個月仍反收斂（−8bp）、CCC 10.17% 未達 12%，且無任何違約或再融資失敗，第三階段（擴散至弱資質）尚未成立。第二階段（外部公開市場融資主導）證據充分且在深化，current 由 2.6 微升至 2.7。"
  },
  "events": [
   {
@@ -1706,11 +1706,25 @@
     63.9,
     67.6
    ]
+  },
+  {
+   "date": "2026-08-10",
+   "composite": 59.9,
+   "dims": {
+    "L1": 65.8,
+    "L2": 69.4,
+    "L3": 41.9
+   },
+   "tw": 53.4,
+   "quad": [
+    58.1,
+    67.6
+   ]
   }
  ],
  "params": {
   "nvda_eps": 6.31,
-  "ngdp_nominal": 4.9,
+  "ngdp_nominal": 5.8,
   "megaipo_done": false
  },
  "triggers": [
@@ -1773,7 +1787,7 @@
  ],
  "quadrant": {
   "heat": 67.6,
-  "support": 63.9,
+  "support": 58.1,
   "regime": "過熱但有撐（melt-up 風險）"
  }
 }

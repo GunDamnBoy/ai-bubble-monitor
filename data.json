@@ -392,7 +392,7 @@
    "fresh": "ok",
    "src": "CBOE 個股 Put/Call / VIX",
    "url": "https://www.cboe.com/us/options/market_statistics/",
-   "note": "橋水問題③④的公開替代：以散戶信念（AAII 多空差）、投機行為（CBOE 個股 Put/Call，取負）、自滿度（VIX 非單調計分）三個角度衡量情緒，當次抓得到幾個就等權平均幾個——實際參與的來源見上方 sub。",
+   "note": "橋水問題③④的公開替代：以散戶信念（AAII 多空差）、投機行為（CBOE 個股 Put/Call，取負）、自滿度（VIX 非單調計分）、綜合情緒（CNN Fear & Greed，0–100 直讀）四個角度衡量情緒，當次抓得到幾個就等權平均幾個——實際參與的來源見上方 sub。",
    "qual": false,
    "sub": "CBOE 個股 Put/Call（日）＋VIX（日）等權合成"
   },
@@ -820,7 +820,7 @@
     "value": 31.86,
     "disp": "31.9×（官方）",
     "score": 85.2,
-    "note": "改用證交所官方日更本益比，不再自算。歷史區間約 15-28×。",
+    "note": "改用證交所官方 BWIBBU 日更本益比，不再自算（股價÷EPS 會跟官方口徑打架）。錨點見 AGENT_BRIEF §4.6。",
     "src": "TWSE 官方本益比（BWIBBU）",
     "asof": "2026-08-07",
     "url": "https://openapi.twse.com.tw/v1/exchangeReport/BWIBBU_ALL"

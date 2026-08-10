@@ -45,13 +45,13 @@ description: "AI 泡沫監控儀表板（ai-bubble-monitor）的維護入口。�
 
 ## 第 1 步：載入現況（先做完再開口）
 
-1. **先取得工作副本。** 本系統沒有本機掛載，唯一權威是 GitHub。用每週覆核排程裡存放的 fine-grained PAT 淺層 clone 到暫存目錄：
+1. **先取得工作副本。** 本系統沒有本機掛載，唯一權威是 GitHub。公開 repo，直接淺層 clone：
 
    ```
-   git clone --depth 1 https://x-access-token:{TOKEN}@github.com/GunDamnBoy/ai-bubble-monitor.git /tmp/bubble
+   git clone --depth 1 https://github.com/GunDamnBoy/ai-bubble-monitor.git /tmp/bubble
    ```
 
-   **PAT 只從排程任務的 prompt 取得，絕不寫進任何輸出。** 本工作階段的 GitHub **API 被 proxy 擋，但 HTTPS git 操作正常**——要看 repo 狀態就用 git，不要試 API。
+   **本工作階段對這個 repo 只有讀、沒有寫**（2026-08-10 起）：git push 被平台的 git proxy 擋（403，自備 PAT 也無效），GitHub API 的 repo 端點也被擋——要看 repo 狀態就用 git 讀，要發布就走 `MAINTENANCE.md` §3 的交付流程（patch → 使用者本機 `git am` 推送；只改 data.json 則交 `data-YYYY-MM-DD.json` → `bubble-publish`）。**不要索取或使用任何 token。**
    若上一輪已經 clone 過，改用 `git -C /tmp/bubble pull --ff-only` 確認是最新的，不要在舊副本上作業（曾經在過期 clone 上判斷過現況，結論全錯）。
 
 2. **跑健康檢查**，機械式檢查一次做完：
@@ -66,10 +66,10 @@ description: "AI 泡沫監控儀表板（ai-bubble-monitor）的維護入口。�
 4. 讀 `AGENT_BRIEF.md`（**全部**，含第 10 節變更紀錄）。
 5. 用 `mcp__claude-code-remote__list_triggers` 找到「AI 泡沫監控：每週質化覆核與發布（v2）」，記下 `cron_expression`、`enabled`、`next_run_at`、通知設定，並讀它的 prompt 全文。
    **這個工具的輸出很大，可能超過 token 上限而被存成檔案**；真的存成檔案就用 Python 解析，回傳結構是 `{"data": [ ... ]}`，prompt 在 `job_config` 底下。
-   **那份 prompt 裡有 PAT 明文——解析時只取需要的欄位，絕不整段回貼到對話或摘要裡。**
+   （2026-08-10 起 prompt 裡已無 PAT；照常只取需要的欄位，不整段回貼。）
 6. 讀 `data.json` 的 `stage`（四階段檢查清單本週的證據）與 `events` 前幾條——**這兩塊是你這次要下判斷的材料**，不是驗算。`meta.lastAutoRun` 與 `history` 不用自己翻，健康檢查已經印出來了。
 
-健康檢查已涵蓋的項目**不要再手動重跑一遍**：層分數與 composite 重算、象限、台股子群、錨點單調性、燈號一致性、指標項數 vs `LAYER_N`、觸發器齊全、`history` 排序與末筆對齊 `meta.built`、`meta.lastAutoRun` 的成功／失敗項與「有沒有已知清單以外的新失敗來源」、brief §9 已知失效來源 vs `KNOWN_FAIL` 白名單對帳、`asof` 未來日期偵測、**質化指標的 `note` 軌跡終點 vs 現在的 `score`、`note` 有沒有日期、`asof` 依各項頻率分開設的過期門檻**、`stage` 的內部一致性（清單狀態、`current`、以及「點亮 X／6」這句**存在與否**及數字是否符合清單實算）、brief 錨點與權重比對、brief 第 4.6 節台灣錨點 vs 引擎 AST、workflow cron 與 Pages 步驟、`--selftest`、`node --check`、`index.html` 那句「N 項指標依三層頻率分組」vs 實際項數、內嵌退路快照（`meta.version`、v2 區塊齊全、`history` 筆數、以及**與現行 `data.json` 的 `built`／`composite`／`regime` 有沒有脫節到會誤導**）、`charts.spreads` 的前端讀取鍵與欄位 vs 引擎實際寫入對帳。你的注意力應該放在腳本抓不到的東西上——也就是下一步。
+健康檢查已涵蓋的項目**不要再手動重跑一遍**：層分數與 composite 重算、象限、台股子群、錨點單調性、燈號一致性、指標項數 vs `LAYER_N`、觸發器齊全、`history` 排序與末筆對齊 `meta.built`、`meta.lastAutoRun` 的成功／失敗項與「有沒有已知清單以外的新失敗來源」、brief §9 已知失效來源 vs `KNOWN_FAIL` 白名單對帳、`asof` 未來日期偵測、**質化指標的 `note` 軌跡終點 vs 現在的 `score`、`note` 有沒有日期、`asof` 依各項頻率分開設的過期門檻**、`stage` 的內部一致性（清單狀態、`current`、以及「點亮 X／6」這句**存在與否**及數字是否符合清單實算）、brief 錨點與權重比對、brief 第 4.6 節台灣錨點 vs 引擎 AST、workflow cron 與 Pages 步驟、`--selftest`、`node --check`、`index.html` 那句「N 項指標依三層頻率分組」vs 實際項數、內嵌退路快照（`meta.version`、v2 區塊齊全、`history` 筆數、以及**與現行 `data.json` 的 `built`／`composite`／`regime` 有沒有脫節到會誤導**）、`charts.spreads` 的前端讀取鍵與欄位 vs 引擎實際寫入對帳、renderQuad 的 45/55 象限分界第四份拷貝、cron 三種 YAML 寫法、`meta.lastAutoRun` 整塊缺失、快照 history 為空。你的注意力應該放在腳本抓不到的東西上——也就是下一步。
 
 ---
 
@@ -87,11 +87,11 @@ description: "AI 泡沫監控儀表板（ai-bubble-monitor）的維護入口。�
 - 執行時刻與 cron（brief 第 8 節 vs 排程設定 vs workflow 檔）
 - 人機分工：brief 第 8.1／8.2 節的清單與 prompt 裡的清單是否**逐項**相符（列出只出現在其中一邊的 id；`stage.current`／`tsmc_52w`／`twii_pos` 這類單項最容易被漏掉）
 - **「絕對不要重抓 `events`／`triggers` 與所有自動指標」**這條禁令有沒有同時出現在兩份（漏掉會讓覆核用殘值蓋掉好資料，這是最容易漂移也最傷的一條），以及 `events` 可補 1–2 條的例外
-- **收尾重算的順序**：指標 `zone` → 層分數 → `composite` → `quadrant` → `tw.subs`／`tw.heat` → `history` 附加 → `meta.built`／`meta.builtTime`（**但 `meta.lastAutoRun` 不動**），共**七步**，兩份是否一致。第七步最容易被當成不重要而漏掉，但 healthcheck 硬性要求 `history` 最後一筆的日期等於 `meta.built`，漏掉會直接 FAIL 擋住推送
+- **收尾重算的順序**：指標 `zone` → 層分數 → `composite` → `quadrant` → `tw.subs`／`tw.heat` → `history` 附加（含 `quad` 與 `trig`） → `meta.built`／`meta.builtTime`（**但 `meta.lastAutoRun` 不動**），共**七步**，兩份是否一致。第七步最容易被當成不重要而漏掉，但 healthcheck 硬性要求 `history` 最後一筆的日期等於 `meta.built`，漏掉會直接 FAIL 擋住交付
 - 質化指標的 rubric（brief 第 4.5 節）與 prompt 裡的評分指示
-- `note` 必須記錄上週分數與變動理由這條規則
-- 推送方式、commit 訊息格式、token 只用於 git 且不得顯示明文
-- **線上驗證打的是網站還是 repo，以及用的是哪個工具**。抓 `raw.githubusercontent.com` 只證明 commit 進了 repo，正是 6.2 事故分不出來的那種情況——要抓 `gundamnboy.github.io`。但**這一步不能用 `curl`**：本容器的 Bash 連不到 `github.io`（回 http=000），排程 prompt 舊版寫的那行 curl 從來沒有真的成功過，只會拿到空字串然後往下走得像沒事一樣。要確認 prompt 裡用的是 `WebFetch`，而且重抓的繞快取方式是**換路徑**（多打斜線）而不是加 `?t=`——後者實測無效，快取鍵忽略 query string
+- `note` 必須記錄上週分數與變動理由這條規則；`asof` 一律填資料本身的日期
+- **交付方式**（2026-08-10 起）：三個交付檔（patch／`data-YYYY-MM-DD.json`／離線 HTML，檔名格式要對得上 `bubble-publish` 的 glob）、commit 訊息格式、內嵌 HTML 的 history 裁 60 筆、「不嘗試 push、不做線上核對、不索取或使用 token」的禁令——兩份是否一致
+- 推播摘要的格式與「⚠ 警示」的觸發條件（**「還沒發布」不算警示**）
 - 推播摘要的格式與「⚠ 警示」的觸發條件
 - **排程 prompt 遺漏了 brief 的哪些關鍵規則**
 
@@ -129,7 +129,7 @@ description: "AI 泡沫監控儀表板（ai-bubble-monitor）的維護入口。�
 
 - **健康檢查結果**：FAIL 與 WARN 逐條列出，PASS 用一行帶過
 - **目前讀數**：`composite`、L1／L2／L3、`heat`／`support`／`regime`、觸發器點亮數、台股 `tw.heat` 與四個子群
-- 最近一次自動更新的日期、成功與失敗項數，**失敗項裡有沒有 AAII／CBOE／TAIFEX 以外的新面孔**
+- 最近一次自動更新的日期、成功與失敗項數，**失敗項裡有沒有 AAII／CBOE／TAIFEX／CNN F&G 以外的新面孔**（CNN F&G 是 2026-08-10 新接入的觀察名單成員，它失敗屬預期，見 brief §9）
 - 季度圖表停在哪一季、是不是初步季（幾家已申報、缺誰）
 - 排程狀態：下次執行、是否啟用、有沒有開推播；Cowork 桌面 artifact 的快照停在哪一天
 - **brief 與排程 prompt 有沒有不同步**，有的話具體指出哪幾處、哪一邊是對的
@@ -150,10 +150,11 @@ description: "AI 泡沫監控儀表板（ai-bubble-monitor）的維護入口。�
 3. 改 `scripts/update_data.py`（引擎）。動到 `to_quarters`／`pw`／`vix_score`／`bucket`／`gsy_stats`／新聞解析時，**一定要跑 `python3 scripts/update_data.py --selftest`**
 4. 動到 `data.json` 結構時，**三處一起改**：brief 第 6 節、`update_data.py`、`index.html` 的對應 render
 5. 只在**流程或人機分工改變**時才動排程 prompt，用 `mcp__claude-code-remote__update_trigger` 同步。
-   **`prompt` 是整份取代，不是局部編輯**——送出前確認所有段落都帶上了，漏掉的段落等於刪除。**含 token 的那段也要原樣帶回去，但不要顯示在對話裡。**
+   **`prompt` 是整份取代，不是局部編輯**——送出前確認所有段落都帶上了，漏掉的段落等於刪除。
 6. 在 brief 第 10 節加變更紀錄，**寫清楚為什麼改**，不只是改了什麼；
    事故經過與被否決的選項寫進 `MAINTENANCE.md` 第 6 節
 7. 若已知的坑或待辦有變化，同步更新 `MAINTENANCE.md` 第 4、5 節
+8. **交付**（本工作階段推不了 repo，見 `MAINTENANCE.md` §3）：commit 到 /tmp 的 clone（身分 GunDamnBoy）→ `git format-patch -1 --stdout` → SendUserFile 給使用者 `git am` 後推送；只改 `data.json` 的改交 `data-YYYY-MM-DD.json` 走 `bubble-publish`
 
 **改完當下就再比對一次第 2 步的清單。** 大改動最容易在自己身上留下新的不同步。
 
@@ -173,7 +174,7 @@ description: "AI 泡沫監控儀表板（ai-bubble-monitor）的維護入口。�
 - **但要分清楚「重抓」和「重算」。** `quadrant`、`dims`、`composite`、`tw.subs`／`tw.heat` 是從指標分數導出的，質化分數一改就**必須**重算（brief 第 8.4 節）。把它們當成不可動的欄位，反而會讓頁面自相矛盾。
 - **不要改寫既有的 `history` 筆數。** 只附加、同日去重。舊筆帶 v1 的 `D1–D6` 鍵是正常的，不要回頭改成 L1/L2/L3。象限軌跡與匯流報的跨期比較都靠它。
 - **不要刪 workflow 最後那個 `POST /pages/builds` 步驟。** 用 `GITHUB_TOKEN` 推的 commit 不會觸發 Pages 佈建，這是 GitHub 的防迴圈設計不是 bug（第 6.2 節事故）。
-- **不要在任何摘要、artifact、log 或對話中顯示 PAT 明文。** 它只用於本 repo 的 git 操作。
+- **不要索取、使用或顯示任何 git token。** 2026-08-10 起雲端工作階段對本 repo 只讀不寫（git proxy 擋 push、PAT 也無效），發布一律走 `MAINTENANCE.md` §3 的交付流程。
 - **不要給 22 個指標各自的權重欄位。** 權重只放在層級，理由見第 6.6 節——22 個可調參數等於 22 個漂移面。加減指標本身就是在調權重。
 - **不要把觸發器折成分數併進綜合溫度。** 離散門檻混進連續量會讓溫度在門檻附近來回跳（第 6.5 節）。
 - **不要在指標卡或 render 函式裡寫死會過期的敘述。** 自動指標會隨數值變的話寫進 `sub` 由引擎生成，`note` 只留結構性說明（第 6.4 節）。**質化指標相反**——它們沒有引擎可生成 `sub`，`note` 必須留「上週分數 → 本週分數 ＋ 理由」的軌跡。
@@ -190,16 +191,14 @@ description: "AI 泡沫監控儀表板（ai-bubble-monitor）的維護入口。�
 1. 重跑 `python3 healthcheck.py`，確認沒有新的 FAIL，WARN 只剩已知的那幾項
 2. 動到引擎就跑 `python3 scripts/update_data.py --selftest`
 3. **再叫一次子代理**做 brief ↔ 排程 prompt ↔ 引擎的獨立比對，確認這次改動沒有製造新的不同步、也沒有在瘦身時弄丟關鍵規則
-4. 推送後**一定要驗證線上**。**不要用 `curl`**——本容器的 Bash 連不到 `gundamnboy.github.io`（回 http=000，不是逾時也不是 404，是連線直接被擋），curl 會拿到空字串，接在後面的 `python3 -c` 則丟 JSONDecodeError，而流程往下走看起來像沒事。用 `WebFetch`（同一個 URL 有 15 分鐘快取，**繞法見下方，不要用 query string**）：
+4. **使用者本機推送後，代為驗證線上**（推送前沒有東西可驗；等使用者說推完了、或看到他貼推送輸出）。**不要用 `curl`**——本容器的 Bash 連不到 `gundamnboy.github.io`（回 http=000，不是逾時也不是 404，是連線直接被擋），curl 會拿到空字串，接在後面的 `python3 -c` 則丟 JSONDecodeError，而流程往下走看起來像沒事。等 60–90 秒再用 `WebFetch`：
 
    ```
    WebFetch url: https://gundamnboy.github.io/ai-bubble-monitor/data.json
    prompt: Report verbatim the value of meta.built, the top-level composite number, and quadrant.regime. Output only those three values.
    ```
 
-   比對 `meta.built` 與 `composite` 是不是你剛推的那一版。**只看網頁上的日期不夠**——Pages 沒重建時日期也會是舊的，而那正是最需要抓到的情況。
+   比對 `meta.built` 與 `composite` 是不是剛推的那一版。**只看網頁上的日期不夠**——Pages 沒重建時日期也會是舊的，而那正是最需要抓到的情況。
 
-   **重抓時要換路徑，不要加 `?t=`。** 這個 URL 有 15 分鐘快取，而快取鍵**忽略 query string**——`?t=<時間戳>` 是無效的 cache-buster（2026-08-04 實測，連五次換時間戳橫跨 26 分鐘全拿回舊版，一路誤判成 Pages 沒重建）。有效的是讓路徑不同，多打斜線即可，Pages 照樣服務：`…/ai-bubble-monitor//data.json`、`///data.json`，一次加一個。
-   分不出「站台是舊的」還是「你看到的是舊的」時，**去抓一個不可能有快取的 URL**——例如這次推送新改的 `README.md`。它若是新版，站台就已經好了。
-   （這兩條合起來是「文件寫了一個沒人驗證過的指令」的典型案例，見 `MAINTENANCE.md` 第 6 節：**寫進流程的每一行指令，都要在寫的當下實際跑過一次**——包括那行指令裡的每一個「繞過某某」的小技巧。）
+   **拿到舊值時：這個 URL 有 15 分鐘快取，且目前沒有任何已驗證有效的 cache-buster**——`?t=` 無效（快取鍵忽略 query string），**多打斜線也無效**（路徑會被正規化，v2.0.3 實測三個斜線變體全拿回舊版；舊版文件把它寫成有效繞法是事後歸因，見 `MAINTENANCE.md` §6.10）。唯一可靠的是**換檔名**：抓這次推送裡改過的另一個檔案（`README.md`、`MAINTENANCE.md`…），它若是新版，站台就已經好了、`data.json` 只是快取。乾淨 URL 是耗材、一個檔名只能用一次，全部用完還不確定就等 15 分鐘或直接看 repo 的 commit。
 5. 若動到 `index.html`，抽出 `<script>` 區塊後 `node --check`（healthcheck 已含此項），並實際開一次頁面確認象限圖、觸發器列、台股區都有畫出來

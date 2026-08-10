@@ -1,7 +1,7 @@
 # AI 泡沫監控儀表板 · 維護說明
 
 > 規格看 `AGENT_BRIEF.md`。這一份放**怎麼改、踩過什麼坑、為什麼是現在這樣**。
-> 最後修訂 2026-08-04
+> 最後修訂 2026-08-10
 
 ---
 
@@ -29,7 +29,8 @@
 5. 只在**流程或人機分工改變**時才動每週排程 prompt，用 `mcp__claude-code-remote__update_trigger` 同步。
    **`prompt` 是整份取代，不是局部編輯**——送出前確認所有段落都帶上了，漏掉的段落等於刪除。
 6. 在 `AGENT_BRIEF.md` 第 10 節加變更紀錄，**寫清楚為什麼改**；事故經過與被否決的選項寫進本檔第 6 節。
-7. 推送後**一定要驗證線上**：用 WebFetch 抓 `data.json`（**不能用 `curl`**，本容器連不到 `github.io`），比對 `meta.built` 與 `composite`。
+7. **交付與發布（2026-08-10 起，見 §3）**：雲端工作階段推不了這個 repo，改動完成、healthcheck FAIL=0 之後，commit 到 /tmp 的 clone → `git format-patch -1 --stdout` 產出 patch → SendUserFile 交給使用者本機套用推送（只改 `data.json` 的走 `bubble-publish`，動到程式或文件的走 `git am`）。
+8. 使用者推送後**代為驗證線上**（維護工作階段做得到，覆核排程交付完就結束；2026-08-10 前的文件與變更紀錄把這一步稱為「第 7 步」——當時交付步驟還不存在）：用 WebFetch 抓 `data.json`（**不能用 `curl`**，本容器連不到 `github.io`），比對 `meta.built` 與 `composite`。
    **拿到舊值時不要立刻判定 Pages 沒重建**——`data.json` 有 15 分鐘快取，而**目前沒有任何已驗證有效的 cache-buster**（`?t=` 無效、多打斜線也無效，見第 4 節最後三條）。正解是**去抓這次推送裡改過的另一個檔案**（例如 `MAINTENANCE.md`、`AGENT_BRIEF.md`），那個 URL 從沒被抓過、不可能有快取；它若是新版，站台就已經好了，`data.json` 只是你這一端看到的舊拷貝。
    **但那種乾淨 URL 是耗材，一個檔名只能用一次。** 推送後**先等 60–90 秒**再抓第一張，抓早了等於在站台還沒好的時候把票用掉；第一張是舊的就換第二個改過的檔名，別重抓同一個。詳見第 4 節第 3 點與第 6.10 節。
 
@@ -37,14 +38,17 @@
 
 ---
 
-## 3. 部署與推送
+## 3. 部署與發布（2026-08-10 改制，見 §6.11）
 
 - 日常資料更新走 GitHub Actions，**不需要人介入**。
-- 人工推送用 fine-grained PAT（僅限本 repo，Contents/Workflows/Pages 讀寫），存放於每週覆核排程任務。
-  **絕不在摘要、artifact、log 或任何輸出中顯示 token 明文。**
-- `git clone --depth 1 https://x-access-token:{TOKEN}@github.com/GunDamnBoy/ai-bubble-monitor.git`
-- **本工作階段的 GitHub API 被 proxy 擋，但 HTTPS git 操作正常。** 要看 repo 狀態就用 git，不要試 API。
-- 手動觸發一次完整更新：repo → Actions → `update-and-deploy` → Run workflow。
+- **雲端工作階段（覆核排程、維護、Cowork）對本 repo 只有讀、沒有寫。** clone／fetch 走公開 URL 即可：
+  `git clone --depth 1 https://github.com/GunDamnBoy/ai-bubble-monitor.git`
+  push 一律被平台的 git proxy 擋（403「not in this session's authorized repository set」），**自備 PAT 也無效**——proxy 在 GitHub 看到憑證之前就先擋（2026-07 平台變更，上游回報 anthropics/claude-code#76248）。**不要重試、不要繞路、不要索取或使用 token**；原存於排程 prompt 的 PAT 已於 2026-08-10 移除。GitHub API 的 repo 端點同樣被擋，要看 repo 狀態就用 git。
+- **發布路徑＝人機協作**：雲端產出檔案 → SendUserFile → 使用者本機推送。
+  - 只改 `data.json`（每週覆核）：交付 `data-YYYY-MM-DD.json`，使用者跑 **`bubble-publish`**——他 `~/.zshrc` 裡的 zsh 函數，在 `~/Projects/ai-bubble-monitor` 的 clone 內抓 `~/Downloads` 最新的 `data-*.json` 蓋掉 `data.json`、跑 `healthcheck.py` 當關卡、commit（`data: weekly qualitative review YYYY-MM-DD`）、push。**檔名格式要對得上它的 glob。**
+  - 動到程式／文件（維護改動）：交付 `git format-patch` 的 `.patch`，使用者 `git am *.patch && git push`。
+  - 使用者本機用 gh 憑證推送，會正常觸發 Pages 重建（不需要 workflow 那個 `POST /pages/builds`，那是給 GITHUB_TOKEN 的）。
+- 手動觸發一次完整更新：repo → Actions → `update-and-deploy` → Run workflow（人在瀏覽器前）。
 
 ---
 
@@ -76,7 +80,7 @@
 - **EDGAR 某公司某科目突然沒資料**，先查標籤是不是換了（GOOGL 就從 `RevenueFromContractWithCustomerExcludingAssessedTax` 換到 `Revenues`）。
 - **價格抓不到**：三層備援 yfinance → Yahoo raw → Stooq。Stooq 在 Actions runner 被擋是常態，它只是最後一層。
 - **不要在覆核工作階段重抓自動指標**。覆核容器的 Bash（`curl`／`requests`）只通得到 `github.com` 與 `raw.githubusercontent.com`，FRED、Stooq、SEC、TAIFEX 一律連不上，所以在那裡跑不動引擎；而唯一通得到外網的 `WebSearch`／`WebFetch` 讀 CSV／JSON 端點只會拿到 binary 亂碼，讀網頁則是經過摘要的文字，都不能代替引擎的數值抓取。硬要重抓的結果就是抓到空值或殘值，然後把每日管線的好值蓋掉。詳見 `AGENT_BRIEF.md` §8.3 的兩條路對照表。
-- **推送後的線上核對不能用 `curl`**。`gundamnboy.github.io` 從覆核容器的 Bash 連不到（回 http=000，不是逾時也不是 404，是連線直接被擋），舊版排程 prompt 寫 `curl … github.io/data.json | python3 -c …` 那一步**從來沒有真的執行成功過**——它會拿到空字串然後 JSONDecodeError，而流程往下走看起來像沒事。正解是用 WebFetch 讀同一個 URL 請它回報 `meta.built`／`composite`／`regime`。這是「文件寫了一個沒人驗證過的指令」的典型案例：**寫進流程的每一行指令，都要在寫的當下實際跑過一次。**
+- **推送後的線上核對不能用 `curl`**（做這件事的是維護工作階段——覆核排程自 2026-08-10 起交付完就結束，不做線上核對）。`gundamnboy.github.io` 從覆核容器的 Bash 連不到（回 http=000，不是逾時也不是 404，是連線直接被擋），舊版排程 prompt 寫 `curl … github.io/data.json | python3 -c …` 那一步**從來沒有真的執行成功過**——它會拿到空字串然後 JSONDecodeError，而流程往下走看起來像沒事。正解是用 WebFetch 讀同一個 URL 請它回報 `meta.built`／`composite`／`regime`。這是「文件寫了一個沒人驗證過的指令」的典型案例：**寫進流程的每一行指令，都要在寫的當下實際跑過一次。**
 - **而 `?t=` 時間戳不是 cache-buster**（2026-08-04，上一條的續集，也是同一個教訓犯第二次）。發現 curl 不通之後改寫成「WebFetch＋`?t=` 繞開 15 分鐘快取」，只驗證了 WebFetch 抓得到，**沒有驗證那個 `?t=` 真的會繞開快取**。結果推送後連續五次換時間戳、橫跨 26 分鐘，全部拿回推送前的舊 JSON，一路誤判成「Pages 沒重建」，還跑去翻 workflow 的 `POST /pages/builds` 找兇手。快取鍵忽略 query string。識破的關鍵動作是**去抓一個不可能有快取的 URL**（同一次推送新寫的 `README.md`），它是新版的，才確定站台早就好了、舊的是快取。**分不出「站台是舊的」和「你看到的是舊的」時，找一個從沒抓過的路徑。**
 - **而「多打斜線」也不是 cache-buster**（2026-08-04，上一條的續集，同一個教訓犯第三次，詳見第 6.10 節）。上一條當時的結論寫成「有效的繞法是換路徑，多打斜線即可」——那是**事後歸因**：當時換路徑之後拿到新版，功勞就記給了斜線，但真正起作用的是換了**另一個檔案**。v2.0.2 推送後實測：`/data.json`、`//data.json`、`///data.json` 連抓三次全是舊的，路徑被正規化成同一個快取鍵。**目前這條路上沒有任何已驗證有效的 cache-buster，只有「換檔名」這一招。**
 
@@ -85,8 +89,8 @@
 ## 5. 待辦與觀察中
 
 - **Excel 版還停在 v1**。`UpdateAll()` 巨集的 v1.1 修正（QueryTables 文字匯入備援，解 Mac 端 Stooq 無副檔名導致 `Workbooks.Open` 失敗）**使用者尚未實測**。要不要跟進 v2 架構待決。
-- **`senti` 的輸入不穩**。AAII 持續被擋、CBOE 時好時壞，所以這一項有時是三個來源等權、有時只剩 VIX 一個（卡片的 `sub`／`dir`／`src`／`url` 現在都由引擎依當次成功的來源生成，不再寫死三來源）。要找一個不擋 Actions runner 的穩定情緒源（方向：CNN Fear & Greed 的第三方鏡像、FINRA 融資餘額、或改用 CBOE 的官方 CSV 端點）。
-- **美國商務部資料中心營建支出**需免費 API 金鑰，尚未納入。這是 L3 少數能日／月頻反映實體投資的序列，值得補。
+- **`senti` 的輸入不穩**。AAII 持續被擋、CBOE 時好時壞（卡片的 `sub`／`dir`／`src`／`url` 由引擎依當次成功的來源生成）。**2026-08-10 已接入 CNN Fear & Greed 當第四輸入**（`production.dataviz.cnn.io` 的 graphdata 端點，0–100 直讀；WebFetch 端驗證過活著）——Actions runner 通不通看 `meta.lastAutoRun.streak` 的「CNN FearGreed」：連續成功 ≥15 次就把它從 §9／`KNOWN_FAIL` 退場；持續掛零就換下一個候選（FINRA 融資餘額、CBOE 官方 CSV 端點）。
+- **美國商務部（Census）資料中心營建支出**尚未納入，仍值得補——L3 少數能月頻反映實體投資的序列。**2026-08-10 已勘查端點**：`api.census.gov/data/timeseries/eits/vip`，變數為 `cell_value`／`category_code`／`data_type_code`／`time` 等 13 個，但**連 `category_code` 的可用值清單都要金鑰才查得到**（keyless 直接回「A valid key must be included」），資料中心類別碼因此未確認——寫沒驗證過的抓取違反 §5.1 精神，故本次不接。下一步：使用者到 api.census.gov 申請免費金鑰 → 存 repo secret `CENSUS_API_KEY` → 維護工作階段先用金鑰查 `category_code` 確認資料中心類別（VIP 自 2024 起把 Data Center 從 Office 拆出獨立列示）→ 依 §6 五處一組流程接入 L3（記得 `LAYER_N`、「22 項指標」、質化權重 28.9% 都要跟著改）。
 - **`tsmc_weight` 每月人工更新**，容易忘。若連兩個月沒動，考慮改抓別的來源或降為季頻展示。
 - **沒有回測**。整套錨點除了 `gsy_runup` 之外都沒有歷史校準，是專家判斷。這是本系統最大的方法論弱點，也是當初特地把 Greenwood-Shleifer 指標放進來的原因——它至少提供一個有機率意義的參照點。
 - **質化指標佔 28.9% 權重**（L1 3.9%＋L2 15.0%＋L3 10.0%），漂移風險真實存在。防線只有「`note` 必須記錄上週分數與變動理由」這一條。加減指標會改變這個數字，改完要回頭更正 `AGENT_BRIEF.md` 第 4.5 節與這一行。
@@ -224,3 +228,19 @@
 **所以流程改成**：推送後**先等 60–90 秒**再抓第一張票；第一張是舊的就**換第二個這次改過的檔名**，不要重抓同一個（這條不管上面那個推論成不成立都是對的）；改過的檔名全部試完還是舊的，才輪到懷疑 Pages。推送若只改了少數幾個檔，可用的票就只有那幾張——**這是「乾淨 URL」這一招唯一的實質成本。**
 
 **人在瀏覽器前另有捷徑**：直接去 repo 的 Actions 頁看 `pages-build-deployment` 有沒有轉綠。但**不要把這條寫進覆核流程**——覆核工作階段的 Bash 只通得到 git 端點，拿不到 Actions 狀態（見第 3、4 節）。這正是 §6.8 那句「寫維護規則的當下，要順手問一句：執行它的人拿得到判斷所需的資料嗎？」——本節初稿就寫了「先去 Actions 看轉綠」，複驗時才發現覆核端根本做不到。
+
+### 6.11 2026-08-10：雲端推送被平台擋死，發布改為人機協作
+
+**現象**：每週覆核第一次撞上 push 403——git proxy 回「not in this session's authorized repository set」，連排程裡存的 fine-grained PAT 都推不動（proxy 在 GitHub 看到憑證之前就擋）。當週改以檔案交付、使用者本機推送後照常發布，網站當日更新。
+
+**根因**：平台 2026-07 的變更（上游 anthropics/claude-code#76248，開立時仍無官方回應）：雲端工作階段的 git 寫入被限制在授權 repo 清單內，PAT pass-through 不再放行。**讀不受影響**。錯誤訊息指的兩個解法（session sources、`add_repo`）在產品裡都不存在——查證過，不要再找。
+
+**決策：發布改為人機協作**（詳見 §3）。雲端做研究、評分、重算、healthcheck、產檔；使用者本機 `bubble-publish`（data.json）或 `git am`（patch）推送。
+
+**被否決的選項**：
+- **改成本機排程**：全自動，但週一早上電腦必須開機在線，睡眠即無聲跳過整週——比「手動 30 秒」更容易無聲失敗，且雲端排程的研究能力（WebSearch/WebFetch）不受影響，只有最後一哩需要人。
+- **等平台修復**：無時間表；等待期間網站每週停更。
+- **每週手動補發 token／換 token**：根因不是 token，換一百把也一樣。
+- 順帶把失效的 PAT 從排程 prompt 移除（明文躺著、又推不動，只剩風險沒有用途），並提醒使用者到 GitHub 撤銷。
+
+**教訓**：外部平台的能力邊界是會動的——2026-08-04 §3 還寫著「HTTPS git 操作正常」，六天後這句話只對了一半（讀對、寫錯）。**依賴外部平台能力的流程，要在文件裡寫清楚「這條路哪天斷了怎麼辦」**；這次是現場即興出來的（檔案交付），現在補進 §3 變成固定路徑。

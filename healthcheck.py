@@ -33,7 +33,7 @@ def _p(kind, msg):
 def days_ago(s):
     """把 YYYY-MM-DD 轉成距今天數；格式不對回 None（不擋流程）。"""
     try:
-        return (dt.date.today() - dt.date.fromisoformat(str(s)[:10])).days
+        return (TODAY_TPE - dt.date.fromisoformat(str(s)[:10])).days
     except Exception:
         return None
 
@@ -71,6 +71,10 @@ KNOWN_FAIL = {
     "AAII": "AAII",
     "CBOE putcall": "CBOE",
     "TW 台積電權重": "台積電權重",
+    # 2026-08-10 新接入 senti 的第四輸入。端點以 WebFetch 驗證過活著，但 Actions runner
+    # 通不通未實測（CNN 對機器人的態度不明）——先進白名單讓失敗只 WARN 不 FAIL，
+    # 由 streak 見真章：連續成功 ≥15 次就會 WARN 提醒把它從這裡與 §9 一起移除。
+    "CNN FearGreed": "CNN",
 }
 # CBOE 是「時好時壞」不是「已修好」（2026-08-04 成功，之前多次失敗），所以留在名單裡。
 # 把它拿掉的話，下一個抓失敗的日子會變成 FAIL 而擋住每週推送——而那正是這個系統
@@ -80,6 +84,11 @@ KNOWN_FAIL = {
 # 規則寫了也執行不了。現在引擎會累計 meta.lastAutoRun.streak，超過這個門檻就 WARN，
 # 提醒把該來源從 §9 與本名單一起移除。15 次自動更新 ≈ 三週（每週五個交易日）。
 OK_STREAK_RETIRE = 15
+
+# 「今天」一律用台北日——引擎的 TODAY 是 UTC+8（update_data.py:13），asof 蓋的是台北日期。
+# 本檔若用容器本地的 date.today()（Actions／覆核容器都是 UTC），在 UTC 16:00–24:00 的
+# 窗口（台北隔日 00:00–08:00）會把引擎當天的戳記全判成「未來日期」而 FAIL 擋住流程。
+TODAY_TPE = (dt.datetime.now(dt.timezone.utc) + dt.timedelta(hours=8)).date()
 
 # 質化指標的 asof 過期門檻（天），依各項的自然更新頻率分開設，見 AGENT_BRIEF §4.5。
 # 未列在這裡的質化 id 一律套 45 天預設——新增第七個質化指標時記得補一列。
@@ -127,7 +136,7 @@ def check_data(repo):
     # 新鮮度
     built = meta.get("built")
     try:
-        age = (dt.date.today() - dt.date.fromisoformat(built)).days
+        age = (TODAY_TPE - dt.date.fromisoformat(built)).days
         if age <= 1:
             ok(f"資料新鮮度：built={built}（{age} 天前）")
         elif age <= 4:
@@ -344,7 +353,7 @@ def check_data(repo):
     if "tsmc_weight" in TWI:
         aw = TWI["tsmc_weight"].get("asof")
         try:
-            age = (dt.date.today() - dt.date.fromisoformat(str(aw))).days
+            age = (TODAY_TPE - dt.date.fromisoformat(str(aw))).days
             (warn if age > 45 else ok)(f"tsmc_weight（人工月更）asof={aw}（{age} 天前）")
         except Exception:
             warn(f"tsmc_weight asof 格式異常：{aw!r}")
@@ -453,6 +462,9 @@ def check_data(repo):
 
     # lastAutoRun
     lar = meta.get("lastAutoRun", {})
+    if not lar:
+        # 整塊缺失代表引擎從未成功跑完過——這不該只是末行一句「成功 0 項」的誤導 PASS
+        bad("meta.lastAutoRun 不存在或為空：引擎從未寫過執行紀錄，自動更新可能從沒跑成功過")
     KNOWN = set(KNOWN_FAIL)
     fails = set(lar.get("fail", []))
     newf = fails - KNOWN
@@ -537,6 +549,11 @@ def check_brief(repo, d):
     up = os.path.join(repo, "scripts", "update_data.py")
     if os.path.isfile(up):
         eng = engine_tw_anchors(up)
+        if not eng:
+            # 引擎重構（tupd 改名、分數先存變數再傳）會讓這裡回空 dict，之後
+            # mism2／undoc／bt 全空、三個分支都不走——「抓不到就靜默跳過照印 PASS」
+            # 的變體，只是藏在 else-chain 的縫裡。抓不到就要說。
+            warn("引擎的台灣錨點解析不到（tupd 呼叫型態可能已改），§4.6 對帳整段跳過")
         bt = {}
         for line in txt.splitlines():
             m = re.match(r"\|\s*`(\w+)`\s*\|", line)
@@ -664,12 +681,16 @@ def check_brief(repo, d):
     wf = os.path.join(repo, ".github", "workflows", "update.yml")
     if os.path.isfile(wf):
         y = open(wf, encoding="utf-8").read()
-        m = re.search(r"cron:\s*'([^']+)'", y)
+        # 單引號、雙引號、裸值三種 YAML 寫法都要認得（含行尾註解）；認不得就 WARN，不能無聲消失。
+        # 行首只允許空白與 "-"，免得先匹配到被註解掉的 cron 行而誤判 FAIL。
+        m = re.search(r"^[ \t-]*cron:\s*['\"]?([^'\"\n#]+?)['\"]?\s*(?:#.*)?$", y, re.M)
         if m:
-            if m.group(1) in txt:
-                ok(f"workflow cron `{m.group(1)}` 與 brief 一致")
+            if m.group(1).strip() in txt:
+                ok(f"workflow cron `{m.group(1).strip()}` 與 brief 一致")
             else:
-                bad(f"workflow cron `{m.group(1)}` 未出現在 brief 第 7 節")
+                bad(f"workflow cron `{m.group(1).strip()}` 未出現在 brief 第 7 節")
+        else:
+            warn("update.yml 裡解析不到 cron 表達式，cron↔brief 對帳跳過")
         if "pages/builds" in y:
             ok("workflow 保有 Pages 明確重建步驟（GITHUB_TOKEN 推送不會自動重建）")
         else:
@@ -715,6 +736,8 @@ def check_fallback(html, d):
         warn(f"#dashboard-data 內嵌快照 history {fh} 筆，超過 60 筆就該裁到最後 60 筆以免頁面過大")
     elif fh:
         ok(f"#dashboard-data 內嵌快照 history {fh} 筆（data.json {dh} 筆）")
+    else:
+        warn("#dashboard-data 內嵌快照 history 是空的（離線開啟時象限軌跡與歷史表會整塊消失）")
 
     # 快照本來就是「某個時點的拷貝」，跟 data.json 不同是正常的；危險的是它舊到
     # 講出另一個故事——fetch 失敗那天，使用者看到的會是這份快照而不是最新數字。
@@ -919,6 +942,16 @@ def check_code(repo, d):
             f"（{'＋'.join(f'{k} {v}' for k, v in LAYER_N.items())}）")
     else:
         ok(f"index.html 的「{real} 項指標」與三層項數一致")
+
+    # 象限分界 45／55 在四個地方各有一份：引擎（update_data.py 的 regime 判斷）、
+    # 本檔（下方 quadrant 重算）、brief §3.3、前端 renderQuad 的底圖與分隔線。
+    # 前三份互相對帳，唯獨前端那份沒人看——改門檻時象限背景不會跟著動，
+    # 頁面會把點畫在錯的色塊上（對使用者說謊 → FAIL，比照「N 項指標」那句的定級）。
+    if "X(45)" in html and "Y(55)" in html and "45,55,100" in html:
+        ok("index.html renderQuad 的 45/55 象限分界與引擎一致（第四份拷貝有對帳）")
+    else:
+        bad("index.html renderQuad 找不到 45/55 象限分界（X(45)/Y(55)）——"
+            "門檻可能已改而前端底圖沒跟上，或 renderQuad 被重構（重構後請同步更新本檢查）")
 
     check_fallback(html, d)
     check_spreads_keys(repo, html, d)

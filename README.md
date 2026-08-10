@@ -26,6 +26,6 @@
 - `AGENT_BRIEF.md`——完整規格（指標定義、錨點、人機分工、收尾重算順序）。動手改任何
   東西之前先讀它。
 - `MAINTENANCE.md`——事故與決策檔案：踩過的坑、為什麼這樣設計、待辦。
-- `healthcheck.py`——唯讀機械檢查（`python3 healthcheck.py`）。**FAIL 必須是 0 才可以推送。**
+- `healthcheck.py`——唯讀機械檢查（`python3 healthcheck.py`）。**FAIL 必須是 0 才可以發布**（雲端交付前、以及本機 `bubble-publish` 內都會跑它把關）。
 - `skills/bubble-maintain/SKILL.md`——維護流程本身（Cowork 內用 `/bubble-maintain` 觸發）。
   這份是權威副本；帳號端的 skill 若遺失或走鐘，從這裡重新上傳即可。改流程時兩邊要一起改。

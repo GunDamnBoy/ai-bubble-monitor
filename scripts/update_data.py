@@ -22,12 +22,24 @@ def log(m):
 def http_get(url, ua=None, referer=None):
     if OFFLINE:
         raise RuntimeError("offline mode")
-    import requests
+    import requests, time
     h = {"User-Agent": ua or UA_DEFAULT}
     if referer: h["Referer"] = referer
-    r = requests.get(url, headers=h, timeout=45)
-    r.raise_for_status()
-    return r
+    # 瞬時故障（timeout／連線失敗／5xx）重試 2 次；4xx 不重試——那是我們的問題不是對方的。
+    # 約 35 個來源每天各一發，沒有 retry 時一次瞬時 5xx 就讓該指標白白停一天。
+    last = None
+    for i in range(3):
+        try:
+            r = requests.get(url, headers=h, timeout=45)
+            if r.status_code >= 500 and i < 2:
+                last = RuntimeError(f"http {r.status_code}"); time.sleep(2); continue
+            r.raise_for_status()
+            return r
+        except (requests.Timeout, requests.ConnectionError) as ex:
+            last = ex
+            if i == 2: raise
+            time.sleep(2)
+    raise last
 
 # ---------------- scoring ----------------
 def pw(v, anchors):
@@ -188,6 +200,19 @@ def cboe_putcall():
     if eq is None: raise RuntimeError("cboe: equity ratio not found")
     return {"equity": eq, "total": grab(r"TOTAL PUT/CALL RATIO"), "index": grab(r"INDEX PUT/CALL RATIO")}
 
+def cnn_fear_greed():
+    """CNN Fear & Greed 綜合情緒指數（0–100 貪婪度，日更）。
+    2026-08-10 接入：AAII 持續被擋、CBOE 時好時壞，senti 需要一個穩定的第四輸入。
+    端點已以 WebFetch 驗證活著；Actions runner 通不通由 meta.lastAutoRun.streak 見真章，
+    失敗就退出當次平均、不報錯（已列入 healthcheck 的 KNOWN_FAIL 與 brief §9）。"""
+    j = http_get("https://production.dataviz.cnn.io/index/fearandgreed/graphdata",
+                 ua=UA_BROWSER, referer="https://www.cnn.com/markets/fear-and-greed").json()
+    fg = j["fear_and_greed"]
+    v = float(fg["score"])
+    if not (0 <= v <= 100): raise RuntimeError(f"fg implausible {v}")
+    d = str(fg.get("timestamp", ""))[:10]
+    return (d if re.fullmatch(r"\d{4}-\d{2}-\d{2}", d) else str(TODAY)), v
+
 def orcl_bond_yield():
     html = http_get("https://public.com/bonds/corporate/oracle-corp/orcl-4.375-05-15-2055-68389xbg9",
                     ua=UA_BROWSER).text
@@ -295,10 +320,16 @@ def tw_index_today():
         try:
             if nm == "發行量加權股價指數":
                 taiex = float(str(r["收盤指數"]).replace(",", "")); d = r.get("日期")
-            elif "電子" in nm and elec is None and "報酬" not in nm:
+            elif nm == "電子類指數":   # 精確名優先——子字串首匹配會被「電子零組件類」這種鄰居劫走
                 elec = float(str(r["收盤指數"]).replace(",", ""))
         except (ValueError, TypeError, KeyError):
             continue
+    if elec is None:   # TWSE 改名時退回舊的子字串規則，寧可寬鬆也不要無聲斷檔
+        for r in arr:
+            nm = r.get("指數", "")
+            if "電子" in nm and "報酬" not in nm:
+                try: elec = float(str(r["收盤指數"]).replace(",", "")); break
+                except (ValueError, TypeError, KeyError): continue
     if not taiex or not elec: raise RuntimeError("mi_index: missing taiex/elec")
     if d and len(d) == 7: d = f"{int(d[:3]) + 1911}-{d[3:5]}-{d[5:]}"
     return d or str(TODAY), taiex, elec
@@ -320,6 +351,7 @@ def tw_customs_export_yoy():
             try: rows.append((int(p[0]), int(p[1]), float(p[2])))
             except ValueError: pass
     if len(rows) < 14: raise RuntimeError("customs: too few rows")
+    rows.sort(key=lambda r: (r[0], r[1]), reverse=True)   # 不信任 CSV 列序，自己排最新在前
     y, mth, v = rows[0]
     prior = [r for r in rows if r[0] == y - 1 and r[1] == mth]
     if not prior or prior[0][2] <= 0: raise RuntimeError("customs: no prior year row")
@@ -348,6 +380,7 @@ def _parse_news_items(xmltxt):
         try:
             title = (it.findtext("title") or "").strip()
             link = (it.findtext("link") or "").strip()
+            if link and not link.startswith("http"): continue   # 擋 javascript: 這類 scheme
             pd = parsedate_to_datetime(it.findtext("pubDate"))
             s = it.find("source")
             src = (s.text or "").strip() if s is not None else ""
@@ -634,7 +667,11 @@ def main():
         d, v, _ = fred_latest_and_back("VIXCLS", 0)
         senti["vix"] = {"v": v, "date": str(d)}
         sp["vix"] = {"now": v, "asof": str(d)}
+    def f_fg():
+        d, v = cnn_fear_greed()
+        senti["fg"] = {"v": v, "date": d}
     attempt("AAII", f_aaii); attempt("CBOE putcall", f_pc); attempt("FRED VIX", f_vixv)
+    attempt("CNN FearGreed", f_fg)
     def f_senti():
         parts, notes = [], []
         if "aaii" in senti:
@@ -646,13 +683,17 @@ def main():
         if "vix" in senti:
             parts.append(vix_score(senti["vix"]["v"]))
             notes.append(f"VIX {senti['vix']['v']:.1f}")
+        if "fg" in senti:
+            parts.append(float(senti["fg"]["v"]))   # F&G 本身就是 0–100 貪婪度，直讀不經錨點
+            notes.append(f"F&G {senti['fg']['v']:.0f}")
         if not parts: raise RuntimeError("no sentiment inputs")
         # sub 必須反映「這一次真的合成了哪幾個輸入」。寫死三個來源，在 AAII 或 CBOE
         # 被擋的日子就是對使用者謊報計算方式——正是 MAINTENANCE §6.4 的失效模式，
         # 只是躲在 §6.4 指定給「會變動的敘述」的安全地帶（sub）裡面。
         srcs = [s for s, on in (("AAII（週）", "aaii" in senti),
                                 ("CBOE 個股 Put/Call（日）", bool(senti.get("pc", {}).get("equity"))),
-                                ("VIX（日）", "vix" in senti)) if on]
+                                ("VIX（日）", "vix" in senti),
+                                ("CNN F&G（日）", "fg" in senti)) if on]
         sub = ("＋".join(srcs) + "等權合成") if len(srcs) > 1 else \
               (srcs[0] + "單一輸入（其餘情緒來源本次抓取失敗）")
         upd("senti", round(sum(parts) / len(parts), 1), "｜".join(notes), sum(parts) / len(parts), sub=sub)
@@ -665,25 +706,31 @@ def main():
         # 「VIX 失敗、AAII 成功」那天 src 會寫 AAII 而 url 連去 CBOE。
         SENTI_URL = {"AAII": "https://www.aaii.com/sentimentsurvey",
                      "CBOE 個股 Put/Call": "https://www.cboe.com/us/options/market_statistics/",
-                     "VIX": "https://fred.stlouisfed.org/series/VIXCLS"}
+                     "VIX": "https://fred.stlouisfed.org/series/VIXCLS",
+                     "CNN F&G": "https://www.cnn.com/markets/fear-and-greed"}
         IND["senti"]["url"] = SENTI_URL.get(names[0], SENTI_URL["VIX"])
         # note 只留不隨來源浮動的結構性說明（§6.4 的通則）。原本寫死「三者等權合成」
         # 與「散戶淨空」——後者是 AAII 導出的判斷，AAII 被擋的日子就是憑空的。
         IND["senti"]["note"] = ("橋水問題③④的公開替代：以散戶信念（AAII 多空差）、投機行為"
-                                "（CBOE 個股 Put/Call，取負）、自滿度（VIX 非單調計分）三個角度"
-                                "衡量情緒，當次抓得到幾個就等權平均幾個——實際參與的來源見上方 sub。")
+                                "（CBOE 個股 Put/Call，取負）、自滿度（VIX 非單調計分）、綜合情緒"
+                                "（CNN Fear & Greed，0–100 直讀）四個角度衡量情緒，當次抓得到幾個"
+                                "就等權平均幾個——實際參與的來源見上方 sub。")
     attempt("calc senti", f_senti)
 
     # ============ L2 資金與信用 ============
     def f_hy():
         obs = fred("BAMLH0A0HYM2")
         d, v = obs[-1]; b = fred_back(obs, 91)
-        d3 = (v - b) * 100 if b is not None else 0.0
+        # 基期拿不到就 fail（沿用舊值），不要用 0bp 假變化算分——hyoas 的分數
+        # 完全由 3 個月變化決定，「缺資料→預設值」正是 §5.1 要擋的編造。
+        if b is None: raise RuntimeError("hyoas: no 91d base")
+        d3 = (v - b) * 100
         upd("hyoas", v, f"{v:.2f}%（3個月 {d3:+.0f}bp）", pw(d3, IND["hyoas"]["anchors"]), str(d))
         sp["hy"] = {"now": v, "m3": b, "y1": fred_back(obs, 365), "asof": str(d)}
     def f_ccc():
         d, v, b = fred_latest_and_back("BAMLH0A3HYC", 91)
-        d3 = (v - b) * 100 if b is not None else 0.0
+        if b is None: raise RuntimeError("ccc: no 91d base")   # 同 f_hy：缺基期就沿用舊值
+        d3 = (v - b) * 100
         s = (pw(v, IND["ccc"]["anchors"]) + pw(d3, [[-50, 0], [0, 33], [100, 67], [250, 100]])) / 2
         upd("ccc", v, f"{v:.2f}%（3個月 {d3:+.0f}bp）", s, str(d),
             sub="最弱信用層日頻壓力計；2022 熊市高點約 12%")
@@ -728,7 +775,9 @@ def main():
             sub = (f"{E['prov']['q']} 初步：單季 {E['prov']['ratio']:.1f}%、TTM {E['ttm_prov']['ratio']:.1f}%"
                    f"（{E['prov']['have']}/5 家已申報，缺 {'/'.join(E['prov']['missing'])} 沿用上季）")
         upd("capexocf", t["ratio"], f"{t['ratio']:.1f}%", pw(t["ratio"], IND["capexocf"]["anchors"]), t["q"], sub=sub)
-        if len(E["ttm"]) >= 5 and E["ttm"][-5]["fcf"]:
+        # 基期 TTM FCF ≤ 0 時 YoY 方向反轉（-10B→+5B 的「改善」會算成 -150% 的滿熱分），
+        # 這種期沿用舊值不計分。FCF 正從 244B 壓向 137B，這個劇本不是幻想情境。
+        if len(E["ttm"]) >= 5 and E["ttm"][-5]["fcf"] and E["ttm"][-5]["fcf"] > 0:
             g = (t["fcf"] / E["ttm"][-5]["fcf"] - 1) * 100
             upd("fcf", round(g, 1), f"{g:+.1f}%", pw(g, IND["fcf"]["anchors"]), t["q"],
                 sub=f"TTM FCF ${t['fcf']}B" + (f"｜初步 ${E['ttm_prov']['fcf']}B" if E["ttm_prov"] else ""))
@@ -872,40 +921,47 @@ def main():
         trig_vals["y10"] = fred_latest_and_back("DGS10", 91)
     attempt("FRED CPI", f_cpi); attempt("FRED FEDFUNDS", f_ff); attempt("FRED DGS10", f_y10)
 
-    def set_trig(tid, state, val, asof=None):
+    def set_trig(tid, state, val, asof=None, prog=None):
         """asof 要填「這個判斷所依據的資料」的日期，不是今天。
 
         來源抓失敗時 sp／IND 裡留的是上一輪的舊值，判斷照樣算得出來；這時若把
         asof 蓋成今天，前端就會顯示成今天剛驗證過——對使用者謊報新鮮度，正是
         §5.1「絕不編造數字」要擋的事。只有真的沒有來源日期可用（megaipo 這種
         人工旗標）才退回 TODAY。
+
+        prog＝距門檻進度 0–100%（現值 ÷ 門檻，夾在 0–100），把布林警報變成連續
+        預警：ccc 在 85% 和在 20% 是完全不同的訊息，state 都是 0。megaipo 是
+        人工旗標沒有連續量，prog 恆為 None。觸發器本身仍不進綜合溫度（§3.5）。
         """
         for t in data["triggers"]:
             if t["id"] == tid:
                 t["state"] = 1 if state else 0
                 t["value"] = val
                 t["asof"] = str(asof or TODAY)
+                t["prog"] = None if prog is None else max(0, min(100, round(prog)))
     hy = sp.get("hy", {})
     if hy.get("now") is not None and hy.get("m3") is not None:
         d3 = (hy["now"] - hy["m3"]) * 100
-        set_trig("hy80", d3 >= 80, f"{d3:+.0f}bp/3M", hy.get("asof"))
+        set_trig("hy80", d3 >= 80, f"{d3:+.0f}bp/3M", hy.get("asof"), prog=d3 / 80 * 100)
     if sp.get("ccc", {}).get("now") is not None:
         set_trig("ccc12", sp["ccc"]["now"] >= 12, f"{sp['ccc']['now']:.2f}%",
-                 sp["ccc"].get("asof"))
+                 sp["ccc"].get("asof"), prog=sp["ccc"]["now"] / 12 * 100)
     if "cpi" in trig_vals:
         v, d = trig_vals["cpi"]
-        set_trig("cpi4", v >= 4, f"{v:.1f}%", d)
+        set_trig("cpi4", v >= 4, f"{v:.1f}%", d, prog=v / 4 * 100)
     if "ff" in trig_vals:
         v, d = trig_vals["ff"]
         set_trig("policy_gap", v >= params["ngdp_nominal"],
-                 f"FF {v:.2f}% vs 名目GDP≈{params['ngdp_nominal']}%", d)
+                 f"FF {v:.2f}% vs 名目GDP≈{params['ngdp_nominal']}%", d,
+                 prog=(v / params["ngdp_nominal"] * 100) if params.get("ngdp_nominal") else None)
     if "y10" in trig_vals:
         d, v, b = trig_vals["y10"]
-        set_trig("y10_5", v >= 5.0, f"{v:.2f}%", d)
+        set_trig("y10_5", v >= 5.0, f"{v:.2f}%", d, prog=v / 5.0 * 100)
         sp["us10y"] = {"now": v, "m3": b, "asof": str(d)}
     if IND.get("gsy_runup", {}).get("value") is not None:
         set_trig("gsy150", IND["gsy_runup"]["value"] >= 150,
-                 f"{IND['gsy_runup']['value']:+.0f}%", IND["gsy_runup"].get("asof"))
+                 f"{IND['gsy_runup']['value']:+.0f}%", IND["gsy_runup"].get("asof"),
+                 prog=IND["gsy_runup"]["value"] / 150 * 100)
     # megaipo 是人工旗標，沒有外部資料來源，用 TODAY 是對的
     set_trig("megaipo", bool(params.get("megaipo_done")), "已完成" if params.get("megaipo_done") else "未發生")
 
@@ -929,8 +985,11 @@ def main():
     else: regime = "失速風險"
     data["quadrant"] = {"heat": heat, "support": support, "regime": regime}
 
+    # trig＝當日觸發器點亮數。沒有它，「上週點亮幾個」就只能靠覆核當場記基準——
+    # 2026-08-10 之前的舊筆沒有這個欄位，屬正常，前端與覆核要容忍缺欄。
     snap = {"date": str(TODAY), "composite": data["composite"], "dims": dims,
-            "tw": tw.get("heat"), "quad": [support, heat]}
+            "tw": tw.get("heat"), "quad": [support, heat],
+            "trig": sum(1 for t in data["triggers"] if t.get("state"))}
     hist = [h for h in data["history"] if h["date"] != str(TODAY)]
     hist.append(snap)
     data["history"] = hist[-400:]
@@ -945,7 +1004,11 @@ def main():
         streak[n] = int(_prev.get(n, 0)) + 1
     data["meta"]["lastAutoRun"] = {"date": str(TODAY), "ok": ok, "fail": fail, "streak": streak}
 
-    DATA.write_text(json.dumps(data, ensure_ascii=False, indent=1))
+    # 原子寫檔：進程在寫到一半被 kill（OOM／超時）時，截斷的 data.json 會讓之後
+    # 每一次執行在第一行 json.loads 就死掉——先寫 .tmp 再 rename，rename 是原子的。
+    tmp = DATA.with_suffix(".json.tmp")
+    tmp.write_text(json.dumps(data, ensure_ascii=False, indent=1))
+    tmp.replace(DATA)
     log(f"done. composite={data['composite']} dims={dims} tw={tw.get('heat')} regime={regime} ok={len(ok)} fail={len(fail)}")
     if fail: log("failed (old values kept): " + ", ".join(fail))
 

@@ -43,6 +43,19 @@ def num(x):
     return float(x) if isinstance(x, (int, float)) and not isinstance(x, bool) else None
 
 
+def same(a, b, tol=0.15):
+    """數值比對的外層：雙方都是 None 算相符，其餘交給 near()。
+
+    v2.1.8 讓 dims／composite／quadrant 在整層失效時合法地變成 None，而 near() 的
+    定義是「兩者都是數字才算相符」——於是 None vs None 會判不一致，把一個**設計上
+    支援的情境**變成 FAIL 擋住交付。tw.subs 那段早就寫了 (存 is None) != (算 is None)
+    的正確版本，這裡當時沒照抄。
+    """
+    if a is None or b is None:
+        return a is None and b is None
+    return near(a, b, tol)
+
+
 def near(a, b, tol=0.15):
     """兩者都是數字、且差距在容忍值內才算相符。
 
@@ -77,8 +90,9 @@ KNOWN_FAIL = {
 }
 # CBOE 已於 2026-08-17 退場：streak 連續成功 16 次（門檻 15），照 brief §9 的規則
 # 從白名單與 §9 的表一起移除。它之後再壞掉就會是 FAIL 而不是 WARN——那正是目的。
-# 把它拿掉的話，下一個抓失敗的日子會變成 FAIL 而擋住每週推送——而那正是這個系統
-# 設計上允許降級的情況。真正修好、連續數週都成功之後才移除，並同步刪掉 brief §9 那一列。
+# 白名單的意義是「這個來源壞掉屬於已知、只 WARN 不擋交付」；反過來說，把一個來源
+# 留在名單裡就等於放棄偵測它。所以退場規則是硬的：連續成功達門檻才移除，移除時
+# 同步刪掉 brief §9 那一列。
 #
 # 「連續數週都成功」以前沒有依據可查（data.json 只留最後一次自動更新），所以那條維護
 # 規則寫了也執行不了。現在引擎會累計 meta.lastAutoRun.streak，超過這個門檻就 WARN，
@@ -180,7 +194,7 @@ def check_data(repo):
         recomputed[dk] = round(sum(ss) / len(ss), 1) if ss else None   # v2.1.8：不再填 50.0
     stored = d.get("dims", {})
     diffs = [f"{k}: 存 {stored.get(k)} vs 算 {recomputed[k]}" for k in recomputed
-             if not near(stored.get(k), recomputed[k])]
+             if not same(stored.get(k), recomputed[k])]
     if diffs:
         bad("層分數與指標不一致（有人改了分數沒重算）：" + "；".join(diffs))
     else:
@@ -189,7 +203,7 @@ def check_data(repo):
     live = {k: v for k, v in recomputed.items() if v is not None}
     wsum = sum(dm[k]["w"] for k in live)
     comp = round(sum(dm[k]["w"] * live[k] for k in live) / wsum, 1) if wsum else None
-    if not near(d.get("composite"), comp):
+    if not same(d.get("composite"), comp):
         bad(f"composite 不一致：存 {d.get('composite')} vs 算 {comp}")
     else:
         ok(f"composite 一致：{comp}")
@@ -202,7 +216,7 @@ def check_data(repo):
               "過熱但有撐（melt-up 風險）" if heat >= 55 else
               "健康擴張" if support >= 45 else "失速風險")
     q = d.get("quadrant", {})
-    if not (near(q.get("heat"), heat) and near(q.get("support"), support)):
+    if not (same(q.get("heat"), heat) and same(q.get("support"), support)):
         bad(f"quadrant 不一致：存 {q} vs 算 heat={heat} support={support}")
     elif q.get("regime") != regime:
         bad(f"regime 不一致：存「{q.get('regime')}」vs 算「{regime}」")
@@ -387,8 +401,11 @@ def check_data(repo):
     # 台灣
     tw = d.get("tw", {})
     TWI = {t["id"]: t for t in tw.get("items", [])}
+    # 這是本檔用來**重算** tw.subs／tw.heat 的第二份成員定義（下面 check_brief 那段
+    # 對帳讀的是引擎原始碼，查不到這一份）。加減子群成員時它也要改——2026-08-17 補
+    # tw_daytrade 時就漏改了這一份，引擎一跑就 FAIL 2 條，正是 brief §6「第五處」講的事。
     subs_def = {"動能": ["tsmc_200dma", "tsmc_52w", "elec_rel", "twii_pos"],
-                "估值": ["tsmc_pe", "odm_pe"], "籌碼": ["tw_margin"],
+                "估值": ["tsmc_pe", "odm_pe"], "籌碼": ["tw_margin", "tw_daytrade"],
                 "基本面": ["tw_rev", "tw_export"]}
     missing = [i for ids in subs_def.values() for i in ids if i not in TWI]
     if missing:

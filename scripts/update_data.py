@@ -371,12 +371,18 @@ def _margin_on(dstr):
                      ua=UA_BROWSER).json()
     except Exception:
         return None
-    if j.get("stat") != "OK":
+    # 解析也要包在 try 裡：表格出現「--」、空格或欄位挪動時會 ValueError，而這支
+    # 被回補迴圈呼叫 45 次，任何一天壞掉都會讓整個 attempt("TW 融資餘額") 失敗、
+    # 連當日值都寫不進去。回 None 讓呼叫端跳過那一天就好。
+    try:
+        if j.get("stat") != "OK":
+            return None
+        for t in (j.get("tables") or [j]):
+            for row in t.get("data", []):
+                if row and "融資金額" in str(row[0]):
+                    return round(float(str(row[-1]).replace(",", "")) / 1e6, 1)   # 仟元→十億元
+    except Exception:
         return None
-    for t in (j.get("tables") or [j]):
-        for row in t.get("data", []):
-            if row and "融資金額" in str(row[0]):
-                return round(float(str(row[-1]).replace(",", "")) / 1e6, 1)   # 仟元→十億元
     return None
 
 
@@ -698,6 +704,7 @@ def refresh_edgar(data):
         except Exception as ex:
             log(f"  dnagap {co}: skip ({ex})")
     debt_now = debt_prior = 0.0
+    debt_co = []
     debt_series = {}
     for co in cos:
         _, dr = edgar_rows(co, CONCEPTS["debt"].get(co, CONCEPTS["debt"]["*"]), min_end="2023-09-01")
@@ -712,6 +719,7 @@ def refresh_edgar(data):
             # 一起不算，合計年增變成「有基期的那幾家」的年增，寧可少一家也不要假數。
             log(f"[debt] {co} 找不到 ≥330 天前的基期，本次剔除（不用最新值假裝零成長）")
             continue
+        debt_co.append(co)
         debt_now += lv
         debt_prior += pri[-1]
     grid = sorted({q["q"] for q in agg if q["q"] >= "2023Q4"} | ({prov["q"]} if prov else set()))
@@ -729,7 +737,8 @@ def refresh_edgar(data):
         if full: debt_chart.append((lb, round(tot / 1e9, 1)))
     return {"agg": agg, "prov": prov, "ttm": ttm, "ttm_prov": ttm_prov,
             "dna_gap": (sum(dna_g) / len(dna_g) - sum(rev_g) / len(rev_g)) if len(dna_g) >= 4 else None,
-            "debt_now": debt_now / 1e9, "debt_prior": debt_prior / 1e9, "debt_chart": debt_chart}
+            "debt_now": debt_now / 1e9, "debt_prior": debt_prior / 1e9, "debt_chart": debt_chart,
+            "debt_co": debt_co}
 
 # ---------------- main ----------------
 def main():
@@ -931,10 +940,17 @@ def main():
         if E["dna_gap"] is not None:
             upd("dnagap", round(E["dna_gap"], 1), f"{E['dna_gap']:+.1f}pp",
                 pw(E["dna_gap"], IND["dnagap"]["anchors"]), t["q"])
-        if E["debt_prior"]:
+        n_co = len(E.get("debt_co") or [])
+        if not E["debt_prior"]:
+            # 五家全部缺基期時原本靜默不更新：指標停在舊值、attempt 仍記成功、
+            # lastAutoRun.fail 看不到，只有 fresh 過 130 天才會轉 stale。改成 raise，
+            # 讓它出現在 fail 清單裡——抓不到就要響，這是 §5.1 的另一半。
+            raise RuntimeError("debt: 五家都找不到 ≥330 天前的基期")
+        if True:
             g = (E["debt_now"] / E["debt_prior"] - 1) * 100
             upd("debt", round(g, 1), f"{g:+.1f}%", pw(g, IND["debt"]["anchors"]), t["q"],
-                sub=f"合計 ${E['debt_now']:.0f}B")
+                sub=(f"合計 ${E['debt_now']:.0f}B" if n_co >= 5 else
+                     f"{n_co}/5 家合計 ${E['debt_now']:.0f}B（缺基期的公司本次剔除）"))
     attempt("EDGAR quarterly", f_edgar)
 
     # ============ 台灣供應鏈 v2 ============
@@ -1040,10 +1056,18 @@ def main():
         if n: log(f"[margin] 回補 {n} 筆歷史，序列長度 {len(hist)}")
         tw["margin_hist"] = hist[-90:]
         hist = tw["margin_hist"]
+        span = None
         if len(hist) >= 21:
+            span = (dt.date.fromisoformat(hist[-1]["d"]) - dt.date.fromisoformat(hist[-21]["d"])).days
+        # 只看筆數不夠：回補時任何一天抓失敗就被永久跳過（只補不覆蓋），之後 hist[-21]
+        # 會落在超過 20 個交易日前，20 日變動被高估而沒有任何機器會發現。20 個交易日
+        # 正常是 26–32 個日曆日，放寬到 26–40 天，超出就當序列有洞、不計分。
+        if span is not None and 26 <= span <= 40:
             g = (hist[-1]["bal"] / hist[-21]["bal"] - 1) * 100
             tupd("tw_margin", bal, f"{bal:.0f} 十億元（20日 {g:+.1f}%）",
                  pw(g, [[-4, 10], [0, 35], [5, 67], [12, 100]]), dd)
+        elif span is not None:
+            tupd("tw_margin", bal, f"{bal:.0f} 十億元（序列有洞：末 21 筆跨 {span} 天）", None, dd)
         else:
             tupd("tw_margin", bal, f"{bal:.0f} 十億元（序列累積中 {len(hist)}/21）", None, dd)
     attempt("TW 融資餘額", f_twmargin)

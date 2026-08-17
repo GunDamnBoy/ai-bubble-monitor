@@ -278,7 +278,7 @@ ul.tight{padding-left:18px;font-size:13px} ul.tight li{margin:4px 0}
     <div class="card">
       <h2>原文框架：中金《如何監測AI泡沫？》（刘刚、杨萱庭，2026-07-14）</h2>
       <p style="font-size:13px">文章提出<b>四維監測體系</b>：①需求端（Token 用量、付費率、單位成本）②現金流（ARR、FCF、Capex/OCF）③融資來源（發債、VC、CDS、ROIC vs WACC）④外部約束（就業、數據中心審批、政策）。結論：「整體尚未呈現全面泡沫化特徵」，處於網路泡沫「第一階段向第二階段轉換期」，關鍵風險訊號為「融資行為擴散至高槓桿、負現金流、商業模式未驗證的公司」。</p>
-      <p style="font-size:13px;margin-top:8px"><b>總評：方法論方向正確、執行有六個結構性弱點。</b>把泡沫問題從「是／否」的口水戰變成「四個可監測維度＋階段定位」是文章最大的貢獻，融資結構視角（誰在出錢）尤其正確——與 Kindleberger–Minsky 泡沫五階段、高盛五警訊框架一致。我們用 SEC EDGAR 原始數據獨立驗證了其核心測算：<b>2026Q1 五大雲廠單季 Capex/OCF = 94.0%、FCF 單季 −77.6% 至 $9.5B——與文章數字完全吻合</b>，代表其現金流維度紮實可信。但以下六點需要修正，修正結果已內建於本儀表板。</p>
+      <p style="font-size:13px;margin-top:8px"><b>總評：方法論方向正確、執行有六個結構性弱點。</b>把泡沫問題從「是／否」的口水戰變成「四個可監測維度＋階段定位」是文章最大的貢獻，融資結構視角（誰在出錢）尤其正確——與 Kindleberger–Minsky 泡沫五階段、高盛五警訊框架一致。我們用 SEC EDGAR 原始數據獨立驗證了其核心測算：<b><span id="evalVerify">2026Q1 五大雲廠單季 Capex/OCF = 94.0%、FCF 單季 $9.5B（建置時以 EDGAR 原始 XBRL 驗算，與文章數字吻合）</span></b>，代表其現金流維度紮實可信。但以下六點需要修正，修正結果已內建於本儀表板。</p>
     </div>
 
     <div class="card">
@@ -287,7 +287,7 @@ ul.tight{padding-left:18px;font-size:13px} ul.tight li{margin:4px 0}
       <div class="evalItem">
         <p><span class="verdict v-fix">重大缺口</span><b>① 完全沒有估值與價格維度</b></p>
         <p class="q">泡沫的定義是「價格相對基本面的偏離」。只監測基本面（需求、現金流）與資金面（融資），等於用單腳量泡沫——1999 年的需求與營收也是真實成長的，出問題的是價格。</p>
-        <p><b>修正：</b>估值進入 L1 市場與情緒層：CAPE <span data-ind="cape">—</span>（2000 年峰值 44.2×）、Mag7 佔比 <span data-ind="mag7">—</span>（2000 年前十大約 25-27%）、NVDA P/E <span data-ind="nvdape">—</span>。<span id="evalNvdaCmp">—</span>這種「集中度與龍頭估值不同調」的結構，正是不做估值維度會完全漏掉的資訊。</p>
+        <p><b>修正：</b>估值進入 L1 市場與情緒層：CAPE <span data-ind="cape">—</span>（2000 年峰值 44.2×）、Mag7 佔比 <span data-ind="mag7">—</span>（2000 年前十大約 25-27%）、NVDA P/E <span data-ind="nvdape">—</span>。<span id="evalNvdaCmp">—</span>集中度與龍頭估值之間的關係，正是不做估值維度會完全漏掉的資訊。</p>
       </div>
 
       <div class="evalItem">
@@ -326,7 +326,7 @@ ul.tight{padding-left:18px;font-size:13px} ul.tight li{margin:4px 0}
       <ul class="tight">
         <li><b>高盛五警訊</b>（科技投資/GDP 見頂、企業利潤下滑、企業債務攀升、Fed 寬鬆、信用利差走闊）：本儀表板覆蓋其中 4.5 項，對應的即時讀數是：企業債務 <span data-ind-score="debt">—</span>、信用利差 <span data-ind-score="hyoas">—</span>；「Fed 寬鬆」與「信用利差走闊」另有 <b>policy_gap</b>、<b>hy80</b> 兩個觸發器負責，是否點亮見上方觸發器列。</li>
         <li><b>Kindleberger–Minsky 五階段</b>（錯置→信用擴張→狂熱→獲利了結→恐慌）：<span id="evalKM">—</span>；「狂熱」的散戶面特徵（IPO 首日暴漲潮）對應檢查清單「AI 巨頭 IPO 潮與首日暴漲」，<span id="evalIpo">—</span></li>
-        <li><b>arXiv 2606.01575 多方法評估</b>（DCF、爆炸性根檢驗、LPPL、情緒 ML、Capex 漏斗）結論：「真實技術革命伴隨局部泡沫動態」——與本儀表板目前 <span id="evalComposite">—</span>／100（<span id="evalZone">—</span>）的讀數一致；其強調的「私募估值集中、資本回收期不確定」，在本框架對應 L3 基本面兌現層的 VC 集中度（<span data-ind-score="vc">—</span>）。</li>
+        <li><b>arXiv 2606.01575 多方法評估</b>（DCF、爆炸性根檢驗、LPPL、情緒 ML、Capex 漏斗）結論：「真實技術革命伴隨局部泡沫動態」——<span id="evalArxiv">—</span>；其強調的「私募估值集中、資本回收期不確定」，在本框架對應 L2 資金與信用層的 VC 集中度（<span data-ind-score="vc">—</span>）。</li>
       </ul>
       <div class="flag"><b>結構判讀：</b>這不是 2000 年式的全面估值泡沫，而是一場<b>資產負債表泡沫的醞釀</b>——<span id="evalShift">出資結構正從現金流轉向債務</span>。三層讀數目前為 <span id="evalDims">—</span>，象限定位 <span id="evalRegime">—</span>；把「有多熱」與「有沒有撐」分開看，比單一溫度更能說明現在的狀態。最重要的前瞻哨點不是股價，是第三階段檢查清單與<span class="trigN">—</span>項引爆觸發器——尤其是 <span id="evalHy80">HY 利差</span>與 OpenAI IPO 的定價行為。</div>
     </div>
@@ -379,6 +379,9 @@ function boot(DATA){
 const $ = id => document.getElementById(id);
 const ZC = {green:"var(--good)", yellow:"var(--warn)", orange:"var(--serious)", red:"var(--crit)", pending:"var(--muted)"};
 const ZL = {green:"綠・低溫", yellow:"黃・警戒", orange:"橘・偏熱", red:"紅・過熱", pending:"待數據"};
+/* ZL 的值前兩字是顏色前綴（「綠・」），要純文字時用這個，不要各處自己 slice(2)——
+   pending 沒有顏色前綴，slice(2) 會把「待數據」切成「據」。 */
+const zlText = z => (ZL[z] || "").replace(/^..・/, "");
 const zoneOf = s => (s==null?"pending":(s<33?"green":(s<67?"yellow":(s<84?"orange":"red"))));
 const esc = t => String(t).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const fmt1 = v => Number(v).toLocaleString("en-US",{maximumFractionDigits:1});
@@ -538,7 +541,6 @@ document.querySelectorAll("[data-ind-score]").forEach(el => {
 setTxt("mZones", DATA.zones.map((z,ix) => `${ix?DATA.zones[ix-1].max:0}-${z.max} ${z.label}`).join("、"));
 document.querySelectorAll(".trigN").forEach(el => { el.textContent = String((DATA.triggers||[]).length); });
 document.querySelectorAll(".chkN").forEach(el => { el.textContent = String((DATA.stage.checklist||[]).length); });
-setTxt("evalZone", zlabel);
 /* 內文中的指標 sub：<span data-ind-sub="debt"> 填 sub（引擎生成的隨值敘述） */
 document.querySelectorAll("[data-ind-sub]").forEach(el => {
   const i = findInd(el.dataset.indSub);
@@ -605,8 +607,15 @@ document.querySelectorAll("[data-ind-sub]").forEach(el => {
     : (c && c.state > 0)
       ? "AI 巨頭 IPO 供給端已有動作（" + (c.evi ? c.evi.split("；")[0] : "見檢查清單") + "）"
       : "AI 巨頭 IPO 供給端尚未啟動");
+  /* 階段名一律由 stages[] 現算，不要在這裡寫死——第四階段叫「信用事件與退潮」，
+     憑印象寫成別的名字，頁面就會跟同一頁的階段條說不同的話。
+     門檻用 >= 4 而不是 3.8：healthcheck 硬性要求 int(stage.current) 等於 active 階段的 n，
+     3.8 時階段條 active 還是第三階段，這裡卻宣告第四階段，就是同一頁自相矛盾。 */
+  const stageName = n => ((DATA.stage.stages||[]).find(x => x.n === n) || {}).name || `第${n}階段`;
   const cur = DATA.stage.current;
   setTxt("evalStagePhase", cur == null ? "—"
+    : cur >= 4 ? `早已走完，目前在第四階段（${stageName(4)}）`
+    : cur >= 3.5 ? `早已走完，第三階段（${stageName(3)}）已進入後段`
     : cur >= 3 ? "已走完，正進入第三階段（擴散至弱資質）"
     : cur >= 2.5 ? "不是「即將進入」，而是已全面展開（後段）"
     : cur >= 2 ? "已經展開"
@@ -638,7 +647,25 @@ setTxt("mQualNames", DATA.indicators.filter(i => i.qual).map(i => i.name).join("
 setTxt("evalDims", Object.keys(DATA.dimMeta)
   .map(k => `${k} ${DATA.dimMeta[k].name} ${DATA.dims[k]}`).join("／"));
 setTxt("evalRegime", `熱度 ${DATA.quadrant.heat}・支撐 ${DATA.quadrant.support}｜${DATA.quadrant.regime}`);
-setTxt("evalComposite", String(DATA.composite));
+/* 「與該研究結論一致」原本是寫死的斷言，旁邊的數字卻每天在動——composite 掉到冷靜期
+   或衝上極端狂熱時，那句話就會替我們說謊（MAINTENANCE §6.4 的同一個家族）。改為依讀數分支。 */
+(function(){
+  const c = DATA.composite;
+  const zl = (c == null) ? null : ((DATA.zones.find(z => c <= z.max) || {}).label || "待數據");
+  setTxt("evalArxiv", c == null ? "本儀表板目前沒有可對照的綜合讀數"
+    : c < 45  ? `而本儀表板目前 ${c}／100（${zl}）低於該結論所描述的局部泡沫動態`
+    : c >= 84 ? `而本儀表板目前 ${c}／100（${zl}）已超出該結論所說的「局部」`
+    :           `與本儀表板目前 ${c}／100（${zl}）的讀數一致`);
+  /* 建置時手抄的 2026Q1 驗算，只要該季還在 aggQ 裡就改由資料現算；
+     滾出視窗之後就留著原句，但它已明說是「建置時驗算」的歷史錨，不會假裝是現值。 */
+  const q1 = (((DATA.charts||{}).aggQ)||[]).find(r => r.q === "2026Q1");
+  if (q1 && q1.ratio != null && q1.fcf != null) {
+    /* 「吻合」也是判語，不能寫死：EDGAR 事後重述時數字會變，這句話卻還會說吻合。 */
+    const same = Math.abs(q1.ratio - 94.0) <= 0.5;
+    setTxt("evalVerify", `2026Q1 五大雲廠單季 Capex/OCF = ${q1.ratio}%、FCF 單季 $${q1.fcf}B——以 EDGAR 原始 XBRL 獨立驗算，`
+      + (same ? "與文章的 94.0% 吻合" : "文章當時列的是 94.0%，現行 EDGAR 資料已與之不同（可能經事後重述）"));
+  }
+})();
 $("checklist").innerHTML = DATA.stage.checklist.map(c => {
   const ic = c.state===1?`<span style="color:var(--crit);font-weight:700">●</span>`
            : c.state===0.5?`<span style="color:var(--serious);font-weight:700">◐</span>`
@@ -793,7 +820,7 @@ function drawCharts(){
   const provNote = aqProv ? `※ ${aq[aq.length-1].q} 為初步值（${aq[aq.length-1].have||"?"}／5 家已申報，缺者沿用上季），五家到齊後自動轉正式。` : "";
   if ($("provNote")) $("provNote").textContent = provNote;
   lineChart("chartDebt", dbt.labels, [{name:"長期債務", color:"var(--s1)", data:dbt.values}], {aria:"五大雲廠長期債務合計"});
-  $("debtNote").textContent = dbt.note;
+  $("debtNote").textContent = dbt.note || "";   /* 引擎不一定寫 note，缺了就空著不要印 undefined */
   const h = DATA.history;
   lineChart("chartHist", h.map(x=>x.date), [{name:"綜合溫度", color:"var(--s1)", data:h.map(x=>x.composite), dots:h.length<=20}], {h:170, aria:"綜合溫度歷史"});
   $("histNote").textContent = h.length<3 ? `目前累積 ${h.length} 筆快照（每交易日自動附加）——趨勢線將隨時間成形。` : "";
@@ -808,7 +835,7 @@ $("indSections").innerHTML = DIMS.map(dk => {
     <h2>${esc(m.name)} <span class="mut" style="font-weight:400">權重 ${Math.round(m.w*100)}%・${esc(m.note)}・維度分 ${DATA.dims[dk]}</span></h2>
     <div class="cards">` + items.map(i => `
       <div class="icard">
-        <div class="top"><span class="nm">${esc(i.name)}</span>${chip(i.zone)}</div>
+        <div class="top"><span class="nm">${esc(i.name)}</span>${chip(i.zone || zoneOf(i.score))}</div>
         <div><span class="val">${esc(i.disp)}</span>${i.sub?`<span class="mut">　${esc(i.sub)}</span>`:""}</div>
         ${stripHTML(i.score)}
         <div class="note">${esc(i.note)}</div>
@@ -822,11 +849,11 @@ $("indSections").innerHTML = DIMS.map(dk => {
 $("indTable").innerHTML = `<tr><th>維度</th><th>指標</th><th>目前值</th><th>溫度分</th><th>燈號</th><th>資料時點</th><th>來源</th></tr>` +
   DATA.indicators.map(i => `<tr><td>${esc(DATA.dimMeta[i.dim].name)}</td><td>${esc(i.name)}</td>
     <td class="num">${esc(i.disp)}</td><td class="num">${i.score==null?"—":i.score}</td>
-    <td><span style="color:${ZC[i.zone]};font-weight:700">●</span> ${ZL[i.zone].slice(2)}</td>
+    <td><span style="color:${ZC[i.zone] || ZC[zoneOf(i.score)]};font-weight:700">●</span> ${zlText(i.zone || zoneOf(i.score))}</td>
     <td>${esc(i.asof)}${i.fresh==="stale"?" ⚠":""}</td><td><a href="${esc(i.url)}" target="_blank" rel="noopener">${esc(i.src)}</a></td></tr>`).join("");
 
 /* ---------- TW tab ---------- */
-$("twHero").innerHTML = `${DATA.tw.heat}<small>／100</small>`;
+$("twHero").innerHTML = `${DATA.tw.heat ?? "—"}<small>／100</small>`;   /* 四組子群全 null 時 heat 就是 null，別印出「null／100」 */
 $("twChip").innerHTML = chip(zoneOf(DATA.tw.heat),
   DATA.tw.heat == null ? "待數據"
     : (DATA.zones.find(z => DATA.tw.heat<=z.max) || {}).label || "待數據");

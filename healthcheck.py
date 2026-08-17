@@ -98,12 +98,23 @@ QUAL_MAXAGE = {"narrative": 21, "circular": 21, "weakcredit": 21,  # 每週覆�
                "vc": 130, "cloudrev": 130}                         # 季度
 
 
+def _is_repo(c):
+    return bool(c) and os.path.isfile(os.path.join(c, "data.json")) \
+        and os.path.isfile(os.path.join(c, "index.html"))
+
+
 def find_repo(explicit=None):
+    # 便宜的候選先查，命中就 return。下面那段 os.walk 只是最後手段——
+    # 在家目錄非空的機器上（使用者的 Mac）它會掃好幾分鐘，看起來像整支程式當掉，
+    # 而且連第一行輸出都還沒印。原本無條件先掃再比對，等於 --repo 形同虛設。
+    for c in (explicit,
+              os.path.dirname(os.path.abspath(__file__)),
+              os.path.expanduser("~/Projects/ai-bubble-monitor"),
+              os.path.expanduser("~/ai-bubble-monitor"),
+              "/tmp/bubble", "/tmp/v2"):
+        if _is_repo(c):
+            return c
     cands = []
-    if explicit:
-        cands.append(explicit)
-    cands.append(os.path.dirname(os.path.abspath(__file__)))
-    cands += [os.path.expanduser("~/ai-bubble-monitor"), "/tmp/v2"]
     for base in ("/sessions", os.path.expanduser("~")):
         if os.path.isdir(base):
             for root, dirs, _ in os.walk(base):
@@ -999,6 +1010,9 @@ def main():
     if not repo:
         print("FAIL 找不到 ai-bubble-monitor（用 --repo 指定路徑）")
         sys.exit(2)
+    # --repo 打錯字時原本會靜默退回別的候選，看起來像跑成功、其實驗的是另一份工作副本。
+    if a.repo and os.path.abspath(repo) != os.path.abspath(os.path.expanduser(a.repo)):
+        print(f"WARN --repo 指的 {a.repo} 不是本 repo（缺 data.json 或 index.html），改驗 {repo}")
     print(f"repo: {repo}\n" + "-" * 60)
     d = check_data(repo)
     print("-" * 60)

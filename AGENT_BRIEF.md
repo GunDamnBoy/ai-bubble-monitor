@@ -2,7 +2,7 @@
 
 > 這份是**現在的規格與判斷規則**，是本系統的唯一真相來源。
 > 每週質化覆核排程每次執行前完整讀一次。事故經過與被否決的選項寫在 `MAINTENANCE.md` 第 6 節，不要寫進這裡。
-> 版本：**v2.1.1（三層頻率架構）**｜最後修訂 2026-08-17
+> 版本：**v2.1.2（三層頻率架構）**｜最後修訂 2026-08-17
 
 ---
 
@@ -107,7 +107,8 @@ support = 100 − L3             ← 基本面還有多少支撐（L3 越高＝�
 ### 3.4 溫度分區
 
 `zones`（`data.json` 內）：`0–25 冷靜期／25–45 健康擴張／45–65 過熱警戒／65–84 泡沫化進行／84–100 極端狂熱`。
-單一指標的燈號 `zone` 用另一組界：`<33 綠／33–67 黃／67–84 橘／≥84 紅／null 待數據`。**兩組界不同，不要互相對齊。**
+單一指標的燈號 `zone` 用另一組界：`<33 綠／33–67 黃／67–84 橘／≥84 紅／null 待數據`。
+**兩組界各自獨立、界線不要互相換算**：`zones` 負責分區「標籤」（冷靜期／過熱警戒…），`zone` 負責燈號「顏色」。頁面上同一顆 chip 常常兩者並用——hero 與台股 chip 都是拿 `zoneOf()` 上色、再拿 `zones` 取標籤，那是刻意的；不可以的是拿其中一組的界線去推另一組。
 
 ### 3.5 引爆觸發器（7 項，布林、不進分數）
 
@@ -264,7 +265,7 @@ support = 100 − L3             ← 基本面還有多少支撐（L3 越高＝�
 
 `tw_rev`／`tw_export` 是反證指標（成長越快越不像泡沫破裂），依 §3.2 的通則**取負號後**再餵錨點——手算時最容易在這裡把符號弄反。
 
-**每月只有 `tsmc_weight` 需要人更新**（TAIFEX 擋機器人，Actions 端固定失敗），其餘九項由引擎每交易日自動更新，屬於 §8.3 的不可重抓欄位。
+**每月只有 `tsmc_weight` 需要人更新**（TAIFEX 擋機器人，Actions 端固定失敗），其餘九項由引擎每交易日自動更新，屬於 §8.3 覆核不動的欄位。
 
 **`tw.items` 的 `src`／`url` 由引擎的 `TW_SRC` 表無條件寫入**，不再是 `data.json` 的種子值（v2.0.2 前 `tupd()` 只寫數值，於是 `tsmc_pe` 早就改抓 TWSE 官方了、卡片卻還掛著 Google Finance，同一張卡的 `note` 自己在打臉）。換資料源時改 `TW_SRC`，不要改 `data.json`。
 
@@ -289,6 +290,8 @@ def attempt(name, fn):
 每一個抓取動作都包在 `attempt()` 裡。**任何單一來源失敗只會被記進 `meta.lastAutoRun.fail`，該指標沿用上一次的值與 `asof`，其餘照常更新。** 這條規則凌駕一切：寧可讓一個指標停在上週，也不要讓它出現一個猜出來的數字。
 
 抓不到又沒有舊值時，`score` 設 `null`，前端顯示「待數據」灰燈，該指標退出當層平均。
+
+**兩個既有的例外，實作上與這條契約有出入，先記在這裡**：整層指標全部無效時 `dims` 會填 `50.0`（而不是 `null`）；`debt` 找不到 ≥330 天前的基期時，會拿最新值當基期（該公司年增以 0% 計入合計）而不是跳過該公司。兩者都不會被 `healthcheck.py` 抓到，改引擎時順手處理掉。
 
 ### 5.2 函式地圖
 
@@ -356,6 +359,9 @@ dimMeta    { L1:{name,w,note}, L2:{...}, L3:{...} }   w 加總必須 = 1.0
 zones      [ {max,label,color} × 5 ]
 indicators [ 22 × {id, dim, name, value, disp, score, zone, anchors, dir,
                    asof, fresh, src, url, note, qual, sub?} ]
+             fresh 目前**引擎一律寫 "ok"**，從來不會變成 "stale"；前端那個
+             「⚠ 資料延遲」徽章因此是死碼。要它活起來得先定義每個指標各自的
+             過期門檻（比照 QUAL_MAXAGE），本次刻意不做——見 MAINTENANCE §6.13
              dir 是**給人看的方向說明字串**（"越高越熱"、"越負越熱"、
              "質化評分（0-100）"…），純展示、不參與計分。方向相反的指標走
              **§3.2 的兩套慣例之一**（取負號／遞減錨點），不要照 dir 另寫邏輯
@@ -389,9 +395,11 @@ params     { nvda_eps, ngdp_nominal, megaipo_done }
 **`history` 只附加、同日去重、永不改寫既有日期。** 象限軌跡與匯流報的跨期比較都靠它。
 **`history` 內舊筆的 `dims` 可能還是 v1 的 `D1–D6` 鍵**，這是正常的——改版當日之前的資料就是那個架構，不要回頭改寫成 L1/L2/L3。
 
-### schema 改動的「三處一組」
+### schema 改動的「幾處一組」
 
-改 `data.json` 結構時，**這三處必須一起改**：本檔第 6 節、`scripts/update_data.py`、`index.html` 的對應 render 函式（`renderQuad` / `renderTriggers` / `renderTwV2` / **`renderTwProse`** / 圖表區）。漏掉第三處時頁面不會報錯，只會靜靜地少畫一塊。`renderTwProse` 最容易被忘記——它讀 `tw.items`、`tw.heat`、`composite` 生成台股解讀文字，`healthcheck.py` 已把它列為必檢的四個 v2 render 函式之一。
+**這組連動叫「幾處一組」，刻意不帶數字**——目前是五處，而它每次都在長（原本三處，後來補了第四、第五處），把數字寫進名字只會讓四份文件各記一個版本。清單以本節為準。
+
+改 `data.json` 結構時，**下面這幾處必須一起改**，前三處是核心：本檔第 6 節、`scripts/update_data.py`、`index.html` 的對應 render 函式（`renderQuad` / `renderTriggers` / `renderTwV2` / **`renderTwProse`** / 圖表區）。漏掉第三處時頁面不會報錯，只會靜靜地少畫一塊。`renderTwProse` 最容易被忘記——它讀 `tw.items`、`tw.heat`、`composite` 生成台股解讀文字，`healthcheck.py` 已把它列為必檢的四個 v2 render 函式之一。
 
 **第四處**：`index.html` 內嵌的 `<script id="dashboard-data">` 是 fetch 失敗時的離線退路快照。它不需要每天更新，但**改 schema 或改版時必須重新灌一次**，否則離線開啟會退回舊架構的頁面（v1→v2 期間就發生過，退路快照停在六維 54.1）。**重灌時把內嵌那份的 `history` 裁到最後 60 筆**（頁面體積考量；`healthcheck.py` 超過 60 筆會 WARN，**0 筆也會 WARN**——那代表重灌時把陣列灌空了）。`healthcheck.py` 另比對它的 `meta.version`、v2 必要區塊、`history` 筆數，以及 `composite`／`meta.built` 是否與 `data.json` 明顯脫節。
 
@@ -438,13 +446,16 @@ L1 除 `narrative` 外全部、L2 除三項質化外全部、L3 除 `cloudrev`�
 
 `stage` **整塊**都是人維護的：`stage.checklist` 六項的 `state`／`evi`、`stage.note`，以及**`stage.current`（1–4 的小數）、`stage.label`、`stages[]` 的 `active`／`done`**。checklist 勾選數變了而 `current` 沒動，是最常見的漏更新。
 
-**改 `params` 不會立刻反映在頁面上。** `params.nvda_eps` 要等下一次引擎跑 `nvdape` 才會換算成新的本益比；`params.ngdp_nominal`／`megaipo_done` 要等下一次引擎重評 `triggers` 才會改變點亮狀態——而 `triggers` 又在 §8.3 的「絕對不要重抓」清單裡，所以覆核當下**不要自己去改 `triggers` 的 `state` 來「讓它一致」**。正確做法是改完 `params` 就放著，在摘要裡註明「已更新 `params.X`，將於下一個交易日的自動更新生效」。唯一的例外是 `megaipo_done`：它同時要在 `stage.checklist` 反映，而 `stage` 本來就是人維護的。
+**`stage` 算改完的條件**：六項的 `state` 與 `evi` 都重新看過一次（沒有新證據就明講維持原判，`evi` 不必重寫）；`stage.note` 的「點亮 X／6」等於六項 `state` 的實算和（**半格算 0.5**）；`current`、`label`、`stages[]` 的 `active`／`done` 三者互相對得上，也對得上點亮數。三項全過才算完成。機器只檢查得到其中一部分：`healthcheck.py` 會驗「點亮 X／6」這句與實算相符，也會驗 `stages` 剛好四階、剛好一階 `active`、`int(current)` 等於 active 的 `n`、`done` 只在 `n <` active 時為真。**沒有機器看得到的是 `evi` 的內容與 `label` 的文字**——那兩樣只能靠你自己重讀一次。
+
+**改 `params` 不會立刻反映在頁面上。** `params.nvda_eps` 要等下一次引擎跑 `nvdape` 才會換算成新的本益比；`params.ngdp_nominal`／`megaipo_done` 要等下一次引擎重評 `triggers` 才會改變點亮狀態——而 `triggers` 不在 §8.3 的白名單裡，所以覆核當下**讓 `triggers` 保持引擎寫入的樣子**——為了讓畫面一致而手改 `state`，就是在製造假資料。正確做法是改完 `params` 就放著，在摘要裡註明「已更新 `params.X`，將於下一個交易日的自動更新生效」。唯一的例外是 `megaipo_done`：它同時要在 `stage.checklist` 反映，而 `stage` 本來就是人維護的。
 
 **上週的基準從哪裡來。** `history` 每筆存 `date`、`composite`、三個層分數、`quad` 與 `trig`（2026-08-10 起）——**沒有 `regime`**。所以：上週 `composite` 看 `history` 倒數第二筆；上週 `regime` 要拿倒數第二筆的 `quad`（`[support, heat]`）自己套 §3.3 的規則反推；觸發器點亮數在 2026-08-10 之後的筆直接讀 `trig`，更早的筆沒有這個欄位，只能在**動手前**先把當下的 `triggers` 記下來當基準（排程流程第 1 步就是為此存在）。改完再回頭數，差額才是「本週新點亮」。
 
-### 8.3 覆核**絕對不要重抓**的欄位
+### 8.3 覆核只動 §8.2 那張清單
 
-> `events`、`triggers`，以及所有 §8.1 的自動指標的 `value`／`score`／`asof`。
+> **人這一輪要碰的欄位，就是這兩份的聯集**：§8.2 那張清單（六項質化分數、`params`、`tsmc_weight`、`stage` 整塊），加上 §8.4 收尾七步會寫到的每一個欄位（`zone`、`dims`、`composite`、`quadrant`、`tw.subs`／`tw.heat`、`history` 附加一筆、`meta.built`／`meta.builtTime`）。
+> **這兩份以外的一律沿用引擎寫入的值**——`events`、`triggers`，以及 §8.1 所有自動指標的 `value`／`score`／`asof`。這是硬護欄：在覆核容器裡重抓它們，拿到的是空值或殘值，然後蓋掉每日管線的好資料。
 
 原因是覆核容器的網路有**兩條路，能力不一樣**，這點常被誤記成「容器只放行 GitHub」：
 
@@ -453,7 +464,7 @@ L1 除 `narrative` 外全部、L2 除三項質化外全部、L3 除 `cloudrev`�
 | Bash 的 `curl`／`requests`（引擎走這條） | 只通得到 `github.com` 與 `raw.githubusercontent.com`——而且 **git 只有讀，push 被 git proxy 擋**（見下方「發布」）。**連 `gundamnboy.github.io` 都不通**（回 http=000），`api.github.com` 根路徑 200 但 repo 端點 403，`example.com` 不通，FRED／Stooq／SEC EDGAR／TAIFEX 一律連線失敗 | 在覆核工作階段裡**跑不動 `update_data.py`**，也不能自己 `curl` 補數字 |
 | `WebSearch`／`WebFetch`（走 Anthropic 的抓取服務） | **可以連到外部網站**，包括 FRED、TAIFEX，以及 `github.io` 上的 `data.json` | 質化研究（§8.2）與 `tsmc_weight` 月更靠這條；維護工作階段代使用者驗證線上時也走這條（見下） |
 
-所以禁令的真正理由不是「連不到網路」，而是：**能連到網路的那條路（WebFetch）拿不到引擎要的東西**。WebFetch 讀 `fredgraph.csv` 這類 CSV／JSON 端點會回傳 binary 亂碼，讀網頁則是經過摘要的文字——兩者都不能取代引擎的數值抓取，硬要用只會抓到殘值或讀錯數字，然後把每日管線抓到的好值蓋掉。
+所以「不自己重抓」的真正理由不是「連不到網路」，而是：**能連到網路的那條路（WebFetch）拿不到引擎要的東西**。WebFetch 讀 `fredgraph.csv` 這類 CSV／JSON 端點會回傳 binary 亂碼，讀網頁則是經過摘要的文字——兩者都不能取代引擎的數值抓取，硬要用只會抓到殘值或讀錯數字，然後把每日管線抓到的好值蓋掉。
 
 #### 發布：雲端推不上去，改為交付（2026-08-10 起）
 
@@ -465,11 +476,11 @@ L1 除 `narrative` 外全部、L2 除三項質化外全部、L3 除 `cloudrev`�
 2. 使用者在本機執行 `bubble-publish`（zsh 函數，位於 `~/Projects/ai-bubble-monitor` 的 clone：抓 `~/Downloads` 最新的 `data-*.json` → 蓋 `data.json` → 跑 `healthcheck.py` 當關卡 → commit → push）。**只改 `data.json` 的覆核走這條**；動到程式或文件的維護改動交 `.patch`，使用者 `git am` 後推送。
 3. 本機推送用使用者自己的 gh 憑證，會正常觸發 Pages 重建（§7）。
 
-**發布後的線上驗證不再由覆核排程做**（它交付完就結束了）。維護工作階段代使用者驗證時用 WebFetch 抓 `data.json` 回報 `meta.built`／`composite`／`quadrant.regime`——注意該 URL 有 **15 分鐘快取且沒有任何已驗證有效的 cache-buster**（`?t=` 與多斜線都實測無效），快取的完整對策與「換檔名」技巧見 `MAINTENANCE.md` §4；`raw.githubusercontent.com` 只證明 commit 進去了，證明不了 Pages 已重建。
+**發布後的線上驗證不再由覆核排程做**（它交付完就結束了）。維護工作階段代使用者驗證時用 WebFetch 抓 `data.json` 回報 `meta.built`／`composite`／`quadrant.regime`——注意**沒有任何已驗證有效的 cache-buster**（`?t=` 與多斜線都實測無效），且**同一個工作階段內同一個 URL 一小時抓不了第二次**（擋在抓取工具，不是 Pages）；完整對策與「換檔名」技巧見 `MAINTENANCE.md` §4 與 §6.10；`raw.githubusercontent.com` 只證明 commit 進去了，證明不了 Pages 已重建。
 
 `events` 若真的漏了重大結構性事件，最多**補 1–2 條**（附 url），不要整批重寫。
 
-**注意「重抓」與「重算」的差別**：`quadrant`、`dims`、`composite`、`tw.subs`／`tw.heat` 都是從指標分數**導出**的，質化分數一改就必須跟著重算（見 §8.4）。它們不在重抓禁令裡——把它們當成不可動的欄位，反而會讓頁面自相矛盾。
+**注意「重抓」與「重算」的差別**：`quadrant`、`dims`、`composite`、`tw.subs`／`tw.heat` 都是從指標分數**導出**的，質化分數一改就必須跟著重算（見 §8.4）。它們在 §8.3 的白名單裡（走 §8.4 那半）——把它們當成不可動的欄位，反而會讓頁面自相矛盾。
 
 ### 8.4 覆核收尾一定要做的重算
 
@@ -526,6 +537,7 @@ L1 除 `narrative` 外全部、L2 除三項質化外全部、L3 除 `cloudrev`�
 
 | 版本 | 日期 | 改了什麼 | 為什麼／事故經過 |
 |---|---|---|---|
+| **v2.1.2** | 2026-08-17 | 前端補上四個缺欄位防禦（`charts.debt.note`、指標卡與總表的 `zone`、`tw.heat` 的「null／100」），並拆掉五處寫死判語（`vc` 誤標 L3、「不同調」與 `evalNvdaCmp` 打架、無條件宣稱與論文結論一致、`evalStagePhase` 撐不到第三／四階段、2026Q1 驗算數字改為現算）；§3.4 兩組界改為正面表述；`healthcheck.py` 的 `find_repo` 不再無條件掃家目錄（在使用者 Mac 上會掛死、`--repo` 形同虛設）；§8.3 由禁令改為白名單、§6 的「幾處一組」去掉數字、§8.2 補 `stage` 的完成條件；`fresh` 死欄位與兩個既有回退寫進規格 | `MAINTENANCE.md` §6.13 |
 | **v2.1.1** | 2026-08-17 | 文件瘦身：本節由敘事改為索引；只寫在本節裡的三個實作門檻搬進 §5.2；`skills/bubble-maintain/` 縮成指標；修掉六處已被自己推翻的抄本與兩個指錯的交叉引用 | `MAINTENANCE.md` §6.12 |
 | **v2.1.0** | 2026-08-10 | 發布改人機協作（雲端交付 patch／`data-YYYY-MM-DD.json`／離線 HTML，使用者本機推送）；PAT 移出排程 prompt；`asof` 統一填資料本身的日期；引擎健壯化（重試、原子寫檔、負基期防呆、缺 91 天基期即 fail）；healthcheck 的「今天」改用台北日並補掉三個「抓不到就靜默跳過」的洞；前端補畫 CCC／Oracle 磚塊、hero 變化徽章、觸發器距門檻進度條；新增 `senti` 的 CNN F&G 第四輸入、`triggers[].prog`、`history[].trig` | `MAINTENANCE.md` §6.11 |
 | **v2.0.4** | 2026-08-06 | 把「子群從 `null` 補齊那天 `tw.heat` 會不連續跳、方向可上可下」寫成通則交給 `healthcheck.py` 算（§4.6），不在文件裡寫死當下的模擬值 | `MAINTENANCE.md` §4、§6.10 |

@@ -24,7 +24,7 @@
 
 1. **先確認工作副本與 `origin/main` 同步**（已 clone 過就 `git -C /tmp/bubble pull --ff-only`），再跑 `healthcheck.py` 記下現況（改壞了才知道是不是自己弄的）。在過期的 clone 上判斷現況，結論會整份錯——這件事發生過。
 2. 改 `AGENT_BRIEF.md`（規格）。
-3. 改 `scripts/update_data.py`（引擎）。動到 `to_quarters`／`pw`／`vix_score`／`bucket`／`gsy_stats`／新聞解析時，**一定要跑 `python scripts/update_data.py --selftest`**。
+3. 改 `scripts/update_data.py`（引擎）。動到 `to_quarters`／`pw`／`vix_score`／`bucket`／`gsy_stats`／新聞解析時，**一定要跑 `python3 scripts/update_data.py --selftest`**。
 4. 動到 `data.json` 結構時，走 `AGENT_BRIEF.md` §6 末的**「幾處一組」**——那份清單是正本（目前五處：brief §6 的 schema、`update_data.py`、`index.html` 的 render 函式、內嵌離線快照、`healthcheck.py` 的硬寫常數），**這裡不重抄，因為它每次都在長**。
 5. 只在**流程或人機分工改變**時才動每週排程 prompt。**先讀現有全文**：`mcp__claude-code-remote__list_triggers` 找「AI 泡沫監控：每週質化覆核與發布（v2）」，輸出很大、可能超過 token 上限而被存成檔案，那就用 Python 解析——結構是 `{"data": [ ... ]}`，prompt 在 `job_config` 底下。改用 `mcp__claude-code-remote__update_trigger` 送回。**沒有這個工具的工作階段就做不了 brief ↔ prompt 的比對，照實回報，不要憑印象比。**
    **`prompt` 是整份取代，不是局部編輯**——送出前確認所有段落都帶上了，漏掉的段落等於刪除。
@@ -35,6 +35,8 @@
    **但那種乾淨 URL 是耗材，一個檔名只能用一次。** 推送後**先等 60–90 秒**再抓第一張，抓早了等於在站台還沒好的時候把票用掉；第一張是舊的就換第二個改過的檔名，別重抓同一個。詳見第 4 節第 3 點與第 6.10 節。
 
 改完當下再跑一次 `healthcheck.py`，並確認沒有製造新的不同步。
+
+**寫進文件或交給使用者的每一行指令，都要在寫的當下實際跑過一次**——這條規矩在第 6 節記過三次事故（`curl` 連不到、`?t=` 不是 cache-buster、多斜線也不是），2026-08-17 又添一次比較輕的：交給使用者的指令末尾帶了 `# FAIL 要 0` 這種註解，而**互動式 zsh 預設不吃 `#` 註解**，於是 `tail -3 # FAIL 要 0` 去找一個叫 `#` 的檔案、broken pipe，healthcheck 整個沒跑到，而畫面看起來像跑完了。**要嘛把說明寫在指令外面，要嘛不要有註解。** 同一次也發現本檔寫的是 `python`，而使用者的 Mac 上只有 `python3`。
 
 ---
 

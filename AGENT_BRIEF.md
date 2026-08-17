@@ -2,7 +2,7 @@
 
 > 這份是**現在的規格與判斷規則**，是本系統的唯一真相來源。
 > 每週質化覆核排程每次執行前完整讀一次。事故經過與被否決的選項寫在 `MAINTENANCE.md` 第 6 節，不要寫進這裡。
-> 版本：**v2.1.4（三層頻率架構）**｜最後修訂 2026-08-17
+> 版本：**v2.1.5（三層頻率架構）**｜最後修訂 2026-08-17
 
 ---
 
@@ -178,7 +178,7 @@ support = 100 − L3             ← 基本面還有多少支撐（L3 越高＝�
 - **分段線性 `pw(v, anchors)`**：錨點須依 x 遞增；區間內線性內插，兩端夾住。**分數只在 Python 端計算**，前端不重算、只渲染 `data.json` 裡的 `score`（v1 曾在前端另算一份，兩邊會漂）。
   **燈號 `zone` 是例外**：`indicators[]` 有存 `zone`、前端直接渲染，但 `tw.items[]` 沒有（`tupd()` 不寫），所以台股卡片與 TAB4 引用台股指標時是由前端的 `zoneOf(score)` 現算。也就是說 §3.4 的 `<33/33–67/67–84/≥84` 這組界**在引擎的 `zone()` 與前端的 `zoneOf()`／`stripHTML()` 各有一份實作**——改這組界三個地方要一起改。`healthcheck.py` 會把三處各自解出來對帳（`stripHTML()` 那份是從色帶區段寬度 33/34/17/16 累積推算），不一致是 **FAIL**；哪一處解不出來（被重構）是 **WARN**，不會靜默放行。
 - **VIX 非單調特例**（`vix_score`）：`≥35→95`／`28–35→67~95 線性`／`18–28→33`／`13–18→50`／`<13→70`。低 VIX 是自滿、高 VIX 是恐慌，兩端都不是「健康」。
-- **`senti` 是合成指標**：AAII 多空差、CBOE 個股 Put/Call（取負）、VIX 特例分數、CNN Fear & Greed（2026-08-10 接入，見 §9），**可得幾項就平均幾項**。哪幾項真的參與了合成，看卡片的 `sub`——`sub`／`dir`／`src`／`url` 這四欄都由引擎依當次成功的來源生成，不是寫死的（v2.0.2 前 `dir`／`src`／`url`／`note` 寫死三來源，只有 `sub` 誠實）。`note` 已改寫成不提「這次合成了哪幾個」的結構性說明（原本還寫著「散戶淨空」，那是 AAII 導出的判斷，AAII 被擋的日子就是憑空的）。目前穩定被擋的只有 AAII，CBOE 時好時壞，見第 9 節。
+- **`senti` 是合成指標**：AAII 多空差、CBOE 個股 Put/Call（取負）、VIX 特例分數、CNN Fear & Greed（2026-08-10 接入，見 §9），**可得幾項就平均幾項**。哪幾項真的參與了合成，看卡片的 `sub`——`sub`／`dir`／`src`／`url` 這四欄都由引擎依當次成功的來源生成，不是寫死的（v2.0.2 前 `dir`／`src`／`url`／`note` 寫死三來源，只有 `sub` 誠實）。`note` 已改寫成不提「這次合成了哪幾個」的結構性說明（原本還寫著「散戶淨空」，那是 AAII 導出的判斷，AAII 被擋的日子就是憑空的）。目前穩定被擋的只有 AAII（CBOE 一度時好時壞，2026-08-17 連續成功 16 次後已退場，見第 9 節）。
   兩個子輸入的錨點：AAII 多空差 `[[-25,5],[0,40],[20,75],[35,100]]`、**取負後**的個股 P/C `[[-1.0,10],[-0.8,33],[-0.62,67],[-0.45,100]]`；CNN F&G 本身就是 0–100 貪婪度，**直讀不經錨點**。**注意它與 `vix_score` 在恐慌端方向相反**：F&G 極恐慌→趨近 0（降溫），`vix_score` VIX≥35→95（恐慌也是風險）——這是接受的取捨，senti 量的是投機熱度，恐慌日「不熱」是事實，VIX 特例才是刻意的例外；另 F&G 的七個成分本身含 VIX，有部分重複計入，接受。
 
 #### 錨點不在 `data.json` 裡的三個指標
@@ -300,7 +300,7 @@ def attempt(name, fn):
 | 區塊 | 函式 | 備註 |
 |---|---|---|
 | 基礎 | `http_get` `pw` `vix_score` `zone` `asof_date` `set_fresh` | `zone(None)` 回 `"pending"`；`http_get` 對 timeout／連線失敗／5xx 重試 2 次（間隔 2 秒），4xx 不重試；`asof_date` 吃 `YYYY-MM-DD`／`YYYY-MM`／`YYYYQn` 三種格式，**看不懂或日期不合法（`2026-13`）一律回 `None`、不拋例外**；`set_fresh` 在寫檔前依 `IND_MAXAGE` 重標全部 `fresh`，解析再包一層 `try`——**它在原子寫檔的前一行，拋例外等於當天整份資料寫不進去，而壞掉的 `asof` 還留在檔案裡讓之後每次執行都死在同一行** |
-| 總經 | `fred(series, days=620)` `fred_back(obs, back_days)` `fred_latest_and_back(series, back_days, days=620)` | `fredgraph.csv`；要同時取多個回看期時用 `fred()` 抓一次再 `fred_back()` 取值，不要重複抓（`fred_latest_and_back` 現在也只是這兩者的組合） |
+| 總經 | `fred(series, days=620)` `fred_back(obs, back_days)` `fred_latest_and_back(series, back_days, days=620)` | `fredgraph.csv`；要同時取多個回看期時用 `fred()` 抓一次再 `fred_back()` 取值，不要重複抓（`fred_latest_and_back` 現在也只是這兩者的組合）。**`BAMLH0A0HYM2` 與 `BAMLH0A3HYC` 自 2026-04 起在 FRED 只保留 3 年觀測值**（2026-08-17 實測 metadata：`2023-08-15` 起）——620 天的預設回看期還在範圍內，但**任何想拉長回看期或做歷史校準的念頭都會在這裡撞牆**，要更長的歷史得回 ICE 原始來源（付費） |
 | 價格 | `px_rows(ysym, ssym=None, rng="4y")` → **三層備援** `yf_chart`(yfinance) → `yahoo_chart`(raw API) → `stooq` | Stooq 在 Actions runner 被擋，只當最後備援。命中哪一層記進模組層的 `PX_HIT`，供台股卡片的 `sub` 顯示當次來源 |
 | 統計 | `series_stats` `gsy_stats` | `gsy_stats` 需 ≥505 筆算 `ret24`、≥758 筆算 `accel`、≥505 筆算 `vol1y`（`volchg` 用） |
 | 估值/情緒 | `multpl_cape` `slickcharts_mag7` `aaii_sentiment` `cboe_putcall` `cnn_fear_greed` | `aaii_sentiment` 持續在 Actions 端被擋；`cboe_putcall` 時好時壞；`cnn_fear_greed` 2026-08-10 新接入、Actions 端成敗未實測（皆見 §9）|
@@ -471,9 +471,9 @@ L1 除 `narrative` 外全部、L2 除三項質化外全部、L3 除 `cloudrev`�
 | 路徑 | 實測結果（2026-08 逐一實測） | 意義 |
 |---|---|---|
 | Bash 的 `curl`／`requests`（引擎走這條） | 只通得到 `github.com` 與 `raw.githubusercontent.com`——而且 **git 只有讀，push 被 git proxy 擋**（見下方「發布」）。**連 `gundamnboy.github.io` 都不通**（回 http=000），`api.github.com` 根路徑 200 但 repo 端點 403，`example.com` 不通，FRED／Stooq／SEC EDGAR／TAIFEX 一律連線失敗 | 在覆核工作階段裡**跑不動 `update_data.py`**，也不能自己 `curl` 補數字 |
-| `WebSearch`／`WebFetch`（走 Anthropic 的抓取服務） | **可以連到外部網站**，包括 FRED、TAIFEX，以及 `github.io` 上的 `data.json` | 質化研究（§8.2）與 `tsmc_weight` 月更靠這條；維護工作階段代使用者驗證線上時也走這條（見下） |
+| `WebSearch`／`WebFetch`（走 Anthropic 的抓取服務） | **可以連到外部網站**，包括 FRED、TAIFEX、TWSE，以及 `github.io` 上的 `data.json`。**能不能讀到內容要看來源**（2026-08-17 逐一實測）：HTML 頁面沒問題；`data.sec.gov` 與 CNN Fear & Greed 的 **JSON 讀得到**；FRED 的 `fredgraph.csv` 回 `[binary data]`；Yahoo chart API 與 Stooq 回空 | 質化研究（§8.2）與 `tsmc_weight` 月更靠這條；維護工作階段代使用者驗證線上時也走這條（見下） |
 
-所以「不自己重抓」的真正理由不是「連不到網路」，而是：**能連到網路的那條路（WebFetch）拿不到引擎要的東西**。WebFetch 讀 `fredgraph.csv` 這類 CSV／JSON 端點會回傳 binary 亂碼，讀網頁則是經過摘要的文字——兩者都不能取代引擎的數值抓取，硬要用只會抓到殘值或讀錯數字，然後把每日管線抓到的好值蓋掉。
+所以「不自己重抓」的真正理由不是「連不到網路」，而是：**能連到網路的那條路（WebFetch）拿不到引擎要的東西**。WebFetch 讀網頁得到的是經過摘要的文字，而數值端點**能不能讀到要看來源**（見上表）——即使讀得到 JSON，那也是一次即興抓取，不是引擎那條帶重試、帶三層備援、帶 `attempt()` 降級的管線。硬要用只會抓到殘值或讀錯數字，然後把每日管線抓到的好值蓋掉。
 
 #### 發布：雲端推不上去，改為交付（2026-08-10 起）
 
@@ -522,7 +522,6 @@ L1 除 `narrative` 外全部、L2 除三項質化外全部、L3 除 `cloudrev`�
 | 來源 | 追蹤 | 狀況 | 目前處置 |
 |---|---|---|---|
 | AAII 情緒調查 | `attempt("AAII")` | Actions runner 持續被擋 | `senti` 少一個輸入，不報錯 |
-| CBOE 個股 Put/Call | `attempt("CBOE putcall")` | **時好時壞**（2026-08-04 成功，之前多次失敗） | 成功就進 `senti`，失敗就退出當次平均 |
 | CNN Fear & Greed | `attempt("CNN FearGreed")` | 2026-08-10 新接入；端點以 WebFetch 驗證過活著，**Actions runner 能否連上未實測** | `senti` 的第四輸入（0–100 直讀）；失敗就退出當次平均。若 streak 連續成功 ≥15 次，把本列與 `KNOWN_FAIL` 一起移除 |
 | TAIFEX 台積電權重 | `attempt("TW 台積電權重")` | 擋機器人 | 由每週覆核人工更新（種子值 44.78%，2026-07-31） |
 | Stooq | **無**（`px_rows()` 內部第三層備援，沒有自己的 `attempt()`） | Actions runner 被擋 | 已降為價格三層備援的最後一層 |
@@ -546,6 +545,7 @@ L1 除 `narrative` 外全部、L2 除三項質化外全部、L3 除 `cloudrev`�
 
 | 版本 | 日期 | 改了什麼 | 為什麼／事故經過 |
 |---|---|---|---|
+| **v2.1.5** | 2026-08-17 | CBOE Put/Call 退場（streak 16 ≥ 門檻 15，從 §9 與 `KNOWN_FAIL` 移除，之後再壞掉會是 FAIL）；§8.3 的 WebFetch 能力改成分來源講（SEC／CNN 的 JSON 讀得到、FRED 的 CSV 是 binary、Yahoo／Stooq 回空，皆實測）；§5.2 補記 FRED 的 HY／CCC 只留 3 年觀測 | `MAINTENANCE.md` §2 |
 | **v2.1.4** | 2026-08-17 | `fresh` 修活：引擎依 `IND_MAXAGE` 逐日重標，healthcheck 用引擎自己的門檻與 `asof_date` 重算對帳（FAIL 級）；台股三個價格項的 `sub` 顯示當次真正命中的備援層 | `MAINTENANCE.md` §6.13 |
 | **v2.1.3** | 2026-08-17 | `healthcheck.py` 新增燈號界三處對帳（引擎 `zone()`／前端 `zoneOf()`／`stripHTML()` 色帶）——§4.4 原本寫著「沒有機器在比對」，補上了 | `MAINTENANCE.md` §6.7 的標準 |
 | **v2.1.2** | 2026-08-17 | 前端補上四個缺欄位防禦（`charts.debt.note`、指標卡與總表的 `zone`、`tw.heat` 的「null／100」），並拆掉五處寫死判語（`vc` 誤標 L3、「不同調」與 `evalNvdaCmp` 打架、無條件宣稱與論文結論一致、`evalStagePhase` 撐不到第三／四階段、2026Q1 驗算數字改為現算）；§3.4 兩組界改為正面表述；`healthcheck.py` 的 `find_repo` 不再無條件掃家目錄（在使用者 Mac 上會掛死、`--repo` 形同虛設）；§8.3 由禁令改為白名單、§6 的「幾處一組」去掉數字、§8.2 補 `stage` 的完成條件；`fresh` 死欄位與兩個既有回退寫進規格 | `MAINTENANCE.md` §6.13 |

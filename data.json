@@ -48,44 +48,44 @@
    "streak": {
     "AAII": 0,
     "TW 台積電權重": 0,
-    "px SOXX": 19,
-    "px SPY": 19,
-    "px NVDA": 19,
-    "px 2330": 19,
-    "calc GSY": 19,
-    "calc soxmom": 19,
-    "calc nvdape": 19,
-    "multpl CAPE": 19,
-    "slickcharts Mag7": 19,
-    "CBOE putcall": 19,
-    "FRED VIX": 19,
-    "CNN FearGreed": 11,
-    "calc senti": 19,
-    "FRED HY": 19,
-    "FRED CCC": 19,
-    "ORCL bond": 6,
-    "FRED IG": 19,
-    "FRED FEDFUNDS 磚塊": 19,
-    "FRED USINFO 磚塊": 19,
-    "EDGAR RPO": 19,
-    "EDGAR quarterly": 19,
-    "TW 月營收": 19,
-    "TW 官方PE": 19,
-    "calc TW 2330": 19,
-    "TW 電子指數": 19,
-    "TW 融資餘額": 19,
-    "TW 當沖比重": 3,
-    "TW 海關出口": 19,
-    "FRED CPI": 19,
-    "FRED FEDFUNDS": 19,
-    "FRED DGS10": 19,
-    "Google News": 19
+    "px SOXX": 20,
+    "px SPY": 20,
+    "px NVDA": 20,
+    "px 2330": 20,
+    "calc GSY": 20,
+    "calc soxmom": 20,
+    "calc nvdape": 20,
+    "multpl CAPE": 20,
+    "slickcharts Mag7": 20,
+    "CBOE putcall": 20,
+    "FRED VIX": 20,
+    "CNN FearGreed": 12,
+    "calc senti": 20,
+    "FRED HY": 20,
+    "FRED CCC": 20,
+    "ORCL bond": 7,
+    "FRED IG": 20,
+    "FRED FEDFUNDS 磚塊": 20,
+    "FRED USINFO 磚塊": 20,
+    "EDGAR RPO": 20,
+    "EDGAR quarterly": 20,
+    "TW 月營收": 20,
+    "TW 官方PE": 20,
+    "calc TW 2330": 20,
+    "TW 電子指數": 20,
+    "TW 融資餘額": 20,
+    "TW 當沖比重": 4,
+    "TW 海關出口": 20,
+    "FRED CPI": 20,
+    "FRED FEDFUNDS": 20,
+    "FRED DGS10": 20,
+    "Google News": 20
    }
   }
  },
  "composite": 60.8,
  "dims": {
-  "L1": 66.8,
+  "L1": 66.7,
   "L2": 68.5,
   "L3": 44.8
  },
@@ -172,9 +172,9 @@
    "id": "mag7",
    "dim": "L1",
    "name": "Mag7 佔標普500市值比重",
-   "value": 33.07,
+   "value": 33.09,
    "disp": "33.1%",
-   "score": 72.9,
+   "score": 73.0,
    "zone": "orange",
    "anchors": [
     [
@@ -206,9 +206,9 @@
    "id": "nvdape",
    "dim": "L1",
    "name": "NVIDIA 本益比（即時價÷TTM EPS）",
-   "value": 35.94,
-   "disp": "35.9×",
-   "score": 34.6,
+   "value": 36.02,
+   "disp": "36.0×",
+   "score": 34.7,
    "zone": "yellow",
    "anchors": [
     [
@@ -235,13 +235,13 @@
    "url": "https://stockanalysis.com/stocks/nvda/",
    "note": "對照 2000 年 Cisco 130×+。龍頭是否仍由盈利支撐的即時檢驗；GS 2026-08 改口「盈利泡沫」後，這裡要與 LTG 預期一起看。",
    "qual": false,
-   "sub": "距200日線 +16.3%"
+   "sub": "距200日線 +16.5%"
   },
   {
    "id": "gsy_runup",
    "dim": "L1",
    "name": "GSY 泡沫判準：24個月漲幅（SOXX）",
-   "value": 165.4,
+   "value": 165.1,
    "disp": "+165%（24個月）",
    "score": 87.3,
    "zone": "red",
@@ -272,15 +272,15 @@
    "fresh": "ok",
    "src": "Greenwood-Shleifer (JFE 2019)",
    "url": "https://www.nber.org/papers/w23191",
-   "note": "唯一有崩盤機率校準的訊號：產業 24 個月漲幅 ≥100% → 其後 24 個月崩盤（-40%）機率 53%；≥150% → 80%。每日以 SOXX 計算。",
+   "note": "產業 24 個月漲幅的泡沫判準。**文獻的 53%／80% 是引用，不是本標的的校準**：Greenwood-Shleifer-You（JFE 2018）算的是「至少 10 家公司的市值加權產業組合」，且要求 raw 與淨大盤兩個 24 月報酬同時 ≥門檻、再加 5 年 ≥50%，樣本 1928–2012；本指標只看 SOXX 這檔 ETF 自己的 raw 24 月漲幅，論文全文未討論套用到單一標的。我們自己在 SOXX 2003–2026 的回測：raw ≥100% 的 16 次穿越裡，其後 24 個月最大回撤 ≥40% 的佔 37.5%（收攏成 5 個獨立事件則為 60%），相對無條件基準 14% 確實有鑑別力——但背後只有 2 個獨立的崩盤事件，是方向一致而非統計顯著。照論文三條件計算，SOXX 25 年來只成立過 2 次、150% 門檻 0 次。",
    "qual": false,
-   "sub": "文獻校準：≥100%→其後24個月崩盤率53%、≥150%→80%（Greenwood-Shleifer）"
+   "sub": "文獻 53%／80% 為引用，非本標的校準——說明見卡片下方"
   },
   {
    "id": "gsy_accel",
    "dim": "L1",
    "name": "GSY 加速度（當下24月漲幅 − 一年前24月漲幅）",
-   "value": 113.2,
+   "value": 112.9,
    "disp": "+113pp",
    "score": 94.7,
    "zone": "red",
@@ -320,7 +320,7 @@
    "name": "已實現波動率一年變化（SOXX）",
    "value": 5.0,
    "disp": "+5.0pp（年化 45%）",
-   "score": 67.2,
+   "score": 67.1,
    "zone": "orange",
    "anchors": [
     [
@@ -352,9 +352,9 @@
    "id": "soxmom",
    "dim": "L1",
    "name": "半導體相對動能（SOXX−SPY，3個月）",
-   "value": 6.3,
+   "value": 6.1,
    "disp": "+6pp",
-   "score": 20.6,
+   "score": 20.3,
    "zone": "green",
    "anchors": [
     [
@@ -386,9 +386,9 @@
    "id": "senti",
    "dim": "L1",
    "name": "情緒與投機溫度（合成）",
-   "value": 66.3,
-   "disp": "個股P/C 0.52｜VIX 14.2｜F&G 62",
-   "score": 66.3,
+   "value": 66.4,
+   "disp": "個股P/C 0.52｜VIX 14.2｜F&G 63",
+   "score": 66.4,
    "zone": "yellow",
    "anchors": null,
    "dir": "合成規則（本次：CBOE 個股 Put/Call＋VIX＋CNN F&G）",
@@ -1504,18 +1504,13 @@
   },
   {
    "d": "08-17",
-   "t": "Nvidia backs financing for OpenAI data center in Ohio｜CNBC",
+   "t": "Nvidia backing $105 billion in financing for OpenAI data center in Ohio｜CNBC",
    "url": "https://news.google.com/rss/articles/CBMihAFBVV95cUxONTY0SXEyaEQ3Q1pRaUhyaVdKNzBHWUJNNVdQX3V5SHRSWVdfYmYzTWJpQjhKVHd5OGRmdjFzT25reUNJX21IWFc0Z2FwY0hQcWFSRm16bURnUVVydUVuT2FDYy11TmV0T09nMDJEdVBsbTdvRWN0ckoxQ2p4b3NPRVVSd3TSAYoBQVVfeXFMUGE1ZTROeEprR2lWenlwXy12a09IbkgwRGdzQ1lTSlhzSzRUb2M2LUF1OXVwT1g5NkxMeEFxX2hleklhU0Z0Q0pZVE40eDVNT2xzRGtFQnp0U2luSVQ3bjlGMkpYNlV6UzVSRXBqUXJqV2Q2SHpkdFZIWDdSRUk1R21LbThheEN5c1VB?oc=5"
   },
   {
    "d": "08-17",
    "t": "Nvidia, OpenAI and SoftBank Finalize Deal For Massive Ohio Data Center Project｜The Information",
    "url": "https://news.google.com/rss/articles/CBMirwFBVV95cUxQbkNqcFJram41SXY0MW8yS0tnanRkdU43X05nYkRkZXVWUi04dFY2UVg4OFBMeVZZTEpQbkNsNTlZYVFBd3lnYlhFTUpRNVg2SEJaM2kxNmJBN3hMWTduQzAzemd5WkNUdFRMTFRiSUZlYkppeXlpaTVfSGxlZnVnS0d1bGlKTFNKMXBPMldvYlAtOWVfZHRFaEtnV19GMG9IcmpmU2p4TndKMXpPWURr?oc=5"
-  },
-  {
-   "d": "08-17",
-   "t": "Nvidia to provide up to $105bn guarantee for OpenAI's Ohio data center｜Nikkei Asia",
-   "url": "https://news.google.com/rss/articles/CBMi0wFBVV95cUxNMUo1eGs2X0N3MnFsbzdYNXE4VUNoYWlwSGtYVk9Ua0dIVVpXZENfVDJaVE1kVTVQT2xJSDQ3RmtSSjJ5VklkX2otVTFmTE1Qbk5ocnJvZDg4VkNGdlNPUzBqY0lvOF9fTU9ZRXVXbUliMlJkSFlLTW5YNnJDa3A2S1JfYV9ONHlGY3VnVmhfT0tMYXpKX3VLQy0zeFRxUnFGa0hJeFFkU1h2NWw1b05DMEU2UndwSzRMMHRnZE9vWDFmWG1fS2ZzNC1HaXFWbnRxd25R?oc=5"
   },
   {
    "d": "08-17",
@@ -1526,6 +1521,11 @@
    "d": "08-16",
    "t": "The Bank of Nvidia, Dario Amodei’s Wife and More | Technology for Aug. 16｜WSJ",
    "url": "https://news.google.com/rss/articles/CBMiZkFVX3lxTFAzVENnRzY2bTNha0s5c09GOWltSzByRkFSVjRFVTE0aUxBdFlPdkpXdW5YbEl1NUZwMWFENlZlV1U0Qkh1b2NrQ2FWVWFDLVpkY2ttdWF6WHVMWEFSdE8xNE5ZMHNwQQ?oc=5"
+  },
+  {
+   "d": "08-16",
+   "t": "There isn't just one AI bubble, strategist says — there's a 'rolling sequence of bubbles' instead｜Fortune",
+   "url": "https://news.google.com/rss/articles/CBMinAFBVV95cUxPaHE5enlCZU4wRTJnUk9ETFlzMTA4RWF5cnQ5ZlhjX3pNTUEzeVhHdEJJanp6SFU2MzdVNHdCc2xNMXcyTHQyWko2SzRxLThzQkJQRDhlREVFNS1sWERyckF4THBZVlJFUjBwZHJQcU1KM2hRNEJnTjlFSmUwcE54ZWtjeThaR0NVQmZXdllsRmpncHNIRm9oRG8xc0s?oc=5"
   },
   {
    "d": "08-16",
@@ -1918,14 +1918,14 @@
    "date": "2026-08-17",
    "composite": 60.8,
    "dims": {
-    "L1": 66.8,
+    "L1": 66.7,
     "L2": 68.5,
     "L3": 44.8
    },
    "tw": 46.8,
    "quad": [
     55.2,
-    67.7
+    67.6
    ],
    "trig": 1
   }
@@ -2001,7 +2001,7 @@
   }
  ],
  "quadrant": {
-  "heat": 67.7,
+  "heat": 67.6,
   "support": 55.2,
   "regime": "過熱但有撐（melt-up 風險）"
  }

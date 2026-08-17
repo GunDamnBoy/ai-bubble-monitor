@@ -2,7 +2,7 @@
 
 > 這份是**現在的規格與判斷規則**，是本系統的唯一真相來源。
 > 每週質化覆核排程每次執行前完整讀一次。事故經過與被否決的選項寫在 `MAINTENANCE.md` 第 6 節，不要寫進這裡。
-> 版本：**v2.1.5（三層頻率架構）**｜最後修訂 2026-08-17
+> 版本：**v2.1.6（三層頻率架構）**｜最後修訂 2026-08-17
 
 ---
 
@@ -238,6 +238,8 @@ support = 100 − L3             ← 基本面還有多少支撐（L3 越高＝�
 
 **籌碼是四組裡唯一的單點子群**（只有 `tw_margin`），所以最常遇到這件事的就是它：`tw_margin` 需要 21 個交易日的序列才算得出 20 日變化，序列未滿期間整個 20% 權重都不在分母裡。這不是 bug，但它會讓人以為資料出錯。
 
+**v2.1.6 起序列改用回補**（見 §5.4），所以這個空窗期只會發生在「歷史被清掉、而回補也失敗」的情況；補齊當天 `tw.heat` 一樣會跳一次，**但那一跳是我們自己按下去的**，不是市場動了——`MAINTENANCE.md` §4 有記日期。
+
 **當下缺哪幾組、補齊後 heat 會落在哪，一律看 `healthcheck.py` 的 WARN**，它在分母 ≠ 1.0 時會印出缺項與三個情境的模擬值。**這裡刻意不寫具體數字與日期**——那種東西寫進文件就會過期，而 heat 每天都在動，今天算的模擬值到補齊那天早就不是這個數了（WARN 訊息也因此寫「屆時**約**為」）。
 
 要消除這個跳動只有兩條路：給籌碼補第二項指標，或接受它。目前選後者，因為融資餘額是台股籌碼面唯一日頻、官方、免金鑰的序列。**若哪天真的補了第二項，記得回來改這一段與 `MAINTENANCE.md` 第 4 節那條坑**——「唯一的單點子群」這句話屆時就不成立了。**`healthcheck.py` 會把上表的成員組成跟引擎的 `subs_def` 對帳，改了成員而沒同步就 FAIL。**
@@ -306,7 +308,7 @@ def attempt(name, fn):
 | 估值/情緒 | `multpl_cape` `slickcharts_mag7` `aaii_sentiment` `cboe_putcall` `cnn_fear_greed` | `aaii_sentiment` 持續在 Actions 端被擋；`cboe_putcall` 時好時壞；`cnn_fear_greed` 2026-08-10 新接入、Actions 端成敗未實測（皆見 §9）|
 | 信用 | `orcl_bond_yield` | Public.com 報價頁。`hyoas`／`ccc` 取不到 91 天基期時**直接 fail 沿用舊值**，不用 0bp 的假變化計分 |
 | 季報 | `edgar_rows` `to_quarters` `bucket` `refresh_edgar` `rpo_backlog` | 見 5.3。另有幾個藏在實作裡的門檻：`rpo_backlog` 若前期端點與目標日相差 >75 天就跳過該公司；`debt` 年增要求回看 ≥330 天；**`fcf` 的 YoY 在基期 TTM FCF ≤0 時沿用舊值**（負基期會把 −10B→+5B 這種改善算成 −150% 的滿熱分） |
-| 台灣 | `tw_monthly_rev` `tw_bwibbu` `tw_margin_balance` `tw_index_today` `taifex_tsmc_weight` `tw_customs_export_yoy` | 見 5.4 |
+| 台灣 | `tw_monthly_rev` `tw_bwibbu` `_margin_on` `tw_margin_balance` `backfill_margin_hist` `tw_index_today` `taifex_tsmc_weight` `tw_customs_export_yoy` | 見 5.4 |
 | 新聞 | `_parse_news_items` `fetch_news` | 見 5.5 |
 | 主流程 | `main()` `selftest()` | `python3 scripts/update_data.py --selftest`。`data.json` 走**原子寫檔**（`.tmp` → rename），半寫檔會讓之後每次執行在 `json.loads` 就死 |
 
@@ -334,6 +336,8 @@ def attempt(name, fn):
 兩條**來源格式防呆**：海關 CSV **自行排序、不信任列序**；TWSE 電子指數用**精確名匹配**（保留子字串備援）。兩者都是來源改版時會靜默給錯值的地方。
 
 `elec_rel` 與 `tw_margin` 需要 `idx_hist`／`margin_hist` 累積滿 **21 個交易日**才算得出來；未滿時 `score` 為 `null`、`disp` 顯示「序列累積中 n/21」。兩份歷史各保留最近 90 筆。
+
+**`margin_hist` 不必等**（v2.1.6 起）：`MI_MARGN` 吃 `date=` 參數，`backfill_margin_hist()` 會在筆數不足 21 時往回抓（最多回看 45 個日曆日、跳過週末、每次請求間隔 0.3 秒），補滿之後每次執行直接跳過。**它只補、不覆蓋既有筆**。`idx_hist` 目前沒有對應的回補——`MI_INDEX` 走的是 openapi 的當日快照端點，要回補得改走 `www.twse.com.tw/rwd/...?date=` 那條路，尚未做。
 
 ### 5.5 新聞流 `events`
 
@@ -545,6 +549,7 @@ L1 除 `narrative` 外全部、L2 除三項質化外全部、L3 除 `cloudrev`�
 
 | 版本 | 日期 | 改了什麼 | 為什麼／事故經過 |
 |---|---|---|---|
+| **v2.1.6** | 2026-08-17 | `margin_hist` 改為回補（`MI_MARGN` 吃 `date=`，不足 21 筆時往回抓 45 個日曆日）——籌碼子群不必再等 21 個交易日，補齊當天 `tw.heat` 會跳一次且那一跳是人為的 | `MAINTENANCE.md` §4 |
 | **v2.1.5** | 2026-08-17 | CBOE Put/Call 退場（streak 16 ≥ 門檻 15，從 §9 與 `KNOWN_FAIL` 移除，之後再壞掉會是 FAIL）；§8.3 的 WebFetch 能力改成分來源講（SEC／CNN 的 JSON 讀得到、FRED 的 CSV 是 binary、Yahoo／Stooq 回空，皆實測）；§5.2 補記 FRED 的 HY／CCC 只留 3 年觀測 | `MAINTENANCE.md` §2 |
 | **v2.1.4** | 2026-08-17 | `fresh` 修活：引擎依 `IND_MAXAGE` 逐日重標，healthcheck 用引擎自己的門檻與 `asof_date` 重算對帳（FAIL 級）；台股三個價格項的 `sub` 顯示當次真正命中的備援層 | `MAINTENANCE.md` §6.13 |
 | **v2.1.3** | 2026-08-17 | `healthcheck.py` 新增燈號界三處對帳（引擎 `zone()`／前端 `zoneOf()`／`stripHTML()` 色帶）——§4.4 原本寫著「沒有機器在比對」，補上了 | `MAINTENANCE.md` §6.7 的標準 |

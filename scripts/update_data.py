@@ -4,7 +4,8 @@
 v2 架構：三層頻率（L1 市場與情緒 35% / L2 資金與信用 35% / L3 基本面兌現 30%）
 ＋引爆觸發器面板＋象限定位＋台灣供應鏈 v2（月營收/官方PE/融資/集中度/出口）。
 原則：任一來源失敗只記錄並沿用舊值，絕不編造、絕不讓整次更新失敗。"""
-import json, re, sys, math, datetime as dt
+import json
+import time, re, sys, math, datetime as dt
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -363,22 +364,64 @@ def tw_bwibbu():
     if len(d) == 7: d = f"{int(d[:3]) + 1911}-{d[3:5]}-{d[5:]}"
     return out, d
 
+def _margin_on(dstr):
+    """抓某一天的融資餘額。非交易日回 None，抓失敗也回 None（讓呼叫端自己決定要不要往前找）。"""
+    try:
+        j = http_get(f"https://www.twse.com.tw/rwd/zh/marginTrading/MI_MARGN?response=json&date={dstr}&selectType=MS",
+                     ua=UA_BROWSER).json()
+    except Exception:
+        return None
+    if j.get("stat") != "OK":
+        return None
+    for t in (j.get("tables") or [j]):
+        for row in t.get("data", []):
+            if row and "融資金額" in str(row[0]):
+                return round(float(str(row[-1]).replace(",", "")) / 1e6, 1)   # 仟元→十億元
+    return None
+
+
 def tw_margin_balance():
     for back in range(0, 10):
         d = (TODAY - dt.timedelta(days=back)).strftime("%Y%m%d")
-        try:
-            j = http_get(f"https://www.twse.com.tw/rwd/zh/marginTrading/MI_MARGN?response=json&date={d}&selectType=MS",
-                         ua=UA_BROWSER).json()
-        except Exception:
-            continue
-        if j.get("stat") == "OK":
-            tables = j.get("tables") or [j]
-            for t in tables:
-                for row in t.get("data", []):
-                    if row and "融資金額" in str(row[0]):
-                        bal = float(str(row[-1]).replace(",", "")) / 1e6   # 仟元→十億元
-                        return d, round(bal, 1)
+        bal = _margin_on(d)
+        if bal is not None:
+            return d, bal
     raise RuntimeError("margin: no trading day found in 10 days")
+
+
+def backfill_margin_hist(hist, need=21, max_back=45):
+    """把 margin_hist 往回補到至少 need 筆。
+
+    這條序列原本只靠引擎每天追加一筆長出來，所以「20 日變動」要等 21 個交易日才算得出來，
+    期間 tw_margin 是 null、而籌碼是單點子群 → 整組 20% 被剔除、tw.heat 以 0.8 分母歸一
+    （MAINTENANCE §4 那條坑）。但 MI_MARGN 本來就吃 date= 參數，往回抓就補得起來——
+    等了兩次才發現不必等，這是「以為做不到、其實沒試過」的典型。
+
+    只在筆數不足時做（補滿之後每次執行都會直接跳過），且**不覆蓋既有筆**——
+    history 只附加、既有值原樣保留，是這套系統的硬規矩。
+    """
+    if len(hist) >= need:
+        return 0
+    have = {h["d"] for h in hist}
+    added = []
+    for back in range(1, max_back + 1):
+        if len(hist) + len(added) >= need + 4:      # 多補幾筆當緩衝，不無限往回抓
+            break
+        day = TODAY - dt.timedelta(days=back)
+        if day.weekday() >= 5:                      # 六日直接跳過，省一半請求
+            continue
+        dd = day.isoformat()
+        if dd in have:
+            continue
+        bal = _margin_on(day.strftime("%Y%m%d"))
+        if bal is not None:
+            added.append({"d": dd, "bal": bal})
+        time.sleep(0.3)                             # 對 TWSE 客氣一點
+    if added:
+        hist.extend(added)
+        hist.sort(key=lambda h: h["d"])
+    return len(added)
+
 
 def tw_index_today():
     arr = http_get("https://openapi.twse.com.tw/v1/exchangeReport/MI_INDEX", ua=UA_BROWSER).json()
@@ -957,7 +1000,10 @@ def main():
         hist = tw.setdefault("margin_hist", [])
         if not hist or hist[-1]["d"] != dd:
             hist.append({"d": dd, "bal": bal})
+        n = backfill_margin_hist(hist)
+        if n: log(f"[margin] 回補 {n} 筆歷史，序列長度 {len(hist)}")
         tw["margin_hist"] = hist[-90:]
+        hist = tw["margin_hist"]
         if len(hist) >= 21:
             g = (hist[-1]["bal"] / hist[-21]["bal"] - 1) * 100
             tupd("tw_margin", bal, f"{bal:.0f} 十億元（20日 {g:+.1f}%）",

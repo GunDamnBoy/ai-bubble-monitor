@@ -47,37 +47,37 @@
    "streak": {
     "AAII": 0,
     "TW 台積電權重": 0,
-    "px SOXX": 15,
-    "px SPY": 15,
-    "px NVDA": 15,
-    "px 2330": 15,
-    "calc GSY": 15,
-    "calc soxmom": 15,
-    "calc nvdape": 15,
-    "multpl CAPE": 15,
-    "slickcharts Mag7": 15,
-    "CBOE putcall": 15,
-    "FRED VIX": 15,
-    "CNN FearGreed": 7,
-    "calc senti": 15,
-    "FRED HY": 15,
-    "FRED CCC": 15,
-    "ORCL bond": 2,
-    "FRED IG": 15,
-    "FRED FEDFUNDS 磚塊": 15,
-    "FRED USINFO 磚塊": 15,
-    "EDGAR RPO": 15,
-    "EDGAR quarterly": 15,
-    "TW 月營收": 15,
-    "TW 官方PE": 15,
-    "calc TW 2330": 15,
-    "TW 電子指數": 15,
-    "TW 融資餘額": 15,
-    "TW 海關出口": 15,
-    "FRED CPI": 15,
-    "FRED FEDFUNDS": 15,
-    "FRED DGS10": 15,
-    "Google News": 15
+    "px SOXX": 16,
+    "px SPY": 16,
+    "px NVDA": 16,
+    "px 2330": 16,
+    "calc GSY": 16,
+    "calc soxmom": 16,
+    "calc nvdape": 16,
+    "multpl CAPE": 16,
+    "slickcharts Mag7": 16,
+    "CBOE putcall": 16,
+    "FRED VIX": 16,
+    "CNN FearGreed": 8,
+    "calc senti": 16,
+    "FRED HY": 16,
+    "FRED CCC": 16,
+    "ORCL bond": 3,
+    "FRED IG": 16,
+    "FRED FEDFUNDS 磚塊": 16,
+    "FRED USINFO 磚塊": 16,
+    "EDGAR RPO": 16,
+    "EDGAR quarterly": 16,
+    "TW 月營收": 16,
+    "TW 官方PE": 16,
+    "calc TW 2330": 16,
+    "TW 電子指數": 16,
+    "TW 融資餘額": 16,
+    "TW 海關出口": 16,
+    "FRED CPI": 16,
+    "FRED FEDFUNDS": 16,
+    "FRED DGS10": 16,
+    "Google News": 16
    }
   }
  },
@@ -170,9 +170,9 @@
    "id": "mag7",
    "dim": "L1",
    "name": "Mag7 佔標普500市值比重",
-   "value": 33.28,
+   "value": 33.29,
    "disp": "33.3%",
-   "score": 74.0,
+   "score": 74.1,
    "zone": "orange",
    "anchors": [
     [
@@ -532,9 +532,9 @@
    "id": "orclbond",
    "dim": "L2",
    "name": "Oracle 2055 長債殖利率",
-   "value": 7.56,
-   "disp": "7.56%",
-   "score": 71.2,
+   "value": 7.59,
+   "disp": "7.59%",
+   "score": 71.8,
    "zone": "orange",
    "anchors": [
     [
@@ -847,7 +847,8 @@
     "note": "主升段乖離度。",
     "src": "2330.TW 價格序列（yfinance→Yahoo→Stooq 三層備援）",
     "asof": "2026-08-17",
-    "url": "https://finance.yahoo.com/quote/2330.TW/"
+    "url": "https://finance.yahoo.com/quote/2330.TW/",
+    "sub": "本次價格來源：yfinance"
    },
    {
     "id": "tsmc_52w",
@@ -858,7 +859,8 @@
     "note": "GSY 式漲幅檢驗的台股版。",
     "src": "2330.TW 價格序列（yfinance→Yahoo→Stooq 三層備援）",
     "asof": "2026-08-17",
-    "url": "https://finance.yahoo.com/quote/2330.TW/"
+    "url": "https://finance.yahoo.com/quote/2330.TW/",
+    "sub": "本次價格來源：yfinance"
    },
    {
     "id": "twii_pos",
@@ -869,7 +871,8 @@
     "note": "以台積電（佔大盤 44%+）取代加權指數作位置計。",
     "src": "2330.TW 價格序列（yfinance→Yahoo→Stooq 三層備援）",
     "asof": "2026-08-17",
-    "url": "https://finance.yahoo.com/quote/2330.TW/"
+    "url": "https://finance.yahoo.com/quote/2330.TW/",
+    "sub": "本次價格來源：yfinance"
    },
    {
     "id": "elec_rel",
@@ -885,12 +888,12 @@
    {
     "id": "tw_margin",
     "name": "融資餘額（20日變化）",
-    "value": 547.1,
-    "disp": "547 十億元（序列累積中 10/21）",
+    "value": 550.1,
+    "disp": "550 十億元（序列累積中 11/21）",
     "score": null,
     "note": "散戶槓桿溫度計（TWSE 信用交易統計，日頻）。",
     "src": "TWSE 信用交易統計 MI_MARGN",
-    "asof": "2026-08-14",
+    "asof": "2026-08-17",
     "url": "https://www.twse.com.tw/rwd/zh/marginTrading/MI_MARGN"
    },
    {
@@ -1134,6 +1137,10 @@
    {
     "d": "2026-08-14",
     "bal": 547.1
+   },
+   {
+    "d": "2026-08-17",
+    "bal": 550.1
    }
   ]
  },
@@ -1351,7 +1358,7 @@
     "asof": "2026-08-13"
    },
    "orclbond": {
-    "now": 7.56,
+    "now": 7.59,
     "asof": "2026-08-17"
    }
   }
@@ -1423,8 +1430,13 @@
  "events": [
   {
    "d": "08-17",
-   "t": "Big investors hunt for tomorrow's AI winners as capex angst fades｜Reuters",
-   "url": "https://news.google.com/rss/articles/CBMipAFBVV95cUxQN3JiYWhkcERDWi1MTllqMVduaUtTMjdkRU1GWkRKQldPbnlGR2lSenNfTmM1dmMxX1djUmQ1RFpLcHZnbFVvc3hjelp1SVROaWxReFFSREIxd0UxTGx3dDF3MUpZeGN3bWFydFZxXzNFdldtUWo5MnhEN0phclg5U0JUbk1uVlYyZDhQYzJHMEdmb0cyODBwY1BycHdGMm9WdmN0bg?oc=5"
+   "t": "Zacks Investment Ideas feature highlights: Applied Optoelectronics, NVIDIA and Amazon｜Yahoo Finance",
+   "url": "https://news.google.com/rss/articles/CBMiqgFBVV95cUxPeHYzNFVTcjN4TzZUNUN3b3l1eF9sR19hR2JZUjhnUURJall3YXduMVpwcTV6SWFFZUFFNWV4cnJveDVkc2g1MV9XaHpaWk03LXpoVkJmdmNWT085OHYxQXlPVTRiN2Q0NUxHRTdoMklhUWJqZlFKRkhiSW8tdllEb3NXcHJqZzJqN2ZYSi1menFZdERITGcwWXNYdmYzeXlFZTNabzFDRGRXZw?oc=5"
+  },
+  {
+   "d": "08-17",
+   "t": "Wall Street’s Biggest Funds Are Dumping Broadcom and Adding Taiwan Semiconductor. Time to Follow the ‘Smart Money?’｜Yahoo Finance",
+   "url": "https://news.google.com/rss/articles/CBMinwFBVV95cUxPbGtfMHU1eElHUkFlSmMzMHIxNUJTOWtDWkU2cndvb3ptaENvWjR4b0tmVmlwejFWblFWWDFMeTR6LVlCZUhydDBEZHo0YXprLVNaU04tTjRqbVJzdVlmWl84ZUNHSk1nQWNvOFg1NmNueU54clFqZ0J5ZUpMMUpaZnlBTVcySzV1NFVZaHFFdk1rVE5lRDdGQ0lHd0ZRQVE?oc=5"
   },
   {
    "d": "08-16",
@@ -1433,18 +1445,18 @@
   },
   {
    "d": "08-16",
+   "t": "The AI boom has echoes of Enron — but that might be okay, a tech guru says｜Business Insider",
+   "url": "https://news.google.com/rss/articles/CBMiowFBVV95cUxOUTlCa2s5dHpEM0Z2VHBYekRvTnc4bEhCZW42dnpNSTQyX0R5bFVydnJYVEhjeEtOcnBFUmdRQVV2dzh0T2taRU02bHJlSHVrcUVkeDVScm1xYWxwQm0wQ0tvMXhoVnlCYVU3dURnam0taG5haXppUjFDa2dOMEpIWlBUc2ZJZEFfc050VzVNUHQzUk51bTdaUWU0NzBPcEVYZEtB?oc=5"
+  },
+  {
+   "d": "08-16",
+   "t": "There isn't just one AI bubble, strategist says — there's a 'rolling sequence of bubbles' instead｜Fortune",
+   "url": "https://news.google.com/rss/articles/CBMinAFBVV95cUxPaHE5enlCZU4wRTJnUk9ETFlzMTA4RWF5cnQ5ZlhjX3pNTUEzeVhHdEJJanp6SFU2MzdVNHdCc2xNMXcyTHQyWko2SzRxLThzQkJQRDhlREVFNS1sWERyckF4THBZVlJFUjBwZHJQcU1KM2hRNEJnTjlFSmUwcE54ZWtjeThaR0NVQmZXdllsRmpncHNIRm9oRG8xc0s?oc=5"
+  },
+  {
+   "d": "08-16",
    "t": "Nvidia eyes investing $3 billion in SoftBank's SB Energy under OpenAI data center deal, Information says｜CNBC",
    "url": "https://news.google.com/rss/articles/CBMitAFBVV95cUxPVWZ1N2otRGlpWFZiYUtyZHFiQVRYRDVZalFjWVBuSmtTblJSUlc0YnVHS0RkeUdIVzlTTF9hM2lkWjM1aWsya014MWxCVWdwR1BJZkVuN1Fwemd3OHNrWDBQUTlaTXRPcEM0b0pMaTFMVzFoUDNEcmI0bjBGSFFpNnBwWENhal9sOTBNNG1BMk1OcVdLeTRiT2liZWduUEJGNXFIcF9kcTJwM0VXLVdkN20zYW3SAbQBQVVfeXFMT1VmdTdqLURpaVhWYmFLcmRxYkFUWEQ1WWpRY1lQbkprU25SUlJXNGJ1R0tEZHlHSFc5U0xfYTNpZFozNWlrMmtNeDFsQlVncEdQSWZFbjdRcHpndzhza1gwUFE5Wk10T3BDNG9KTGkxTFcxaFAzRHJiNG4wRkhRaTZwcFhDYWpfbDkwTTRtQTJNTnFXS3k0Yk9pYmVnblBCRjVxSHBfZHEycDNFVy1XZDdtM2Ft?oc=5"
-  },
-  {
-   "d": "08-16",
-   "t": "Nvidia eyes investing $3 billion in SB Energy under OpenAI data center deal, Information says｜Reuters",
-   "url": "https://news.google.com/rss/articles/CBMiwwFBVV95cUxNZ3pfaW5nWDJod3o1WmVuMnludzV4bUF3WllYcXJtV3phQndZbDc1NW5TQkFpODUtN25oLU9sVmhtU0VhNU9PMzhfUjNxWDVyenljaElYb3Y5R0VnN29HUTJGOGdUZnJqUUFOSUxDWlZwdThKcVNqSUhZT19HOWFsN284OFUzWHlLTmdCVXJhemFxUDd2dGhacjFidFlnXzZyTVY5Vk9ZRzcxSUpIelJtcXlRMDNoeFA3dHc4U2xQUDhDSUk?oc=5"
-  },
-  {
-   "d": "08-16",
-   "t": "Nvidia in Talks to Invest $3 Billion in SB Energy as Part of OpenAI Data Center Deal｜The Information",
-   "url": "https://news.google.com/rss/articles/CBMirAFBVV95cUxQRkdfbWl5THQ1b0hjNk5zS1EyYU9iUXJQXzR1YVE3Z1dxTU9yN1JlX2wtNXZUV3gyVVBndUlzYXNnZ3A1TzJBcjZ2UklCY3Mza3hoNXcyTGl3c1ZNNVd1aTc1YUlfVDEtVzdfMDNyb296N1hGaXNqSE13YnRYaDhsOHNLM3MwWWRPU3c1blJxMFZfVUlmcWdlbU12MWxaQmxRRWppVnFpZHlCRDhk?oc=5"
   },
   {
    "d": "08-15",
@@ -1453,13 +1465,13 @@
   },
   {
    "d": "08-15",
-   "t": "OpenAI upheaval mounts as Sam Altman readies IPO push｜Financial Times",
-   "url": "https://news.google.com/rss/articles/CBMihAFBVV95cUxQRXcxN1ZMZG0wZzNlYWtTUVRkS1lJeW52eWh6clBCRWxNWkVXdmlzSHdZQ3lxc1o1a0t6VllWbURuYzNSOUM2ajRlQmVWMUZ5b0lRV3VRV09pNFdWSDdRNEtjUWhDWDBRWDA3WVNyN3hEQVJKdzl0dFAzdzcyOVZMb0VqR0M?oc=5"
+   "t": "Inflation moderated as Intel and Nvidia fueled the AI trade in last week's market｜CNBC",
+   "url": "https://news.google.com/rss/articles/CBMitwFBVV95cUxOTXozT0VsTTdYQzZiRVo0YnBqMXhqTjdOd1h4VkNBVXBBLV94dmdRLUFrQUZHYWJWWFhmU3hidWZrRDFhMV9rR0xkMHVvZ0MtVzFrLXBaMTMxOVFKUU1zTF9OQThHYWxqQkprRjBBR0FTSU1tOENFa2RyUGJLeXZWV3hRVmtyUW1PUTJKcmtsYjNTV1lNdDZ6S3ZObldnRldQeS03SFFvLWU3dXZGS2lHV1dQcnNuYVk?oc=5"
   },
   {
    "d": "08-15",
-   "t": "EXCLUSIVE Anthropic IPO valuation hinges on $190-200 billion 2028 revenue forecast, sources say｜Reuters",
-   "url": "https://news.google.com/rss/articles/CBMiwwFBVV95cUxNSDBCMHl6NWFXVjN4bFdxNkxJb0g0TllzQUNXeDVGeUdPZEduUTczSnZhcmE4UFdNZk82UDV4SVpGOTJMT29SUHJINVNubnY1Vkl1UXhMekVOYm52YmxhSk9HSHdkRDBBNEVkUTdTNGFJMkR3Z3hyY1A1VVViaDVIQ1BKOEhMMmxlVmpmSG01bmNZdk1JM2I4WHVROE9oMTdhOWVOaFBPZEZvUDhnblhMMVFHVU9aSGlwakctcU1DOVlPdkU?oc=5"
+   "t": "OpenAI upheaval mounts as Sam Altman readies IPO push｜Financial Times",
+   "url": "https://news.google.com/rss/articles/CBMihAFBVV95cUxQRXcxN1ZMZG0wZzNlYWtTUVRkS1lJeW52eWh6clBCRWxNWkVXdmlzSHdZQ3lxc1o1a0t6VllWbURuYzNSOUM2ajRlQmVWMUZ5b0lRV3VRV09pNFdWSDdRNEtjUWhDWDBRWDA3WVNyN3hEQVJKdzl0dFAzdzcyOVZMb0VqR0M?oc=5"
   },
   {
    "d": "08-15",
@@ -1475,11 +1487,6 @@
    "d": "08-14",
    "t": "Hyperscaler AI borrowing binge shakes up foreign credit markets｜Financial Times",
    "url": "https://news.google.com/rss/articles/CBMihAFBVV95cUxPTHM0TENUUnJPU1luQTJLZWltOWJoTjJrbW9LZ3RHN2JtZk5QR2xzSVNtSXFFVVM4UnBoNDFWYl8zWS04cmhZS2dMeEZwdm9SQlRIMmR5OFdlMHhBcGVPTUNlVmNDN0VOZ1RGZldpeERjQTBlUWRUN3pURFUyVXpOblpabC0?oc=5"
-  },
-  {
-   "d": "08-14",
-   "t": "Even Claude Is in the Dark About Dario Amodei’s Wife—and Her Influence at Anthropic｜WSJ",
-   "url": "https://news.google.com/rss/articles/CBMie0FVX3lxTE1UYy1LWi05N0I2b29XNnlQS2t0V21udE5XVi1KY3ZqR3YyTmtTaHBiNmZNOU1VZGw3OFFMdGxmOTA0ZE1JT0Jka1lEcnA2Ui1iU0pGV3pTTG9OVW9tbjR3TWc2YjJCeGx3dU1POC1ycWdCTkxGZHNGZFRsYw?oc=5"
   }
  ],
  "history": [

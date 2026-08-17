@@ -48,45 +48,45 @@
    "streak": {
     "AAII": 0,
     "TW 台積電權重": 0,
-    "px SOXX": 18,
-    "px SPY": 18,
-    "px NVDA": 18,
-    "px 2330": 18,
-    "calc GSY": 18,
-    "calc soxmom": 18,
-    "calc nvdape": 18,
-    "multpl CAPE": 18,
-    "slickcharts Mag7": 18,
-    "CBOE putcall": 18,
-    "FRED VIX": 18,
-    "CNN FearGreed": 10,
-    "calc senti": 18,
-    "FRED HY": 18,
-    "FRED CCC": 18,
-    "ORCL bond": 5,
-    "FRED IG": 18,
-    "FRED FEDFUNDS 磚塊": 18,
-    "FRED USINFO 磚塊": 18,
-    "EDGAR RPO": 18,
-    "EDGAR quarterly": 18,
-    "TW 月營收": 18,
-    "TW 官方PE": 18,
-    "calc TW 2330": 18,
-    "TW 電子指數": 18,
-    "TW 融資餘額": 18,
-    "TW 當沖比重": 2,
-    "TW 海關出口": 18,
-    "FRED CPI": 18,
-    "FRED FEDFUNDS": 18,
-    "FRED DGS10": 18,
-    "Google News": 18
+    "px SOXX": 19,
+    "px SPY": 19,
+    "px NVDA": 19,
+    "px 2330": 19,
+    "calc GSY": 19,
+    "calc soxmom": 19,
+    "calc nvdape": 19,
+    "multpl CAPE": 19,
+    "slickcharts Mag7": 19,
+    "CBOE putcall": 19,
+    "FRED VIX": 19,
+    "CNN FearGreed": 11,
+    "calc senti": 19,
+    "FRED HY": 19,
+    "FRED CCC": 19,
+    "ORCL bond": 6,
+    "FRED IG": 19,
+    "FRED FEDFUNDS 磚塊": 19,
+    "FRED USINFO 磚塊": 19,
+    "EDGAR RPO": 19,
+    "EDGAR quarterly": 19,
+    "TW 月營收": 19,
+    "TW 官方PE": 19,
+    "calc TW 2330": 19,
+    "TW 電子指數": 19,
+    "TW 融資餘額": 19,
+    "TW 當沖比重": 3,
+    "TW 海關出口": 19,
+    "FRED CPI": 19,
+    "FRED FEDFUNDS": 19,
+    "FRED DGS10": 19,
+    "Google News": 19
    }
   }
  },
- "composite": 60.7,
+ "composite": 60.8,
  "dims": {
-  "L1": 66.5,
-  "L2": 68.4,
+  "L1": 66.8,
+  "L2": 68.5,
   "L3": 44.8
  },
  "dimMeta": {
@@ -172,9 +172,9 @@
    "id": "mag7",
    "dim": "L1",
    "name": "Mag7 佔標普500市值比重",
-   "value": 33.0,
-   "disp": "33.0%",
-   "score": 72.5,
+   "value": 33.07,
+   "disp": "33.1%",
+   "score": 72.9,
    "zone": "orange",
    "anchors": [
     [
@@ -206,9 +206,9 @@
    "id": "nvdape",
    "dim": "L1",
    "name": "NVIDIA 本益比（即時價÷TTM EPS）",
-   "value": 35.85,
-   "disp": "35.8×",
-   "score": 34.4,
+   "value": 35.94,
+   "disp": "35.9×",
+   "score": 34.6,
    "zone": "yellow",
    "anchors": [
     [
@@ -235,15 +235,15 @@
    "url": "https://stockanalysis.com/stocks/nvda/",
    "note": "對照 2000 年 Cisco 130×+。龍頭是否仍由盈利支撐的即時檢驗；GS 2026-08 改口「盈利泡沫」後，這裡要與 LTG 預期一起看。",
    "qual": false,
-   "sub": "距200日線 +16.0%"
+   "sub": "距200日線 +16.3%"
   },
   {
    "id": "gsy_runup",
    "dim": "L1",
    "name": "GSY 泡沫判準：24個月漲幅（SOXX）",
-   "value": 164.5,
-   "disp": "+164%（24個月）",
-   "score": 87.2,
+   "value": 165.4,
+   "disp": "+165%（24個月）",
+   "score": 87.3,
    "zone": "red",
    "anchors": [
     [
@@ -280,9 +280,9 @@
    "id": "gsy_accel",
    "dim": "L1",
    "name": "GSY 加速度（當下24月漲幅 − 一年前24月漲幅）",
-   "value": 112.3,
-   "disp": "+112pp",
-   "score": 94.6,
+   "value": 113.2,
+   "disp": "+113pp",
+   "score": 94.7,
    "zone": "red",
    "anchors": [
     [
@@ -320,7 +320,7 @@
    "name": "已實現波動率一年變化（SOXX）",
    "value": 5.0,
    "disp": "+5.0pp（年化 45%）",
-   "score": 67.1,
+   "score": 67.2,
    "zone": "orange",
    "anchors": [
     [
@@ -352,9 +352,9 @@
    "id": "soxmom",
    "dim": "L1",
    "name": "半導體相對動能（SOXX−SPY，3個月）",
-   "value": 5.9,
+   "value": 6.3,
    "disp": "+6pp",
-   "score": 19.4,
+   "score": 20.6,
    "zone": "green",
    "anchors": [
     [
@@ -534,9 +534,9 @@
    "id": "orclbond",
    "dim": "L2",
    "name": "Oracle 2055 長債殖利率",
-   "value": 7.59,
-   "disp": "7.59%",
-   "score": 71.8,
+   "value": 7.6,
+   "disp": "7.60%",
+   "score": 72.0,
    "zone": "orange",
    "anchors": [
     [
@@ -1427,7 +1427,7 @@
     "asof": "2026-08-14"
    },
    "orclbond": {
-    "now": 7.59,
+    "now": 7.6,
     "asof": "2026-08-17"
    }
   }
@@ -1514,6 +1514,11 @@
   },
   {
    "d": "08-17",
+   "t": "Nvidia to provide up to $105bn guarantee for OpenAI's Ohio data center｜Nikkei Asia",
+   "url": "https://news.google.com/rss/articles/CBMi0wFBVV95cUxNMUo1eGs2X0N3MnFsbzdYNXE4VUNoYWlwSGtYVk9Ua0dIVVpXZENfVDJaVE1kVTVQT2xJSDQ3RmtSSjJ5VklkX2otVTFmTE1Qbk5ocnJvZDg4VkNGdlNPUzBqY0lvOF9fTU9ZRXVXbUliMlJkSFlLTW5YNnJDa3A2S1JfYV9ONHlGY3VnVmhfT0tMYXpKX3VLQy0zeFRxUnFGa0hJeFFkU1h2NWw1b05DMEU2UndwSzRMMHRnZE9vWDFmWG1fS2ZzNC1HaXFWbnRxd25R?oc=5"
+  },
+  {
+   "d": "08-17",
    "t": "Big investors hunt for tomorrow's AI winners as capex angst fades｜Reuters",
    "url": "https://news.google.com/rss/articles/CBMipAFBVV95cUxQN3JiYWhkcERDWi1MTllqMVduaUtTMjdkRU1GWkRKQldPbnlGR2lSenNfTmM1dmMxX1djUmQ1RFpLcHZnbFVvc3hjelp1SVROaWxReFFSREIxd0UxTGx3dDF3MUpZeGN3bWFydFZxXzNFdldtUWo5MnhEN0phclg5U0JUbk1uVlYyZDhQYzJHMEdmb0cyODBwY1BycHdGMm9WdmN0bg?oc=5"
   },
@@ -1521,11 +1526,6 @@
    "d": "08-16",
    "t": "The Bank of Nvidia, Dario Amodei’s Wife and More | Technology for Aug. 16｜WSJ",
    "url": "https://news.google.com/rss/articles/CBMiZkFVX3lxTFAzVENnRzY2bTNha0s5c09GOWltSzByRkFSVjRFVTE0aUxBdFlPdkpXdW5YbEl1NUZwMWFENlZlV1U0Qkh1b2NrQ2FWVWFDLVpkY2ttdWF6WHVMWEFSdE8xNE5ZMHNwQQ?oc=5"
-  },
-  {
-   "d": "08-16",
-   "t": "There isn't just one AI bubble, strategist says — there's a 'rolling sequence of bubbles' instead｜Fortune",
-   "url": "https://news.google.com/rss/articles/CBMinAFBVV95cUxPaHE5enlCZU4wRTJnUk9ETFlzMTA4RWF5cnQ5ZlhjX3pNTUEzeVhHdEJJanp6SFU2MzdVNHdCc2xNMXcyTHQyWko2SzRxLThzQkJQRDhlREVFNS1sWERyckF4THBZVlJFUjBwZHJQcU1KM2hRNEJnTjlFSmUwcE54ZWtjeThaR0NVQmZXdllsRmpncHNIRm9oRG8xc0s?oc=5"
   },
   {
    "d": "08-16",
@@ -1916,16 +1916,16 @@
   },
   {
    "date": "2026-08-17",
-   "composite": 60.7,
+   "composite": 60.8,
    "dims": {
-    "L1": 66.5,
-    "L2": 68.4,
+    "L1": 66.8,
+    "L2": 68.5,
     "L3": 44.8
    },
    "tw": 46.8,
    "quad": [
     55.2,
-    67.5
+    67.7
    ],
    "trig": 1
   }
@@ -1958,7 +1958,7 @@
    "id": "gsy150",
    "name": "SOXX 24個月漲幅 ≥150%",
    "state": 1,
-   "value": "+164%",
+   "value": "+165%",
    "note": "GSY：歷史崩盤機率 80% 區",
    "asof": "2026-08-17",
    "prog": 100
@@ -2001,7 +2001,7 @@
   }
  ],
  "quadrant": {
-  "heat": 67.5,
+  "heat": 67.7,
   "support": 55.2,
   "regime": "過熱但有撐（melt-up 風險）"
  }

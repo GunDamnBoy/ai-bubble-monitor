@@ -897,6 +897,17 @@
     "url": "https://www.twse.com.tw/rwd/zh/marginTrading/MI_MARGN"
    },
    {
+    "id": "tw_daytrade",
+    "name": "當沖占市場比重",
+    "value": null,
+    "disp": "待首次更新",
+    "score": null,
+    "note": "當日沖銷買進金額占市場成交比重。量的是當日投機周轉強度，與融資餘額的「借錢做多存量」是不同面向。越高越熱。",
+    "src": "TWSE 當日沖銷交易統計 TWTB4U",
+    "url": "https://www.twse.com.tw/rwd/zh/dayTrading/TWTB4U",
+    "asof": "待首次更新"
+   },
+   {
     "id": "tsmc_weight",
     "name": "台積電佔加權指數權重",
     "value": 44.78,

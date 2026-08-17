@@ -423,6 +423,35 @@ def backfill_margin_hist(hist, need=21, max_back=45):
     return len(added)
 
 
+def tw_day_trade_ratio():
+    """當日沖銷交易總買進成交金額占市場比重 %（TWSE TWTB4U）。
+
+    回應第一張表就是市場統計（title 含「當日沖銷交易統計資訊」），第二張是逐檔明細。
+    欄位位置**不寫死**——照 fields 找「買進成交金額占市場比重」那一欄的索引再取值，
+    來源改欄序時才不會安靜地拿錯數字（2026-08-17 實測 fields 六欄、買進占比在第 4 欄）。
+    """
+    for back in range(0, 10):
+        d = (TODAY - dt.timedelta(days=back)).strftime("%Y%m%d")
+        try:
+            j = http_get(f"https://www.twse.com.tw/rwd/zh/dayTrading/TWTB4U?response=json&date={d}",
+                         ua=UA_BROWSER).json()
+        except Exception:
+            continue
+        if j.get("stat") != "OK":
+            continue
+        for t in (j.get("tables") or [j]):
+            if "統計資訊" not in str(t.get("title", "")):
+                continue
+            fields = t.get("fields") or []
+            idx = next((n for n, f in enumerate(fields)
+                        if "買進成交金額" in f and "占市場比重" in f), None)
+            rows = t.get("data") or []
+            if idx is None or not rows:
+                continue
+            return d, round(float(str(rows[0][idx]).replace(",", "").replace("%", "")), 2)
+    raise RuntimeError("day trade: no trading day found in 10 days")
+
+
 def tw_index_today():
     arr = http_get("https://openapi.twse.com.tw/v1/exchangeReport/MI_INDEX", ua=UA_BROWSER).json()
     taiex = elec = None
@@ -917,6 +946,7 @@ def main():
         "twii_pos":    ("2330.TW 價格序列（yfinance→Yahoo→Stooq 三層備援）", "https://finance.yahoo.com/quote/2330.TW/"),
         "elec_rel":    ("TWSE 官方指數 MI_INDEX", "https://openapi.twse.com.tw/v1/exchangeReport/MI_INDEX"),
         "tw_margin":   ("TWSE 信用交易統計 MI_MARGN", "https://www.twse.com.tw/rwd/zh/marginTrading/MI_MARGN"),
+        "tw_daytrade": ("TWSE 當日沖銷交易統計 TWTB4U", "https://www.twse.com.tw/rwd/zh/dayTrading/TWTB4U"),
         "tsmc_weight": ("TAIFEX 官方（每月人工更新）", "https://www.taifex.com.tw/cht/9/futuresQADetail"),
     }
     # 無條件套用，不放在 tupd 裡：tsmc_weight 是人工項、永遠不經過 tupd，
@@ -1012,6 +1042,16 @@ def main():
             tupd("tw_margin", bal, f"{bal:.0f} 十億元（序列累積中 {len(hist)}/21）", None, dd)
     attempt("TW 融資餘額", f_twmargin)
 
+    def f_twdaytrade():
+        d, r = tw_day_trade_ratio()
+        dd = f"{d[:4]}-{d[4:6]}-{d[6:]}"
+        # 錨點是專家判斷（校準日 2026-08-17）：台灣當沖占比 2020 年前多在 20% 上下，
+        # 2021 年高峰逼近 45%，近年在 35–45% 徘徊。**它有結構性上升趨勢**，固定門檻
+        # 會隨年份漂移，這一組要定期回頭校準（見 brief §4.6 的註記）。
+        tupd("tw_daytrade", r, f"{r:.1f}%（買進金額占比）",
+             pw(r, [[20, 0], [30, 30], [40, 60], [48, 85], [55, 100]]), dd)
+    attempt("TW 當沖比重", f_twdaytrade)
+
     def f_twweight():
         v = taifex_tsmc_weight()
         tupd("tsmc_weight", v, f"{v:.2f}%", pw(v, [[30, 20], [38, 50], [45, 80], [52, 100]]))
@@ -1025,7 +1065,7 @@ def main():
 
     subs_def = {"動能": ["tsmc_200dma", "tsmc_52w", "elec_rel", "twii_pos"],
                 "估值": ["tsmc_pe", "odm_pe"],
-                "籌碼": ["tw_margin"],
+                "籌碼": ["tw_margin", "tw_daytrade"],
                 "基本面": ["tw_rev", "tw_export"]}
     subs = {}
     for k, ids in subs_def.items():

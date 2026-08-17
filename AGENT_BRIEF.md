@@ -2,7 +2,7 @@
 
 > 這份是**現在的規格與判斷規則**，是本系統的唯一真相來源。
 > 每週質化覆核排程每次執行前完整讀一次。事故經過與被否決的選項寫在 `MAINTENANCE.md` 第 6 節，不要寫進這裡。
-> 版本：**v2.1.6（三層頻率架構）**｜最後修訂 2026-08-17
+> 版本：**v2.1.7（三層頻率架構）**｜最後修訂 2026-08-17
 
 ---
 
@@ -223,26 +223,28 @@ support = 100 − L3             ← 基本面還有多少支撐（L3 越高＝�
 
 ### 4.6 台灣供應鏈（10 項，獨立計分，不進綜合溫度）
 
-`tw.items` 共十項，其中**九項**經 `tw.subs` 四個子群再加權成 `tw.heat`（第十項 `tsmc_weight` 不入子群，見下）：
+`tw.items` 共十一項，其中**十項**經 `tw.subs` 四個子群再加權成 `tw.heat`（`tsmc_weight` 不入子群，見下）：
 
 | 子群 | 權重 | 成員 |
 |---|---|---|
 | 動能 | 0.30 | `tsmc_200dma`、`tsmc_52w`、`elec_rel`、`twii_pos` |
 | 估值 | 0.30 | `tsmc_pe`、`odm_pe` |
-| 籌碼 | 0.20 | `tw_margin` |
+| 籌碼 | 0.20 | `tw_margin`、`tw_daytrade` |
 | 基本面 | 0.20 | `tw_rev`、`tw_export` |
 
 子群內等權平均、忽略 null；`tw.heat` 依上表加權，**null 的子群剔除後重新歸一**。
 
 **歸一的代價：某組子群從 null 變成有值的那一天，`tw.heat` 會不連續地跳一次。** 分母從「剩餘權重和」變回 1.0，新進來的那組整份權重一次生效。**方向可上可下**——取決於新進來的分數比現有加權平均高還是低，不要預設是往上跳。
 
-**籌碼是四組裡唯一的單點子群**（只有 `tw_margin`），所以最常遇到這件事的就是它：`tw_margin` 需要 21 個交易日的序列才算得出 20 日變化，序列未滿期間整個 20% 權重都不在分母裡。這不是 bug，但它會讓人以為資料出錯。
+**籌碼過去是四組裡唯一的單點子群**（只有 `tw_margin`），所以最常遇到這件事的就是它：`tw_margin` 需要 21 個交易日的序列才算得出 20 日變化，序列未滿期間整個 20% 權重都不在分母裡。
 
-**v2.1.6 起序列改用回補**（見 §5.4），所以這個空窗期只會發生在「歷史被清掉、而回補也失敗」的情況；補齊當天 `tw.heat` 一樣會跳一次，**但那一跳是我們自己按下去的**，不是市場動了——`MAINTENANCE.md` §4 有記日期。
+**兩件事在 2026-08-17 一起解掉了**：`margin_hist` 改為回補（§5.4），序列不必再等；籌碼補上第二項 `tw_daytrade`（當沖占市場比重），**它是即期比率、當天抓到就有分數**，所以就算 `tw_margin` 因為任何理由變成 `null`，籌碼子群也不會整組消失。這兩者補齊當天 `tw.heat` 會跳一次，**但那一跳是我們自己按下去的**，不是市場動了——`MAINTENANCE.md` §4 有記基準值與日期。
 
 **當下缺哪幾組、補齊後 heat 會落在哪，一律看 `healthcheck.py` 的 WARN**，它在分母 ≠ 1.0 時會印出缺項與三個情境的模擬值。**這裡刻意不寫具體數字與日期**——那種東西寫進文件就會過期，而 heat 每天都在動，今天算的模擬值到補齊那天早就不是這個數了（WARN 訊息也因此寫「屆時**約**為」）。
 
-要消除這個跳動只有兩條路：給籌碼補第二項指標，或接受它。目前選後者，因為融資餘額是台股籌碼面唯一日頻、官方、免金鑰的序列。**若哪天真的補了第二項，記得回來改這一段與 `MAINTENANCE.md` 第 4 節那條坑**——「唯一的單點子群」這句話屆時就不成立了。**`healthcheck.py` 會把上表的成員組成跟引擎的 `subs_def` 對帳，改了成員而沒同步就 FAIL。**
+**`healthcheck.py` 會把上表的成員組成跟引擎的 `subs_def` 對帳，改了成員而沒同步就 FAIL**——2026-08-17 補 `tw_daytrade` 時它確實擋下來了一次（引擎改完、brief 還沒改），這條檢查是有效的。
+
+**目前四組都不是單點子群**，所以「某一項 `null` 就整組消失」這個模式暫時不存在；但 `healthcheck.py` 每次仍會印出當下有哪些單點子群，未來若有子群縮回一項會自己浮出來。
 
 這組權重由引擎寫進 `data.json` 的 `tw.subWeights`，前端讀它、不再自己抄一份（v2.0.2 前 `index.html` 有第二份寫死拷貝，改 `wmap` 不會動到頁面）。改權重要同時改上表與引擎的 `wmap`——**`healthcheck.py` 會比對上表 ↔ `wmap` ↔ `tw.subWeights` 三處並檢查加總 = 1.0，不一致直接 FAIL。**
 
@@ -262,12 +264,15 @@ support = 100 − L3             ← 基本面還有多少支撐（L3 越高＝�
 | `twii_pos` | 52 週位階 %（正向） | `[[50,0],[75,33],[90,67],[100,100]]` |
 | `elec_rel` | 電子相對大盤 pp（正向） | `[[-3,15],[0,35],[4,67],[10,100]]` |
 | `tw_margin` | 融資餘額 20 日變動 %（正向） | `[[-4,10],[0,35],[5,67],[12,100]]` |
+| `tw_daytrade` | 當沖買進金額占市場比重 %（正向） | `[[20,0],[30,30],[40,60],[48,85],[55,100]]` |
 | `tw_rev` | **月營收年增取負** `-comp` | `[[-90,5],[-45,20],[-12,45],[0,65],[15,90]]` |
 | `tw_export` | **海關出口年增取負** `-yoy` | `[[-50,10],[-20,30],[0,60],[10,85]]` |
 
 `tw_rev`／`tw_export` 是反證指標（成長越快越不像泡沫破裂），依 §3.2 的通則**取負號後**再餵錨點——手算時最容易在這裡把符號弄反。
 
-**每月只有 `tsmc_weight` 需要人更新**（TAIFEX 擋機器人，Actions 端固定失敗），其餘九項由引擎每交易日自動更新，屬於 §8.3 覆核不動的欄位。
+**每月只有 `tsmc_weight` 需要人更新**（TAIFEX 擋機器人，Actions 端固定失敗），其餘十項由引擎每交易日自動更新，屬於 §8.3 覆核不動的欄位。
+
+**`tw_daytrade` 的錨點會隨年份漂移，要定期回頭校準**（校準日 2026-08-17）：台灣當沖占比 2020 年前多在 20% 上下，2021 年高峰逼近 45%，近年在 35–45% 徘徊——這是**結構性**變化（現股當沖稅率減半等制度因素），不是投機熱度單獨造成的。用固定門檻是刻意的取捨（換成滾動分位數就失去跨年可比性），代價是每隔一兩年要回來看一次這組數字還合不合理。
 
 **`tw.items` 的 `src`／`url` 由引擎的 `TW_SRC` 表無條件寫入**，不再是 `data.json` 的種子值（v2.0.2 前 `tupd()` 只寫數值，於是 `tsmc_pe` 早就改抓 TWSE 官方了、卡片卻還掛著 Google Finance，同一張卡的 `note` 自己在打臉）。換資料源時改 `TW_SRC`，不要改 `data.json`。
 
@@ -308,7 +313,7 @@ def attempt(name, fn):
 | 估值/情緒 | `multpl_cape` `slickcharts_mag7` `aaii_sentiment` `cboe_putcall` `cnn_fear_greed` | `aaii_sentiment` 持續在 Actions 端被擋；`cboe_putcall` 時好時壞；`cnn_fear_greed` 2026-08-10 新接入、Actions 端成敗未實測（皆見 §9）|
 | 信用 | `orcl_bond_yield` | Public.com 報價頁。`hyoas`／`ccc` 取不到 91 天基期時**直接 fail 沿用舊值**，不用 0bp 的假變化計分 |
 | 季報 | `edgar_rows` `to_quarters` `bucket` `refresh_edgar` `rpo_backlog` | 見 5.3。另有幾個藏在實作裡的門檻：`rpo_backlog` 若前期端點與目標日相差 >75 天就跳過該公司；`debt` 年增要求回看 ≥330 天；**`fcf` 的 YoY 在基期 TTM FCF ≤0 時沿用舊值**（負基期會把 −10B→+5B 這種改善算成 −150% 的滿熱分） |
-| 台灣 | `tw_monthly_rev` `tw_bwibbu` `_margin_on` `tw_margin_balance` `backfill_margin_hist` `tw_index_today` `taifex_tsmc_weight` `tw_customs_export_yoy` | 見 5.4 |
+| 台灣 | `tw_monthly_rev` `tw_bwibbu` `_margin_on` `tw_margin_balance` `backfill_margin_hist` `tw_day_trade_ratio` `tw_index_today` `taifex_tsmc_weight` `tw_customs_export_yoy` | 見 5.4 |
 | 新聞 | `_parse_news_items` `fetch_news` | 見 5.5 |
 | 主流程 | `main()` `selftest()` | `python3 scripts/update_data.py --selftest`。`data.json` 走**原子寫檔**（`.tmp` → rename），半寫檔會讓之後每次執行在 `json.loads` 就死 |
 
@@ -329,6 +334,7 @@ def attempt(name, fn):
 | 月營收 | `https://openapi.twse.com.tw/v1/opendata/t187ap05_L` |
 | 官方本益比／殖利率 | `https://openapi.twse.com.tw/v1/exchangeReport/BWIBBU_ALL` |
 | 融資餘額 | `https://www.twse.com.tw/rwd/zh/marginTrading/MI_MARGN` |
+| 當沖交易統計 | `https://www.twse.com.tw/rwd/zh/dayTrading/TWTB4U` ← 回應第一張表是市場統計，第二張是逐檔明細；**欄位位置不寫死**，照 `fields` 找「買進成交金額占市場比重」的索引 |
 | 大盤／電子指數 | `https://openapi.twse.com.tw/v1/exchangeReport/MI_INDEX` |
 | 台積電指數權重 | `https://www.taifex.com.tw/cht/9/futuresQADetail` ← **擋機器人，只能人工每月更新** |
 | 海關出口 | `https://opendata.customs.gov.tw/data/6053/csv.csv` |
@@ -549,6 +555,7 @@ L1 除 `narrative` 外全部、L2 除三項質化外全部、L3 除 `cloudrev`�
 
 | 版本 | 日期 | 改了什麼 | 為什麼／事故經過 |
 |---|---|---|---|
+| **v2.1.7** | 2026-08-17 | 籌碼子群補第二項 `tw_daytrade`（TWSE 當沖占市場比重 TWTB4U，即期比率、不需序列）——四組子群自此都不是單點，籌碼不會再整組消失 | `MAINTENANCE.md` §4 |
 | **v2.1.6** | 2026-08-17 | `margin_hist` 改為回補（`MI_MARGN` 吃 `date=`，不足 21 筆時往回抓 45 個日曆日）——籌碼子群不必再等 21 個交易日，補齊當天 `tw.heat` 會跳一次且那一跳是人為的 | `MAINTENANCE.md` §4 |
 | **v2.1.5** | 2026-08-17 | CBOE Put/Call 退場（streak 16 ≥ 門檻 15，從 §9 與 `KNOWN_FAIL` 移除，之後再壞掉會是 FAIL）；§8.3 的 WebFetch 能力改成分來源講（SEC／CNN 的 JSON 讀得到、FRED 的 CSV 是 binary、Yahoo／Stooq 回空，皆實測）；§5.2 補記 FRED 的 HY／CCC 只留 3 年觀測 | `MAINTENANCE.md` §2 |
 | **v2.1.4** | 2026-08-17 | `fresh` 修活：引擎依 `IND_MAXAGE` 逐日重標，healthcheck 用引擎自己的門檻與 `asof_date` 重算對帳（FAIL 級）；台股三個價格項的 `sub` 顯示當次真正命中的備援層 | `MAINTENANCE.md` §6.13 |

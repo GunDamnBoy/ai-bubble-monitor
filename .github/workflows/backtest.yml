@@ -1,0 +1,26 @@
+name: backtest
+# **只手動觸發。** 這是一次性的研究作業，不進每日排程——它抓的是 20 幾年的日線，
+# 跟每日管線完全分離，也不碰 data.json。產出進 backtest/，那個路徑已排除在
+# update-and-deploy 的 push 觸發之外，推它不會連帶跑一次每日更新。
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  backtest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install requests yfinance
+      - name: 跑回測
+        run: python scripts/backtest.py
+      - name: commit 產出
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add backtest/
+          git diff --cached --quiet || git commit -m "backtest: gsy_runup 錨點回測產出 $(date -u +%F)"
+          git push

@@ -5,7 +5,8 @@ on:
   workflow_dispatch:
   push:
     branches: [main]
-    paths-ignore: ['data.json']
+    # backtest/ 是手動觸發的一次性作業，推它的產出不該連帶跑一次每日更新
+    paths-ignore: ['data.json', 'backtest/**']
 permissions:
   contents: write
   pages: write

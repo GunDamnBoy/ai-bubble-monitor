@@ -2,7 +2,7 @@
 
 > 這份是**現在的規格與判斷規則**，是本系統的唯一真相來源。
 > 每週質化覆核排程每次執行前完整讀一次。事故經過與被否決的選項寫在 `MAINTENANCE.md` 第 6 節，不要寫進這裡。
-> 版本：**v2.1.10（三層頻率架構）**｜最後修訂 2026-08-17
+> 版本：**v2.2.0（三層頻率架構）**｜最後修訂 2026-08-17
 
 ---
 
@@ -28,7 +28,7 @@
 
 | 位置 | 內容 | 更新者 |
 |---|---|---|
-| GitHub repo `GunDamnBoy/ai-bubble-monitor` | `index.html`、`data.json`、`scripts/update_data.py`、`.github/workflows/update.yml`、本檔、`MAINTENANCE.md`、`healthcheck.py` | GitHub Actions（自動）＋維護者 |
+| GitHub repo `GunDamnBoy/ai-bubble-monitor` | `index.html`、`data.json`、`scripts/update_data.py`、`.github/workflows/update.yml`、本檔、`MAINTENANCE.md`、`healthcheck.py`、`scripts/backtest.py`（回測，只手動觸發） | GitHub Actions（自動）＋維護者 |
 | 網站 <https://gundamnboy.github.io/ai-bubble-monitor/> | GitHub Pages，從 `main` 分支根目錄直出 | Actions 推送後由 API 明確要求重建 |
 | Cowork 桌面 artifact `ai-bubble-monitor` | 內嵌 `data.json` 的單檔 HTML 快照 | 維護工作階段（桌面連線時）；排程執行連不到桌面，只交付 HTML 檔 |
 | Excel `AI泡沫監控儀表板.xlsm` | v1 版、含 `UpdateAll()` 巨集按鈕 | 使用者手動按按鈕；**尚未升到 v2**，見 `MAINTENANCE.md` 第 5 節 |
@@ -560,6 +560,7 @@ L1 除 `narrative` 外全部、L2 除三項質化外全部、L3 除 `cloudrev`�
 
 | 版本 | 日期 | 改了什麼 | 為什麼／事故經過 |
 |---|---|---|---|
+| **v2.2.0** | 2026-08-17 | 回測第一階段的工具：`scripts/backtest.py` ＋ 只手動觸發的 `backtest.yml`，驗 `gsy_runup` 那組唯一有文獻校準的錨點；產出進 `backtest/`，不碰 `data.json`、已排除在每日 workflow 的 push 觸發之外 | `MAINTENANCE.md` §5 |
 | **v2.1.10** | 2026-08-17 | 複驗第二輪：前端補齊 `null` 防禦（`support` 為 null 時不畫象限點、`[null,null]` 不進軌跡、六處會印出 `null` 的地方）；§3.2／§3.3／§8.4 的公式與 §4.6／§6 的項數跟上 v2.1.7–8 | `MAINTENANCE.md` §6.14 |
 | **v2.1.8** | 2026-08-17 | 補掉 §5.1「絕不編造數字」的兩個實作漏洞：`dims` 整層無效不再填 50.0（改 null＋composite 重新歸一）、`debt` 缺 330 天基期不再拿最新值假裝零成長（改整家剔除）。healthcheck 同步改，否則兩邊會一起說謊 | `MAINTENANCE.md` §6.14 |
 | **v2.1.7** | 2026-08-17 | 籌碼子群補第二項 `tw_daytrade`（TWSE 當沖占市場比重 TWTB4U，即期比率、不需序列）——四組子群自此都不是單點，籌碼不會再整組消失 | `MAINTENANCE.md` §4 |

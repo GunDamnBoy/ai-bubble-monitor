@@ -964,6 +964,40 @@ def check_code(repo, d):
         bad("index.html renderQuad 找不到 45/55 象限分界（X(45)/Y(55)）——"
             "門檻可能已改而前端底圖沒跟上，或 renderQuad 被重構（重構後請同步更新本檢查）")
 
+    # 燈號界 <33／33-67／67-84／≥84 在三個地方各有一份實作：引擎的 zone()、
+    # 前端的 zoneOf()，以及 stripHTML() 那條色帶的區段寬度（33/34/17/16 的累積和
+    # 就是 33／67／84 三條界）。brief §4.4 自己寫著「沒有機器在比對」——這裡補上。
+    # 定級 FAIL：色帶是使用者判讀單一指標冷熱的依據，界線對不上就是在頁面上說謊。
+    eng = os.path.join(repo, "scripts", "update_data.py")
+    zsrc = open(eng, encoding="utf-8").read() if os.path.isfile(eng) else ""
+
+    def _bounds(txt, pat):
+        m = re.search(pat, txt, re.S)
+        return [int(x) for x in m.groups()] if m else None
+
+    b_eng = _bounds(zsrc, r"def zone\(s\):.*?<\s*(\d+).*?<\s*(\d+).*?<\s*(\d+)")
+    b_web = _bounds(html, r"zoneOf\s*=.*?<\s*(\d+).*?<\s*(\d+).*?<\s*(\d+)")
+    mseg = re.search(r'segs = \[\[(\d+),\s*"good"\],\s*\[(\d+),\s*"warn"\],'
+                     r'\s*\[(\d+),\s*"serious"\],\s*\[(\d+),\s*"crit"\]\]', html)
+    b_strip = seg_total = None
+    if mseg:
+        w = [int(x) for x in mseg.groups()]
+        b_strip = [w[0], w[0] + w[1], w[0] + w[1] + w[2]]
+        seg_total = sum(w)
+    missing = [n for n, b in (("引擎 zone()", b_eng), ("前端 zoneOf()", b_web),
+                              ("前端 stripHTML() 色帶", b_strip)) if b is None]
+    if missing:
+        warn("燈號界對帳跳過（解不出來）：" + "、".join(missing)
+             + "——這幾處被重構過就要同步更新本檢查，不要讓它靜默跳過")
+    elif not (b_eng == b_web == b_strip):
+        bad(f"燈號界三處不一致：引擎 zone() {b_eng}／前端 zoneOf() {b_web}／"
+            f"stripHTML() 色帶推算 {b_strip}——改這組界要三個地方一起改（brief §3.4／§4.4）")
+    elif seg_total != 100:
+        bad(f"stripHTML() 色帶區段加總 {seg_total}%，不是 100%")
+    else:
+        ok(f"燈號界三處一致：<{b_eng[0]}／{b_eng[0]}-{b_eng[1]}／{b_eng[1]}-{b_eng[2]}／≥{b_eng[2]}"
+           "（引擎 zone()、前端 zoneOf()、stripHTML() 色帶）")
+
     check_fallback(html, d)
     check_spreads_keys(repo, html, d)
 

@@ -864,7 +864,7 @@ $("twZoneTicks").innerHTML = zoneTicksHTML();
 $("twCards").innerHTML = (DATA.tw.items || []).map(i => `
   <div class="icard">
     <div class="top"><span class="nm">${esc(i.name)}</span>${chip(zoneOf(i.score))}</div>
-    <div><span class="val">${esc(i.disp)}</span></div>
+    <div><span class="val">${esc(i.disp)}</span>${i.sub?`<span class="mut">　${esc(i.sub)}</span>`:""}</div>
     ${stripHTML(i.score)}
     <div class="note">${esc(i.note)}</div>
     <div class="meta"><span></span><span>${esc(i.asof)}・${i.url?`<a href="${esc(i.url)}" target="_blank" rel="noopener">${esc(i.src)}</a>`:esc(i.src)}</span></div>

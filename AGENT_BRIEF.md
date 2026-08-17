@@ -2,7 +2,7 @@
 
 > 這份是**現在的規格與判斷規則**，是本系統的唯一真相來源。
 > 每週質化覆核排程每次執行前完整讀一次。事故經過與被否決的選項寫在 `MAINTENANCE.md` 第 6 節，不要寫進這裡。
-> 版本：**v2.1.3（三層頻率架構）**｜最後修訂 2026-08-17
+> 版本：**v2.1.4（三層頻率架構）**｜最後修訂 2026-08-17
 
 ---
 
@@ -269,7 +269,9 @@ support = 100 − L3             ← 基本面還有多少支撐（L3 越高＝�
 
 **`tw.items` 的 `src`／`url` 由引擎的 `TW_SRC` 表無條件寫入**，不再是 `data.json` 的種子值（v2.0.2 前 `tupd()` 只寫數值，於是 `tsmc_pe` 早就改抓 TWSE 官方了、卡片卻還掛著 Google Finance，同一張卡的 `note` 自己在打臉）。換資料源時改 `TW_SRC`，不要改 `data.json`。
 
-但 `TW_SRC` 是**靜態表，不是當次真正走的路徑**：`tsmc_200dma`／`tsmc_52w`／`twii_pos` 走 `px_rows()` 的三層備援，實際命中哪一層每天可能不同，所以它們的 `src` 寫成「三層備援」而不指名單一來源。要顯示當次真正的來源，得比照 `senti` 的 `sub` 做法由引擎生成——目前沒做，這是刻意的取捨（台股卡片沒有 `sub` 欄位）。
+但 `TW_SRC` 是**靜態表，不是當次真正走的路徑**：`tsmc_200dma`／`tsmc_52w`／`twii_pos` 走 `px_rows()` 的三層備援，實際命中哪一層每天可能不同，所以它們的 `src` 只寫「三層備援」而不指名單一來源。**當次真正命中哪一層由 `sub` 誠實顯示**（v2.1.4 起，比照 `senti` 的做法）：`px_rows()` 把命中的那層記進模組層的 `PX_HIT`，`tupd()` 再寫成「本次價格來源：…」。三層全掛時 `f_tw2330` 根本不會執行（`S` 裡沒有 `2330`），`tupd` 不被呼叫——所以引擎在 `attempt` 之後**另外把這次沒更新到的那幾項的 `sub` 清掉**（`tw_px_done` 記錄哪幾項真的更新了）。少了那一步，「本次價格來源」會在完全沒抓到價格的那天留在卡片上說謊；序列偏短讓 `chg52w`／`pos52w` 守衛沒過時也是同一回事。
+
+`twii_pos` 這個 id **名不符實但不改**：它算的是台積電的 52 週區間位置，不是加權指數（理由在卡片的 `note`：台積電佔大盤 44%+，用它取代大盤作位置計）。改 id 會斷掉 `history` 與匯流報的對接，代價遠大於名字不精確，而卡片名稱與 `note` 已經講清楚了。
 
 十檔月營收籃 `TW_BASKET`（依營收加權）：`2330 台積電`、`2317 鴻海`、`2382 廣達`、`3231 緯創`、`6669 緯穎`、`3017 奇鋐`、`2308 台達電`、`3661 世芯-KY`、`3443 創意`、`2345 智邦`。
 
@@ -297,9 +299,9 @@ def attempt(name, fn):
 
 | 區塊 | 函式 | 備註 |
 |---|---|---|
-| 基礎 | `http_get` `pw` `vix_score` `zone` | `zone(None)` 回 `"pending"`；`http_get` 對 timeout／連線失敗／5xx 重試 2 次（間隔 2 秒），4xx 不重試 |
+| 基礎 | `http_get` `pw` `vix_score` `zone` `asof_date` `set_fresh` | `zone(None)` 回 `"pending"`；`http_get` 對 timeout／連線失敗／5xx 重試 2 次（間隔 2 秒），4xx 不重試；`asof_date` 吃 `YYYY-MM-DD`／`YYYY-MM`／`YYYYQn` 三種格式，**看不懂或日期不合法（`2026-13`）一律回 `None`、不拋例外**；`set_fresh` 在寫檔前依 `IND_MAXAGE` 重標全部 `fresh`，解析再包一層 `try`——**它在原子寫檔的前一行，拋例外等於當天整份資料寫不進去，而壞掉的 `asof` 還留在檔案裡讓之後每次執行都死在同一行** |
 | 總經 | `fred(series, days=620)` `fred_back(obs, back_days)` `fred_latest_and_back(series, back_days, days=620)` | `fredgraph.csv`；要同時取多個回看期時用 `fred()` 抓一次再 `fred_back()` 取值，不要重複抓（`fred_latest_and_back` 現在也只是這兩者的組合） |
-| 價格 | `px_rows(ysym, ssym=None, rng="4y")` → **三層備援** `yf_chart`(yfinance) → `yahoo_chart`(raw API) → `stooq` | Stooq 在 Actions runner 被擋，只當最後備援 |
+| 價格 | `px_rows(ysym, ssym=None, rng="4y")` → **三層備援** `yf_chart`(yfinance) → `yahoo_chart`(raw API) → `stooq` | Stooq 在 Actions runner 被擋，只當最後備援。命中哪一層記進模組層的 `PX_HIT`，供台股卡片的 `sub` 顯示當次來源 |
 | 統計 | `series_stats` `gsy_stats` | `gsy_stats` 需 ≥505 筆算 `ret24`、≥758 筆算 `accel`、≥505 筆算 `vol1y`（`volchg` 用） |
 | 估值/情緒 | `multpl_cape` `slickcharts_mag7` `aaii_sentiment` `cboe_putcall` `cnn_fear_greed` | `aaii_sentiment` 持續在 Actions 端被擋；`cboe_putcall` 時好時壞；`cnn_fear_greed` 2026-08-10 新接入、Actions 端成敗未實測（皆見 §9）|
 | 信用 | `orcl_bond_yield` | Public.com 報價頁。`hyoas`／`ccc` 取不到 91 天基期時**直接 fail 沿用舊值**，不用 0bp 的假變化計分 |
@@ -359,9 +361,12 @@ dimMeta    { L1:{name,w,note}, L2:{...}, L3:{...} }   w 加總必須 = 1.0
 zones      [ {max,label,color} × 5 ]
 indicators [ 22 × {id, dim, name, value, disp, score, zone, anchors, dir,
                    asof, fresh, src, url, note, qual, sub?} ]
-             fresh 目前**引擎一律寫 "ok"**，從來不會變成 "stale"；前端那個
-             「⚠ 資料延遲」徽章因此是死碼。要它活起來得先定義每個指標各自的
-             過期門檻（比照 QUAL_MAXAGE），本次刻意不做——見 MAINTENANCE §6.13
+             fresh 由引擎依 asof 與 IND_MAXAGE 逐日重標（v2.1.4 起）：超過門檻
+             寫 "stale"，前端據此畫「⚠ 資料延遲」。門檻依自然更新頻率分組——
+             日頻自動 10 天（連假加上來源當天沒更新，5-6 天是常態，10 天才算卡住）、
+             季頻 EDGAR 130 天、質化沿用 §4.5 的 21／75／130；未列的一律 45 天預設。
+             **asof 解不出日期就維持 "ok"**（標錯比不標更糟）。healthcheck 會用引擎
+             自己那份門檻與 asof_date 重算一次跟存檔比對，不一致是 FAIL
              dir 是**給人看的方向說明字串**（"越高越熱"、"越負越熱"、
              "質化評分（0-100）"…），純展示、不參與計分。方向相反的指標走
              **§3.2 的兩套慣例之一**（取負號／遞減錨點），不要照 dir 另寫邏輯
@@ -375,8 +380,10 @@ quadrant   { heat, support, regime }
 tw         { heat, subs:{動能,估值,籌碼,基本面}, subWeights:{同上四鍵:權重},
              items[10], revTable[10],
              revMonth, officialPE{代號:{pe,pb}}, idx_hist[≤90], margin_hist[≤90] }
-             items 每筆 {id,name,value,disp,score,note,src,url,asof}——**沒有 zone**，
-             燈號由前端 zoneOf(score) 現算（讀 i.zone 會拿到 undefined）
+             items 每筆 {id,name,value,disp,score,note,src,url,asof,sub?}——**沒有 zone**，
+             燈號由前端 zoneOf(score) 現算（讀 i.zone 會拿到 undefined）。
+             sub 由引擎依當次實際情形生成、沒東西可寫就不寫這個鍵（v2.1.4 起，
+             目前只有走三層備援的三個價格項用得到）；前端缺鍵就不畫
 charts     { aggQ[], ttm[], debt{labels,values,note}, spreads{hy,ig,us10y,vix,
              fedfunds,usinfo,ccc,orclbond} }
              aggQ/ttm 每筆 {q,capex,ocf,fcf,ratio}，初步季另有 {prov,have,missing}
@@ -403,7 +410,9 @@ params     { nvda_eps, ngdp_nominal, megaipo_done }
 
 **第四處**：`index.html` 內嵌的 `<script id="dashboard-data">` 是 fetch 失敗時的離線退路快照。它不需要每天更新，但**改 schema 或改版時必須重新灌一次**，否則離線開啟會退回舊架構的頁面（v1→v2 期間就發生過，退路快照停在六維 54.1）。**重灌時把內嵌那份的 `history` 裁到最後 60 筆**（頁面體積考量；`healthcheck.py` 超過 60 筆會 WARN，**0 筆也會 WARN**——那代表重灌時把陣列灌空了）。`healthcheck.py` 另比對它的 `meta.version`、v2 必要區塊、`history` 筆數，以及 `composite`／`meta.built` 是否與 `data.json` 明顯脫節。
 
-**第五處，而且最常被漏掉：`healthcheck.py` 自己。** 它為了能獨立驗算，硬寫了幾組常數——`LAYER_N`（各層指標項數）、`QUAL`（質化指標集合）、`TRIG`（觸發器 id）、`KNOWN_FAIL`（已知失效來源白名單）、`QUAL_MAXAGE`（質化 `asof` 的過期門檻，見 §4.5）。**加減指標、改層歸屬、換觸發器、或某個來源恢復／新壞掉時，這個檔案也要改。** 它是把關每週交付的工具（FAIL 必須是 0），所以漏改它的下場不是靜靜少畫一塊，而是整條每週流程被自己的檢查擋住。
+**快照有一個結構性例外：它的 `fresh` 是凍住的。** `fresh` 自 v2.1.4 起是活徽章，但快照裡那份永遠停在重灌當天的值——所以 fetch 失敗、頁面退到離線快照的那一天，不管快照多舊都不會出現「⚠ 資料延遲」。這是接受的取捨（快照本來就是應急拷貝，`meta.built` 會誠實顯示它有多舊），機器不驗這一項。
+
+**第五處，而且最常被漏掉：`healthcheck.py` 自己。** 它為了能獨立驗算，硬寫了幾組常數——`LAYER_N`（各層指標項數）、`QUAL`（質化指標集合）、`TRIG`（觸發器 id）、`KNOWN_FAIL`（已知失效來源白名單）、`QUAL_MAXAGE`（質化 `asof` 的過期門檻，見 §4.5）。**引擎那邊還有一張 `IND_MAXAGE`**（全部 22 個指標的 `fresh` 門檻）——它不在 `healthcheck.py` 裡，但加減指標時一樣要跟著改，漏了那一項會靜默套 45 天預設；`healthcheck.py` 會比對它的 key 集合與 `data.json` 的指標集合，不符即 FAIL。**加減指標、改層歸屬、換觸發器、或某個來源恢復／新壞掉時，這個檔案也要改。** 它是把關每週交付的工具（FAIL 必須是 0），所以漏改它的下場不是靜靜少畫一塊，而是整條每週流程被自己的檢查擋住。
 
 不過**這幾組常數的嚴厲程度不一樣**，別記成一律 FAIL：`QUAL`、`TRIG`、`KNOWN_FAIL` 對不上是 **FAIL**（擋住交付），`QUAL_MAXAGE` 與 `index.html` 的 `QUALF` 分級對不上也是 **FAIL**（`asof` 單純超過門檻則是 WARN），`LAYER_N` 與 `data.json` 對不上只是 **WARN**。這個差別是刻意的——FAIL 那幾組不一致必然代表有人漏改，而層人數本來就會因為「刻意增減指標」而變動，那時該提醒的是「記得回頭改 §4 各層表與 §4.5 的 28.9%」，不是把人擋在門外。
 
@@ -537,6 +546,7 @@ L1 除 `narrative` 外全部、L2 除三項質化外全部、L3 除 `cloudrev`�
 
 | 版本 | 日期 | 改了什麼 | 為什麼／事故經過 |
 |---|---|---|---|
+| **v2.1.4** | 2026-08-17 | `fresh` 修活：引擎依 `IND_MAXAGE` 逐日重標，healthcheck 用引擎自己的門檻與 `asof_date` 重算對帳（FAIL 級）；台股三個價格項的 `sub` 顯示當次真正命中的備援層 | `MAINTENANCE.md` §6.13 |
 | **v2.1.3** | 2026-08-17 | `healthcheck.py` 新增燈號界三處對帳（引擎 `zone()`／前端 `zoneOf()`／`stripHTML()` 色帶）——§4.4 原本寫著「沒有機器在比對」，補上了 | `MAINTENANCE.md` §6.7 的標準 |
 | **v2.1.2** | 2026-08-17 | 前端補上四個缺欄位防禦（`charts.debt.note`、指標卡與總表的 `zone`、`tw.heat` 的「null／100」），並拆掉五處寫死判語（`vc` 誤標 L3、「不同調」與 `evalNvdaCmp` 打架、無條件宣稱與論文結論一致、`evalStagePhase` 撐不到第三／四階段、2026Q1 驗算數字改為現算）；§3.4 兩組界改為正面表述；`healthcheck.py` 的 `find_repo` 不再無條件掃家目錄（在使用者 Mac 上會掛死、`--repo` 形同虛設）；§8.3 由禁令改為白名單、§6 的「幾處一組」去掉數字、§8.2 補 `stage` 的完成條件；`fresh` 死欄位與兩個既有回退寫進規格 | `MAINTENANCE.md` §6.13 |
 | **v2.1.1** | 2026-08-17 | 文件瘦身：本節由敘事改為索引；只寫在本節裡的三個實作門檻搬進 §5.2；`skills/bubble-maintain/` 縮成指標；修掉六處已被自己推翻的抄本與兩個指錯的交叉引用 | `MAINTENANCE.md` §6.12 |

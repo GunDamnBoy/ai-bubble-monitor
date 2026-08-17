@@ -236,6 +236,71 @@ def check_data(repo):
     else:
         ok("無 null 分數指標")
 
+    # fresh 是引擎依 asof 與 IND_MAXAGE 標的（v2.1.4 起才真的會寫 "stale"）。
+    # 這裡用引擎自己那份門檻重算一次跟存檔比對——門檻改了而沒重跑、或有人手改
+    # data.json 的 fresh，都會在這裡現形。定級 FAIL：它直接決定使用者看不看得到
+    # 「⚠ 資料延遲」，錯了就是在頁面上謊報新鮮度。
+    eng_src = ""
+    engp = os.path.join(repo, "scripts", "update_data.py")
+    if os.path.isfile(engp):
+        eng_src = open(engp, encoding="utf-8").read()
+    mma = re.search(r"^IND_MAXAGE = (\{.*?^\})", eng_src, re.S | re.M)
+    mdef = re.search(r"^IND_MAXAGE_DEFAULT = (\d+)", eng_src, re.M)
+    # asof 的解析**不另寫一份**：直接把引擎那支 asof_date 的原始碼挖出來執行。
+    # 自己再寫一份解析器就是又開一個漂移面（這份 repo 最常犯的錯），而且
+    # 兩份對「2026Q2 算到哪一天」的看法只要差一天，這個檢查就會誤報。
+    _ns = {"re": re, "dt": dt}
+    mfn = re.search(r"^def asof_date\(a\):.*?(?=^\ndef |\Z)", eng_src, re.S | re.M)
+    if mfn:
+        try:
+            exec(compile(mfn.group(0), "<engine.asof_date>", "exec"), _ns)
+        except Exception as ex:
+            warn(f"引擎的 asof_date 取不出來（{ex}），fresh 無法對帳")
+    _asof_date = _ns.get("asof_date")
+    if not _asof_date:
+        warn("解不出引擎的 asof_date，fresh 無法對帳"
+             "——被重構過就要同步更新本檢查，不要讓它靜默跳過")
+    elif not (mma and mdef):
+        warn("解不出引擎的 IND_MAXAGE／IND_MAXAGE_DEFAULT，fresh 無法對帳"
+             "——被重構過就要同步更新本檢查，不要讓它靜默跳過")
+    else:
+        maxage = ast.literal_eval(mma.group(1))
+        dflt = int(mdef.group(1))
+        # 漏補一列的指標會靜默落到 45 天預設——對日頻指標而言那等於把徽章關掉，
+        # 而上面那個比對讀的是同一份表，只驗得了「一致」、驗不了「完整」。
+        ids = {i["id"] for i in d.get("indicators", [])}
+        miss, extra = sorted(ids - set(maxage)), sorted(set(maxage) - ids)
+        if miss or extra:
+            bad(f"IND_MAXAGE 與指標集合不符——缺：{miss or '無'}（會靜默套 {dflt} 天預設）／"
+                f"多：{extra or '無'}。加減指標時這張表要跟著改（brief §6 第五處）")
+        # **基準日用資料自己的日期，不是今天。** 存檔的 fresh 是「上一次引擎執行那天」
+        # 算出來的；用今天重算，週日／週一與每天 06:30 前那段（引擎還沒跑）就會出現
+        # 假 FAIL，把每週覆核的交付卡死——而覆核者被 prompt 禁止改 asof，等於無解。
+        basis = _asof_date((d.get("meta", {}).get("lastAutoRun") or {}).get("date")) \
+            or _asof_date(d.get("meta", {}).get("built")) or TODAY_TPE
+        bad_rows, unparsed = [], []
+        for i in d.get("indicators", []):
+            try:
+                ad = _asof_date(i.get("asof"))
+            except Exception:
+                ad = None
+            if ad is None:
+                unparsed.append(i["id"]); continue
+            lim = maxage.get(i["id"], dflt)
+            want = "stale" if (basis - ad).days > lim else "ok"
+            if i.get("fresh") != want:
+                bad_rows.append(f"{i['id']}: 存檔 {i.get('fresh')!r}、依 asof={i['asof']}"
+                                f"（距基準日 {basis} 有 {(basis - ad).days} 天）與門檻 {lim} 應為 {want!r}")
+        if bad_rows:
+            bad("fresh 與 asof／IND_MAXAGE 不一致：" + "；".join(bad_rows[:4])
+                + ("…" if len(bad_rows) > 4 else ""))
+        else:
+            nstale = sum(1 for i in d.get("indicators", []) if i.get("fresh") == "stale")
+            msg = f"fresh 與 asof／門檻一致（基準日 {basis}，{nstale} 項標為資料延遲）"
+            if unparsed:
+                msg += f"；asof 解不出日期而略過：{unparsed}"
+            (warn if unparsed else ok)(msg)
+
     # 質化指標集合
     QUAL = {"narrative", "circular", "weakcredit", "vc", "cloudrev", "tokens"}
     actual = {i["id"] for i in inds if i.get("qual")}

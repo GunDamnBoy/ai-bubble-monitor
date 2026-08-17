@@ -61,6 +61,66 @@ def zone(s):
     if s is None: return "pending"
     return "green" if s < 33 else ("yellow" if s < 67 else ("orange" if s < 84 else "red"))
 
+# ---------------- 資料新鮮度（fresh） ----------------
+# 門檻依各指標的自然更新頻率分組。過去引擎一律寫 "ok"、從不寫 "stale"，
+# 而前端有兩處據此畫「⚠ 資料延遲」、TAB2／TAB5 還對使用者承諾了這個標示——
+# 等於承諾了一個永遠不會發生的東西（brief §6、MAINTENANCE §6.13）。
+# 日頻的 10 天是刻意寬的：連假加上來源當天沒更新，5–6 天是常態，10 天才代表真的卡住。
+IND_MAXAGE = {
+    # 日頻自動
+    "cape": 10, "mag7": 10, "nvdape": 10, "gsy_runup": 10, "gsy_accel": 10,
+    "volchg": 10, "soxmom": 10, "senti": 10, "hyoas": 10, "ccc": 10,
+    "orclbond": 10, "rpo": 10,
+    # 季頻 EDGAR（一季結束到 10-Q 進 EDGAR 常態要 6–10 週）
+    "debt": 130, "capexocf": 130, "fcf": 130, "dnagap": 130,
+    # 質化，與 healthcheck 的 QUAL_MAXAGE 同一組數字
+    "narrative": 21, "circular": 21, "weakcredit": 21,
+    "tokens": 75, "vc": 130, "cloudrev": 130,
+}
+IND_MAXAGE_DEFAULT = 45      # 未列在上表的一律套這個（比照 QUAL_MAXAGE 的慣例）
+
+
+def asof_date(a):
+    """把 asof 解成一個日期。看不懂就回 None——看不懂時寧可不判，不要亂標。
+
+    三種格式都要吃：`YYYY-MM-DD`（多數）、`YYYY-MM`（台灣月營收）、
+    `YYYYQn`（EDGAR 季頻，取季末）。後面接括號說明的也解得出來。
+    """
+    if not isinstance(a, str): return None
+    m = re.match(r"(\d{4})-(\d{2})-(\d{2})", a)
+    if m: 
+        try: return dt.date(*map(int, m.groups()))
+        except ValueError: return None
+    m = re.match(r"(\d{4})Q([1-4])", a)
+    if m:
+        y, q = int(m.group(1)), int(m.group(2))
+        return dt.date(y, q * 3, 1) + dt.timedelta(days=31)   # 季末之後幾天，夠用
+    m = re.match(r"(\d{4})-(\d{2})$|(\d{4})-(\d{2})\D", a)
+    if m:
+        y, mo = (m.group(1), m.group(2)) if m.group(1) else (m.group(3), m.group(4))
+        try:
+            return dt.date(int(y), int(mo), 1) + dt.timedelta(days=31)
+        except ValueError:      # 「2026-13」這種打錯的月份
+            return None
+    return None
+
+
+def set_fresh(inds):
+    """依 asof 與門檻標 fresh。解不出日期就維持 "ok"——標錯比不標更糟。
+
+    這支在原子寫檔的前一行執行，**絕對不可以拋例外**：一旦拋了，當天所有成功
+    抓到的資料全部寫不進去，而且壞掉的 asof 還留在 data.json 裡，之後每一次
+    執行都會死在同一個地方。所以解析包在 try 裡，出事就當作解不出來。
+    """
+    for i in inds:
+        try:
+            d = asof_date(i.get("asof"))
+        except Exception:
+            d = None
+        lim = IND_MAXAGE.get(i["id"], IND_MAXAGE_DEFAULT)
+        i["fresh"] = "stale" if (d and (TODAY - d).days > lim) else "ok"
+
+
 # ---------------- generic fetchers（v1 驗證過） ----------------
 def fred(series, days=620):
     start = (TODAY - dt.timedelta(days=days)).isoformat()
@@ -119,14 +179,23 @@ def yf_chart(sym, rng="4y"):
     if len(rows) < 30: raise RuntimeError(f"yfinance {sym}: {len(rows)} rows")
     return rows
 
+# 三層備援當次真正命中哪一層。TW_SRC 是靜態表、說不出這件事，卡片因此只能寫
+# 「三層備援」；有了這份就能比照 senti 的 sub 誠實顯示當次來源。
+PX_HIT = {}
+
+
 def px_rows(ysym, ssym=None, rng="4y"):
     errs = []
-    for fn in (lambda: yf_chart(ysym, rng), lambda: yahoo_chart(ysym, rng)):
-        try: return fn()
+    for label, fn in (("yfinance", lambda: yf_chart(ysym, rng)),
+                      ("Yahoo raw", lambda: yahoo_chart(ysym, rng))):
+        try:
+            r = fn(); PX_HIT[ysym] = label; return r
         except Exception as e: errs.append(str(e)[:70])
     if ssym:
-        try: return stooq(ssym)
+        try:
+            r = stooq(ssym); PX_HIT[ysym] = "Stooq"; return r
         except Exception as e: errs.append(str(e)[:70])
+    PX_HIT.pop(ysym, None)
     raise RuntimeError(" / ".join(errs))
 
 def series_stats(rows):
@@ -813,11 +882,15 @@ def main():
         if _iid in TWI:
             TWI[_iid]["src"], TWI[_iid]["url"] = _s, _u
 
-    def tupd(iid, value, disp, score, asof=None):
+    def tupd(iid, value, disp, score, asof=None, sub=None):
         t = TWI[iid]
         t["value"], t["disp"] = value, disp
         t["score"] = round(score, 1) if score is not None else None
         t["asof"] = asof or str(TODAY)
+        # sub 由引擎依當次實際情形生成（目前只有走三層備援的價格項用得到）。
+        # 沒東西可寫就把鍵拿掉，不要留一個空字串讓前端畫出空白列。
+        if sub: t["sub"] = sub
+        else: t.pop("sub", None)
 
     def f_twrev():
         comp, table, month = tw_monthly_rev()
@@ -838,18 +911,31 @@ def main():
                  pw(avg, [[10, 0], [15, 33], [20, 67], [28, 100]]), d)
     attempt("TW 官方PE", f_twpe)
 
+    tw_px_done = set()
+
     def f_tw2330():
         st = series_stats(S["2330"])
         dev = (st["close"] / st["dma200"] - 1) * 100
+        hit = PX_HIT.get("2330.TW")
+        psub = f"本次價格來源：{hit}" if hit else None
         tupd("tsmc_200dma", round(dev, 1), f"{dev:+.1f}%",
-             pw(dev, [[0, 0], [15, 33], [30, 67], [50, 100]]), str(st["date"]))
+             pw(dev, [[0, 0], [15, 33], [30, 67], [50, 100]]), str(st["date"]), sub=psub)
+        tw_px_done.add("tsmc_200dma")
         if "chg52w" in st:
             tupd("tsmc_52w", round(st["chg52w"], 1), f"{st['chg52w']:+.1f}%",
-                 pw(st["chg52w"], [[20, 0], [50, 33], [90, 67], [150, 100]]), str(st["date"]))
+                 pw(st["chg52w"], [[20, 0], [50, 33], [90, 67], [150, 100]]), str(st["date"]), sub=psub)
+            tw_px_done.add("tsmc_52w")
         if "pos52w" in st:
             tupd("twii_pos", round(st["pos52w"], 1), f"{st['pos52w']:.1f}%",
-                 pw(st["pos52w"], [[50, 0], [75, 33], [90, 67], [100, 100]]), str(st["date"]))
+                 pw(st["pos52w"], [[50, 0], [75, 33], [90, 67], [100, 100]]), str(st["date"]), sub=psub)
+            tw_px_done.add("twii_pos")
     if "2330" in S: attempt("calc TW 2330", f_tw2330)
+    # 這次沒更新到的那幾張卡，不可以留著上一輪的「本次價格來源」——三層全掛那天
+    # f_tw2330 根本不會執行（S 裡沒有 "2330"），tupd 不被呼叫，舊 sub 就會在
+    # 今天的卡片上說謊。序列偏短讓 chg52w／pos52w 守衛沒過時也是同一回事。
+    for _iid in ("tsmc_200dma", "tsmc_52w", "twii_pos"):
+        if _iid in TWI and _iid not in tw_px_done:
+            TWI[_iid].pop("sub", None)
 
     def f_twidx():
         d, taiex, elec = tw_index_today()
@@ -1003,6 +1089,8 @@ def main():
     for n in ok:
         streak[n] = int(_prev.get(n, 0)) + 1
     data["meta"]["lastAutoRun"] = {"date": str(TODAY), "ok": ok, "fail": fail, "streak": streak}
+
+    set_fresh(data["indicators"])
 
     # 原子寫檔：進程在寫到一半被 kill（OOM／超時）時，截斷的 data.json 會讓之後
     # 每一次執行在第一行 json.loads 就死掉——先寫 .tmp 再 rename，rename 是原子的。

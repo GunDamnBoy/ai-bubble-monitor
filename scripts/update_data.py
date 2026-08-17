@@ -704,10 +704,16 @@ def refresh_edgar(data):
         pts = sorted({(dt.date.fromisoformat(e), v) for _, e, v in dr})
         if not pts: raise RuntimeError(f"EDGAR {co} debt: no data")
         le, lv = pts[-1]
-        debt_now += lv
         pri = [v for e, v in pts if (le - e).days >= 330]
-        debt_prior += pri[-1] if pri else lv
         debt_series[co] = pts
+        if not pri:
+            # 找不到 ≥330 天前的基期時，原本拿「最新值」當基期，等於替這家公司
+            # 編了一個 0% 年增再算進合計——同樣違反 §5.1。改成整家剔除：分子分母
+            # 一起不算，合計年增變成「有基期的那幾家」的年增，寧可少一家也不要假數。
+            log(f"[debt] {co} 找不到 ≥330 天前的基期，本次剔除（不用最新值假裝零成長）")
+            continue
+        debt_now += lv
+        debt_prior += pri[-1]
     grid = sorted({q["q"] for q in agg if q["q"] >= "2023Q4"} | ({prov["q"]} if prov else set()))
     qend = {}
     for lb in grid:
@@ -1143,15 +1149,23 @@ def main():
     attempt("Google News", f_news)
 
     # ============ 層分數、綜合、象限、歷史 ============
+    # 整層指標全部無效時填 None，不填 50.0——50 是一個編出來的中性分，違反 §5.1
+    # 的根本契約，而且沒有任何機器抓得到（healthcheck 過去用同一條規則重算，
+    # 所以兩邊會一起說謊）。真的發生時就讓它空著，composite 改以剩餘層重新歸一，
+    # 比照 tw.heat 的做法。
     dims = {}
     for dk in data["dimMeta"]:
         ss = [i["score"] for i in data["indicators"] if i["dim"] == dk and i.get("score") is not None]
-        dims[dk] = round(sum(ss) / len(ss), 1) if ss else 50.0
+        dims[dk] = round(sum(ss) / len(ss), 1) if ss else None
     data["dims"] = dims
-    data["composite"] = round(sum(data["dimMeta"][dk]["w"] * dims[dk] for dk in dims), 1)
-    heat = round((dims["L1"] + dims["L2"]) / 2, 1)
-    support = round(100 - dims["L3"], 1)
-    if heat >= 55 and support < 45: regime = "泡沫危險區"
+    live = {k: v for k, v in dims.items() if v is not None}
+    wsum = sum(data["dimMeta"][k]["w"] for k in live)
+    data["composite"] = round(sum(data["dimMeta"][k]["w"] * live[k] for k in live) / wsum, 1) if wsum else None
+    hs = [dims[k] for k in ("L1", "L2") if dims[k] is not None]
+    heat = round(sum(hs) / len(hs), 1) if hs else None
+    support = round(100 - dims["L3"], 1) if dims["L3"] is not None else None
+    if heat is None or support is None: regime = "待數據"
+    elif heat >= 55 and support < 45: regime = "泡沫危險區"
     elif heat >= 55: regime = "過熱但有撐（melt-up 風險）"
     elif support >= 45: regime = "健康擴張"
     else: regime = "失速風險"

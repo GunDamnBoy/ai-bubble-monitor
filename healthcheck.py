@@ -177,7 +177,7 @@ def check_data(repo):
     recomputed = {}
     for dk in dm:
         ss = [i["score"] for i in inds if i.get("dim") == dk and i.get("score") is not None]
-        recomputed[dk] = round(sum(ss) / len(ss), 1) if ss else 50.0
+        recomputed[dk] = round(sum(ss) / len(ss), 1) if ss else None   # v2.1.8：不再填 50.0
     stored = d.get("dims", {})
     diffs = [f"{k}: 存 {stored.get(k)} vs 算 {recomputed[k]}" for k in recomputed
              if not near(stored.get(k), recomputed[k])]
@@ -186,15 +186,19 @@ def check_data(repo):
     else:
         ok(f"層分數與指標一致：{recomputed}")
 
-    comp = round(sum(dm[k]["w"] * recomputed[k] for k in recomputed), 1)
+    live = {k: v for k, v in recomputed.items() if v is not None}
+    wsum = sum(dm[k]["w"] for k in live)
+    comp = round(sum(dm[k]["w"] * live[k] for k in live) / wsum, 1) if wsum else None
     if not near(d.get("composite"), comp):
         bad(f"composite 不一致：存 {d.get('composite')} vs 算 {comp}")
     else:
         ok(f"composite 一致：{comp}")
 
-    heat = round((recomputed["L1"] + recomputed["L2"]) / 2, 1)
-    support = round(100 - recomputed["L3"], 1)
-    regime = ("泡沫危險區" if heat >= 55 and support < 45 else
+    hs = [recomputed[k] for k in ("L1", "L2") if recomputed.get(k) is not None]
+    heat = round(sum(hs) / len(hs), 1) if hs else None
+    support = round(100 - recomputed["L3"], 1) if recomputed.get("L3") is not None else None
+    regime = ("待數據" if heat is None or support is None else
+              "泡沫危險區" if heat >= 55 and support < 45 else
               "過熱但有撐（melt-up 風險）" if heat >= 55 else
               "健康擴張" if support >= 45 else "失速風險")
     q = d.get("quadrant", {})

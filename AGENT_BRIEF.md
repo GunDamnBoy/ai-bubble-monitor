@@ -2,7 +2,7 @@
 
 > 這份是**現在的規格與判斷規則**，是本系統的唯一真相來源。
 > 每週質化覆核排程每次執行前完整讀一次。事故經過與被否決的選項寫在 `MAINTENANCE.md` 第 6 節，不要寫進這裡。
-> 版本：**v2.1.7（三層頻率架構）**｜最後修訂 2026-08-17
+> 版本：**v2.1.8（三層頻率架構）**｜最後修訂 2026-08-17
 
 ---
 
@@ -300,7 +300,7 @@ def attempt(name, fn):
 
 抓不到又沒有舊值時，`score` 設 `null`，前端顯示「待數據」灰燈，該指標退出當層平均。
 
-**兩個既有的例外，實作上與這條契約有出入，先記在這裡**：整層指標全部無效時 `dims` 會填 `50.0`（而不是 `null`）；`debt` 找不到 ≥330 天前的基期時，會拿最新值當基期（該公司年增以 0% 計入合計）而不是跳過該公司。兩者都不會被 `healthcheck.py` 抓到，改引擎時順手處理掉。
+**這條契約過去有兩個實作上的漏洞，v2.1.8 已補**：整層指標全部無效時 `dims` 曾經填 `50.0`（一個編出來的中性分），現在填 `null`，`composite` 改以剩餘層重新歸一（比照 `tw.heat`）；`debt` 找不到 ≥330 天前的基期時曾經拿最新值當基期（等於替那家公司編一個 0% 年增再算進合計），現在整家剔除、分子分母一起不算。**兩個漏洞的共同型態是「編一個看起來合理的值讓計算不中斷」**——而 `healthcheck.py` 過去用同一條規則重算，所以兩邊會一起說謊，機器抓不到。
 
 ### 5.2 函式地圖
 
@@ -366,7 +366,8 @@ meta      { version:2, built, builtTime, nextUpdate, artifactId,
              用途只有一個：讓 §9 那條「連續數週成功就該退場」的維護規則變成
              healthcheck 抓得到的東西。§9 表上「追蹤＝無」的那兩列不會有 streak
 composite  number                       綜合溫度 0–100
-dims       { L1, L2, L3 }               層分數
+dims       { L1, L2, L3 }               層分數；整層指標全部無效時該層為 null，
+                                       composite 以剩餘層的權重重新歸一（v2.1.8）
 dimMeta    { L1:{name,w,note}, L2:{...}, L3:{...} }   w 加總必須 = 1.0
 zones      [ {max,label,color} × 5 ]
 indicators [ 22 × {id, dim, name, value, disp, score, zone, anchors, dir,
@@ -386,7 +387,8 @@ triggers   [ 7 × {id, name, state(0/1), value, note, asof, prog} ]
              不參與任何計分（觸發器本來就不進綜合溫度，§3.5）。
              2026-08-10 新增——引擎第一次跑新版之前，舊 data.json 沒有這個鍵，
              前端遇缺就不畫進度條
-quadrant   { heat, support, regime }
+quadrant   { heat, support, regime }    對應層為 null 時 heat／support 也是 null、
+                                       regime 寫「待數據」；前端 renderQuad 遇 heat==null 不畫
 tw         { heat, subs:{動能,估值,籌碼,基本面}, subWeights:{同上四鍵:權重},
              items[10], revTable[10],
              revMonth, officialPE{代號:{pe,pb}}, idx_hist[≤90], margin_hist[≤90] }
@@ -555,6 +557,7 @@ L1 除 `narrative` 外全部、L2 除三項質化外全部、L3 除 `cloudrev`�
 
 | 版本 | 日期 | 改了什麼 | 為什麼／事故經過 |
 |---|---|---|---|
+| **v2.1.8** | 2026-08-17 | 補掉 §5.1「絕不編造數字」的兩個實作漏洞：`dims` 整層無效不再填 50.0（改 null＋composite 重新歸一）、`debt` 缺 330 天基期不再拿最新值假裝零成長（改整家剔除）。healthcheck 同步改，否則兩邊會一起說謊 | `MAINTENANCE.md` §6.14 |
 | **v2.1.7** | 2026-08-17 | 籌碼子群補第二項 `tw_daytrade`（TWSE 當沖占市場比重 TWTB4U，即期比率、不需序列）——四組子群自此都不是單點，籌碼不會再整組消失 | `MAINTENANCE.md` §4 |
 | **v2.1.6** | 2026-08-17 | `margin_hist` 改為回補（`MI_MARGN` 吃 `date=`，不足 21 筆時往回抓 45 個日曆日）——籌碼子群不必再等 21 個交易日，補齊當天 `tw.heat` 會跳一次且那一跳是人為的 | `MAINTENANCE.md` §4 |
 | **v2.1.5** | 2026-08-17 | CBOE Put/Call 退場（streak 16 ≥ 門檻 15，從 §9 與 `KNOWN_FAIL` 移除，之後再壞掉會是 FAIL）；§8.3 的 WebFetch 能力改成分來源講（SEC／CNN 的 JSON 讀得到、FRED 的 CSV 是 binary、Yahoo／Stooq 回空，皆實測）；§5.2 補記 FRED 的 HY／CCC 只留 3 年觀測 | `MAINTENANCE.md` §2 |

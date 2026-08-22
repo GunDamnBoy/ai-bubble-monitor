@@ -18,9 +18,30 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - run: pip install requests yfinance
+      # yfinance 是爬蟲函式庫，破得比一般套件頻繁：auto_adjust 預設翻過、
+      # download() 的欄位形狀改過，而且 0.2.x → 1.x 這個主版號是在沒有 pin 的情況下
+      # 自己跨過去的。釘住版本，要升就是一次刻意的 commit。
+      - run: pip install "requests==2.34.2" "yfinance==1.6.0"
       - name: update data (failures keep old values)
         run: python scripts/update_data.py
+      # 閘門在 commit 之前。降級的產出不准蓋掉線上那份好資料。
+      # **`set -o pipefail` 是必要的，不是裝飾。** Actions 的預設 shell 是 `bash -e`
+      # 而不是 `bash -eo pipefail`，接了 `| tee` 之後步驟的結束碼會變成 tee 的 0——
+      # 閘門會照常印出 BLOCK，然後照常發布。守衛印對了字卻擋不住東西，
+      # 就是這個專案一路踩過來的那一型：失敗看起來跟正常輸出一模一樣。
+      # 擋住 = 不 commit + job 紅燈；GitHub 會對排程 workflow 的失敗寄信，那是通知管道。
+      - name: gate (degraded output must not publish)
+        run: |
+          set -o pipefail
+          python scripts/gate.py | tee -a "$GITHUB_STEP_SUMMARY"
+      # healthcheck 管的是文件與 schema 的一致性。**刻意不擋發布**——
+      # 文件漂移不該讓每天的資料停更，而每日資料跑也製造不出文件漂移。
+      # 它在這裡是每天的體檢報告，結果進 job summary。
+      - name: healthcheck (report only, does not block)
+        continue-on-error: true
+        run: |
+          set -o pipefail
+          python healthcheck.py --repo . | tee -a "$GITHUB_STEP_SUMMARY"
       - name: commit refreshed data
         run: |
           git config user.name "ai-bubble-bot"

@@ -1120,6 +1120,35 @@ def check_code(repo, d):
     mt = os.path.join(repo, "MAINTENANCE.md")
     ok("MAINTENANCE.md 存在") if os.path.isfile(mt) else bad("找不到 MAINTENANCE.md")
 
+    # ---- 拆檔之後的指向鏈 ----
+    # §5／§6／§10 於 2026-08-22 搬到 INTERNALS.md，brief 只留指路的殘節。
+    # 這道檢查是拆檔的配套：**沒有它，INTERNALS.md 被刪掉或被搬回來，
+    # 兩邊都不會有人報錯**——brief 讀起來仍然通順，只是指向一個不存在的地方，
+    # 或者同一份內容在兩個檔案裡各留一份然後慢慢分岔。
+    itn = os.path.join(repo, "INTERNALS.md")
+    if not os.path.isfile(itn):
+        bad("找不到 INTERNALS.md，但 AGENT_BRIEF.md 的 §5／§6／§10 指向它")
+    else:
+        it = open(itn, encoding="utf-8").read()
+        missing = [h for h in ("## 5.", "## 6.", "## 10.") if h not in it]
+        if missing:
+            bad(f"INTERNALS.md 缺少章節 {missing}（brief 的殘節指向它們）")
+        else:
+            ok("INTERNALS.md 有 §5／§6／§10 三節")
+        bt = open(os.path.join(repo, "AGENT_BRIEF.md"), encoding="utf-8").read()
+        secs = {}
+        for tag, nxt in (("## 5.", "## 6."), ("## 6.", "## 7."), ("## 10.", None)):
+            body = bt.split(tag, 1)[-1]
+            secs[tag] = body.split(nxt, 1)[0] if nxt else body
+        for tag, body in secs.items():
+            if "INTERNALS.md" not in body:
+                bad(f"AGENT_BRIEF.md 的 {tag} 殘節沒有指向 INTERNALS.md（指向鏈斷了）")
+            elif len(body) > 1200:
+                bad(f"AGENT_BRIEF.md 的 {tag} 殘節長達 {len(body)} 字元——"
+                    "內容被搬回來了？兩個檔案各留一份會慢慢分岔")
+        if all("INTERNALS.md" in b and len(b) <= 1200 for b in secs.values()):
+            ok("brief 的 §5／§6／§10 殘節都指向 INTERNALS.md 且未回填")
+
 
 def main():
     ap = argparse.ArgumentParser()

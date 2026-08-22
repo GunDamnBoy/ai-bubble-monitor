@@ -11,7 +11,7 @@
 |---|---|
 | 看系統現在健不健康 | `python3 healthcheck.py`（唯讀，不碰 git） |
 | 知道模型長怎樣、權重多少 | `AGENT_BRIEF.md` 第 3–4 節 |
-| 改資料源或加指標 | `AGENT_BRIEF.md` 第 5 節 ＋ 本檔第 2 節流程 |
+| 改資料源或加指標 | `INTERNALS.md` §5 ＋ 本檔第 2 節流程 |
 | 排查某天沒更新 | 本檔第 4 節「已知的坑」 |
 | 知道某個設計為什麼是這樣 | 本檔第 6 節 |
 | 動排程 prompt | `AGENT_BRIEF.md` 第 8 節 ＋ 本檔第 2 節 |
@@ -25,10 +25,10 @@
 1. **先確認工作副本與 `origin/main` 同步**（已 clone 過就 `git -C /tmp/bubble pull --ff-only`），再跑 `healthcheck.py` 記下現況（改壞了才知道是不是自己弄的）。在過期的 clone 上判斷現況，結論會整份錯——這件事發生過。
 2. 改 `AGENT_BRIEF.md`（規格）。
 3. 改 `scripts/update_data.py`（引擎）。動到 `to_quarters`／`pw`／`vix_score`／`bucket`／`gsy_stats`／新聞解析時，**一定要跑 `python3 scripts/update_data.py --selftest`**。
-4. 動到 `data.json` 結構時，走 `AGENT_BRIEF.md` §6 末的**「幾處一組」**——那份清單是正本（目前五處：brief §6 的 schema、`update_data.py`、`index.html` 的 render 函式、內嵌離線快照、`healthcheck.py` 的硬寫常數），**這裡不重抄，因為它每次都在長**。
+4. 動到 `data.json` 結構時，走 `INTERNALS.md` §6 末的**「幾處一組」**——那份清單是正本（目前五處：`INTERNALS.md` §6 的 schema、`update_data.py`、`index.html` 的 render 函式、內嵌離線快照、`healthcheck.py` 的硬寫常數），**這裡不重抄，因為它每次都在長**。
 5. 只在**流程或人機分工改變**時才動每週排程 prompt。**先讀現有全文**：`mcp__claude-code-remote__list_triggers` 找「AI 泡沫監控：每週質化覆核與發布（v2）」，輸出很大、可能超過 token 上限而被存成檔案，那就用 Python 解析——結構是 `{"data": [ ... ]}`，prompt 在 `job_config` 底下。改用 `mcp__claude-code-remote__update_trigger` 送回。**沒有這個工具的工作階段就做不了 brief ↔ prompt 的比對，照實回報，不要憑印象比。**
    **`prompt` 是整份取代，不是局部編輯**——送出前確認所有段落都帶上了，漏掉的段落等於刪除。
-6. 在 `AGENT_BRIEF.md` 第 10 節加變更紀錄，**寫清楚為什麼改**；事故經過與被否決的選項寫進本檔第 6 節。
+6. 在 `INTERNALS.md` 第 10 節加變更紀錄，**寫清楚為什麼改**；事故經過與被否決的選項寫進本檔第 6 節。
 7. **交付與發布（2026-08-10 起，見 §3）**：雲端工作階段推不了這個 repo，改動完成、healthcheck FAIL=0 之後，commit 到 /tmp 的 clone → `git format-patch -1 --stdout` 產出 patch → SendUserFile 交給使用者本機套用推送（只改 `data.json` 的走 `bubble-publish`，動到程式或文件的走 `git am`）。
 8. 使用者推送後**代為驗證線上**（維護工作階段做得到，覆核排程交付完就結束；2026-08-10 前的文件與變更紀錄把這一步稱為「第 7 步」——當時交付步驟還不存在）：用 WebFetch 抓 `data.json`（**不能用 `curl`**，本容器連不到 `github.io`），比對 `meta.built` 與 `composite`。
    **拿到舊值時不要立刻判定 Pages 沒重建**——`data.json` 有 15 分鐘快取，而**目前沒有任何已驗證有效的 cache-buster**（`?t=` 無效、多打斜線也無效，見第 4 節最後三條）。正解是**去抓這次推送裡改過的另一個檔案**（例如 `MAINTENANCE.md`、`AGENT_BRIEF.md`），那個 URL 從沒被抓過、不可能有快取；它若是新版，站台就已經好了，`data.json` 只是你這一端看到的舊拷貝。
@@ -96,7 +96,7 @@
 ## 5. 待辦與觀察中
 
 - **`senti` 的輸入不穩**。AAII 持續被擋、CBOE 時好時壞（卡片的 `sub`／`dir`／`src`／`url` 由引擎依當次成功的來源生成）。**2026-08-10 已接入 CNN Fear & Greed 當第四輸入**（`production.dataviz.cnn.io` 的 graphdata 端點，0–100 直讀；WebFetch 端驗證過活著）——Actions runner 通不通看 `meta.lastAutoRun.streak` 的「CNN FearGreed」：連續成功 ≥15 次就把它從 §9／`KNOWN_FAIL` 退場；持續掛零就換下一個候選（FINRA 融資餘額、CBOE 官方 CSV 端點）。
-- **美國商務部（Census）資料中心營建支出**尚未納入，仍值得補——L3 少數能月頻反映實體投資的序列。**2026-08-10 已勘查端點**：`api.census.gov/data/timeseries/eits/vip`，變數為 `cell_value`／`category_code`／`data_type_code`／`time` 等 13 個，但**連 `category_code` 的可用值清單都要金鑰才查得到**（keyless 直接回「A valid key must be included」），資料中心類別碼因此未確認——寫沒驗證過的抓取違反 §5.1 精神，故本次不接。下一步：使用者到 api.census.gov 申請免費金鑰 → 存 repo secret `CENSUS_API_KEY` → 維護工作階段先用金鑰查 `category_code` 確認資料中心類別（VIP 自 2024 起把 Data Center 從 Office 拆出獨立列示）→ 依 `AGENT_BRIEF.md` §6 末的「幾處一組」流程接入 L3（記得 `LAYER_N`、「22 項指標」、質化權重 28.9% 都要跟著改）。
+- **美國商務部（Census）資料中心營建支出**尚未納入，仍值得補——L3 少數能月頻反映實體投資的序列。**2026-08-10 已勘查端點**：`api.census.gov/data/timeseries/eits/vip`，變數為 `cell_value`／`category_code`／`data_type_code`／`time` 等 13 個，但**連 `category_code` 的可用值清單都要金鑰才查得到**（keyless 直接回「A valid key must be included」），資料中心類別碼因此未確認——寫沒驗證過的抓取違反 §5.1 精神，故本次不接。下一步：使用者到 api.census.gov 申請免費金鑰 → 存 repo secret `CENSUS_API_KEY` → 維護工作階段先用金鑰查 `category_code` 確認資料中心類別（VIP 自 2024 起把 Data Center 從 Office 拆出獨立列示）→ 依 `INTERNALS.md` §6 末的「幾處一組」流程接入 L3（記得 `LAYER_N`、「22 項指標」、質化權重 28.9% 都要跟著改）。
 - **`tsmc_weight` 每月人工更新**，容易忘。若連兩個月沒動，考慮改抓別的來源或降為季頻展示。
 - **回測：範圍已釐清，第一階段的工具已備妥（2026-08-17）。** 整套錨點除了 `gsy_runup` 之外都沒有歷史校準，是專家判斷——這是本系統最大的方法論弱點。這次逐一查證了資料可得性，結論是**範圍比預期窄很多**：
 
@@ -477,3 +477,42 @@ iCloud 會同步 `.git` 底下的檔案，「最佳化儲存空間」會把物�
 
 **教訓**：**三個候選、三條事前判準、三個不同的死因——這是量測有在做事的樣子。**
 如果三個都通過，或都死在同一條，才該懷疑判準是不是寫得太寬或太窄。
+
+### 6.19 2026-08-22：規格書拆成兩檔，以及為什麼錨點不能跟著搬
+
+`AGENT_BRIEF.md` 的第一讀者是每週覆核排程，而它的第一步是**完整讀一次**。
+§6.12 已經處理過一次同型問題（變更紀錄佔 25%），這次量的是整份的分工：
+
+| 章節 | 佔比 | 覆核每次用得到嗎 |
+|---|---|---|
+| §4 指標總表 | 28.7% | 只有 §4.5 的質化 rubric |
+| §8 每週覆核 | 15.8% | **這就是步驟** |
+| §5 資料管線 | 13.4% | 否——除非要改抓取 |
+| §6 schema | 12.8% | 否——除非要改欄位 |
+| §10 變更紀錄 | 11.1% | 否 |
+| 其餘（§0–3、§7、§9） | 18.2% | 是 |
+
+**搬走 §5／§6／§10，39,024 → 24,956 字元，−36%。**
+
+**為什麼 §4 不搬**（它最大，28.7%）：`healthcheck.py` 對它做機械對帳——
+brief 的錨點 ↔ `data.json`（17 項）、§4.6 台灣錨點 ↔ 引擎（11 項）、
+子群權重三處、子群成員、台灣月營收籃。搬它就要同時改 parse 路徑，
+而**一個改錯的 parse 路徑會安靜地變成沒有對帳**——那比不拆更糟。
+省 28.7% 換一個可能失效的守衛，不划算。
+
+拆之前逐一確認過 healthcheck 讀 brief 的每一處：錨點表在 §4、台灣籃在 §4.6、
+cron 比對搜全文而 cron 寫在 §7、`§9` 的擷取邊界是 `\n## 10.`。
+**§10 因此保留一個殘節而不是整段刪掉**——刪掉會讓那個 split 落空，
+`s9` 從「§9 一節」變成「§9 到檔尾」，檢查會鬆掉而且沒有人會發現。
+
+**章節編號沿用 §5／§6／§10 而不是改成 A/B/C。** 全站有十幾處
+`§5.1`、「§6 末的『幾處一組』」這類引用，改編號就要全部跟著改，
+而漏改一處不會報錯、只會讓人跳到錯的地方。**只換檔案、不換編號，引用零churn。**
+
+**配套的守衛**（沒有它就不該拆）：`healthcheck.py` 新增三道——
+INTERNALS.md 存在、它有 §5／§6／§10 三節、brief 的三個殘節都指向它且長度 ≤1200 字元。
+最後那條是防回填：**同一份內容在兩個檔案各留一份，會慢慢分岔而兩邊都不報錯。**
+三種破壞方式（刪檔、抽掉章節、把內容搬回 brief）都實測會 FAIL。
+
+**教訓**：**拆檔之前，先查誰在 parse 它。** 這份文件同時是給人讀的規格
+和給機器對帳的資料源，而後者不會在拆的時候抗議——它只會在下次該擋的時候不擋。

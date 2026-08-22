@@ -88,10 +88,50 @@ def probe(name, tpl, day):
             print(f"    （沒有目標指數）首列：{json.dumps(rows[0], ensure_ascii=False)[:130]}")
 
 
+def which_elec():
+    """**引擎現在到底抓到哪一列？**
+
+    `tw_index_today()` 的精確名是 `nm == "電子類指數"`，但 openapi 的 MI_INDEX
+    根本沒有這個名字（它叫「電子工業類指數」），所以每次都落到子字串退路
+    `"電子" in nm and "報酬" not in nm`，取第一個命中就 break。
+    2026-08-22 的 `idx_hist` 存的是 24,519.06，而電子工業類指數是 2,872.09、
+    其他電子類指數是 271.81——**三個都對不起來**。
+    這一節把 openapi 所有含「電子」的列照原順序印出來，指出退路實際咬到哪一列。
+    """
+    print("\n" + "=" * 76)
+    print("引擎現行選法實測：openapi MI_INDEX 裡所有含「電子」的列（原順序）")
+    print("=" * 76)
+    try:
+        st, body = get("https://openapi.twse.com.tw/v1/exchangeReport/MI_INDEX")
+        arr = json.loads(body)
+    except Exception as e:
+        print(f"  失敗：{e}"); return
+    exact = [r for r in arr if r.get("指數") == "電子類指數"]
+    print(f"  精確名 nm == 「電子類指數」的列數：{len(exact)}"
+          f"　{'← 一列都沒有，所以每次都走退路' if not exact else ''}")
+    print(f"\n  {'#':>3}  {'指數名稱':<24}{'收盤指數':>12}   退路會不會咬")
+    hit = False
+    for i, r in enumerate(arr):
+        nm = r.get("指數", "")
+        if "電子" not in nm: continue
+        take = ("電子" in nm and "報酬" not in nm)
+        mark = ""
+        if take and not hit:
+            mark = "**← 退路取這一列並 break**"; hit = True
+        elif take:
+            mark = "（也符合，但排在後面）"
+        print(f"  {i:>3}  {nm:<24}{str(r.get('收盤指數','')):>12}   {mark}")
+    print("\n  正解應該是「電子工業類指數」。若上面 break 的那一列不是它，"
+          "\n  **elec_rel 一直在拿另一條序列跟大盤比**，而頁面上看不出來。")
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--days", type=int, default=3, help="往回試幾個日期")
+    ap.add_argument("--which", action="store_true", help="只跑「引擎現在抓到哪一列」")
     a = ap.parse_args()
+    if a.which:
+        which_elec(); return
     import datetime as dt
     d = dt.date.today()
     tried = 0

@@ -458,28 +458,109 @@ def tw_day_trade_ratio():
     raise RuntimeError("day trade: no trading day found in 10 days")
 
 
-def tw_index_today():
-    arr = http_get("https://openapi.twse.com.tw/v1/exchangeReport/MI_INDEX", ua=UA_BROWSER).json()
-    taiex = elec = None
-    d = None
-    for r in arr:
-        nm = r.get("指數", "")
-        try:
-            if nm == "發行量加權股價指數":
-                taiex = float(str(r["收盤指數"]).replace(",", "")); d = r.get("日期")
-            elif nm == "電子類指數":   # 精確名優先——子字串首匹配會被「電子零組件類」這種鄰居劫走
-                elec = float(str(r["收盤指數"]).replace(",", ""))
-        except (ValueError, TypeError, KeyError):
+RWD_MI_INDEX = ("https://www.twse.com.tw/rwd/zh/afterTrading/MI_INDEX"
+                "?date={d}&type=IND&response=json")
+IDX_NAMES = {"taiex": "發行量加權股價指數", "elec": "電子工業類指數"}
+
+
+def _num(x):
+    """TWSE 的數字帶千分位；漲跌欄還包著 HTML。這裡只吃收盤指數欄。"""
+    return float(re.sub(r"[^0-9.\-]", "", str(x)))
+
+
+def tw_index_on(day):
+    """抓某一天的 TAIEX 與電子工業類指數。`day` 是 date 或 YYYYMMDD 字串。
+
+    **走 RWD 的 `?date=` 而不是 openapi 的當日快照**，理由有兩個：
+    openapi 沒有歷史（`idx_hist` 因此只能一天長一筆、中斷就重等 21 天），
+    而且 openapi 那份把價格指數、報酬指數、臺灣指數公司的指數混在同一個 273 列的陣列裡。
+
+    **一律用精確名，沒有子字串退路。** 舊版的退路是
+    `"電子" in nm and "報酬" not in nm` 取第一個命中——那條規則會咬到
+    「其他電子類指數」（271.81）或別的鄰居，而正解是「電子工業類指數」（2,872.09）。
+    2026-08-22 實測：`idx_hist` 存的是 24,519.06，跟這兩個都對不起來，
+    也就是 `elec_rel` 一直在拿另一條序列跟大盤比——而頁面上完全看不出來。
+    **寬鬆的退路在這裡不是保險，是安靜換掉量測對象的機制。** 改名的正確處理是報錯。
+
+    `type=IND` 回 23KB；`type=ALL` 回 4.1MB（含 32,000 列個股行情），不要用。
+    """
+    d = day if isinstance(day, str) else day.strftime("%Y%m%d")
+    j = http_get(RWD_MI_INDEX.format(d=d), ua=UA_BROWSER).json()
+    if str(j.get("stat", "")).upper() != "OK":
+        raise RuntimeError(f"mi_index {d}: stat={j.get('stat')!r}")
+    out = {}
+    for t in (j.get("tables") or []):
+        fields = t.get("fields") or []
+        if not fields or fields[0] not in ("指數", "報酬指數"):
             continue
-    if elec is None:   # TWSE 改名時退回舊的子字串規則，寧可寬鬆也不要無聲斷檔
-        for r in arr:
-            nm = r.get("指數", "")
-            if "電子" in nm and "報酬" not in nm:
-                try: elec = float(str(r["收盤指數"]).replace(",", "")); break
-                except (ValueError, TypeError, KeyError): continue
-    if not taiex or not elec: raise RuntimeError("mi_index: missing taiex/elec")
-    if d and len(d) == 7: d = f"{int(d[:3]) + 1911}-{d[3:5]}-{d[5:]}"
-    return d or str(TODAY), taiex, elec
+        if fields[0] == "報酬指數":        # 報酬指數表整張跳過
+            continue
+        for row in (t.get("data") or []):
+            nm = str(row[0]).strip()
+            for key, want in IDX_NAMES.items():
+                if nm == want and key not in out:
+                    try: out[key] = _num(row[1])
+                    except (ValueError, IndexError): pass
+    missing = [IDX_NAMES[k] for k in IDX_NAMES if k not in out]
+    if missing:
+        raise RuntimeError(f"mi_index {d}: 找不到 {missing}（TWSE 改名了就要改 IDX_NAMES，"
+                           f"不要加模糊比對）")
+    ds = j.get("date") or d
+    iso = f"{ds[:4]}-{ds[4:6]}-{ds[6:]}" if len(str(ds)) == 8 else str(ds)
+    return iso, out["taiex"], out["elec"]
+
+
+def tw_index_today():
+    """今天（或最近一個有資料的交易日）。RWD 對非交易日回 stat != OK，往回試幾天。"""
+    last = None
+    for back in range(0, 8):
+        day = TODAY - dt.timedelta(days=back)
+        if day.weekday() >= 5: continue
+        try:
+            return tw_index_on(day)
+        except Exception as e:
+            last = e
+    raise RuntimeError(f"mi_index: 近 8 天都沒抓到（{last}）")
+
+
+def backfill_idx_hist(hist, need=21, max_back=45):
+    """把 idx_hist 往回補到至少 need 筆。作法照抄 `backfill_margin_hist()`。
+
+    **但多一件事：舊筆的 elec 是別條序列，必須整批丟掉。**
+    `elec_rel` 是「電子相對大盤」的 20 期變化，把 24,519 尺度與 2,872 尺度的值
+    混在同一個視窗裡，算出來的不是訊號是垃圾——而它會長得像一個正常的數字。
+    所以第一次跑到這裡時，凡是 elec 明顯不在電子工業類指數量級的筆，整筆刪掉重抓。
+    """
+    LO, HI = 500.0, 12000.0            # 電子工業類指數的合理量級（2026 約 2,900）
+    bad = [h for h in hist if not (LO <= float(h.get("elec", 0)) <= HI)]
+    if bad:
+        log(f"[idx_hist] 丟棄 {len(bad)} 筆舊尺度的 elec（例：{bad[-1]}）——"
+            f"換來源後量級不同，混在同一個 20 期視窗裡算出來的是垃圾")
+        hist[:] = [h for h in hist if LO <= float(h.get("elec", 0)) <= HI]
+    if len(hist) >= need:
+        return 0
+    have = {h["d"] for h in hist}
+    added = []
+    for back in range(0, max_back + 1):
+        if len(hist) + len(added) >= need + 4:
+            break
+        day = TODAY - dt.timedelta(days=back)
+        if day.weekday() >= 5:
+            continue
+        if day.isoformat() in have:
+            continue
+        try:
+            iso, taiex, elec = tw_index_on(day)
+        except Exception:
+            time.sleep(0.3); continue
+        if iso not in have:
+            added.append({"d": iso, "taiex": taiex, "elec": elec}); have.add(iso)
+        time.sleep(0.3)
+    if added:
+        hist.extend(added)
+        hist.sort(key=lambda h: h["d"])
+    return len(added)
+
 
 def taifex_tsmc_weight():
     html = http_get("https://www.taifex.com.tw/cht/9/futuresQADetail", ua=UA_BROWSER).text
@@ -1065,7 +1146,11 @@ def main():
         hist = tw.setdefault("idx_hist", [])
         if not hist or hist[-1]["d"] != d:
             hist.append({"d": d, "taiex": taiex, "elec": elec})
+        # v2.2.7 起可以回補（RWD 的 MI_INDEX 吃 date=）。補滿之後每次執行直接跳過。
+        n = backfill_idx_hist(hist)
+        if n: log(f"[idx_hist] 回補 {n} 筆，共 {len(hist)} 筆")
         tw["idx_hist"] = hist[-90:]
+        hist = tw["idx_hist"]
         if len(hist) >= 21:
             rel = (hist[-1]["elec"] / hist[-21]["elec"] - 1) * 100 - (hist[-1]["taiex"] / hist[-21]["taiex"] - 1) * 100
             tupd("elec_rel", round(rel, 1), f"{rel:+.1f}pp（20日）",

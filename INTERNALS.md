@@ -81,7 +81,7 @@ def attempt(name, fn):
 
 `elec_rel` 與 `tw_margin` 需要 `idx_hist`／`margin_hist` 累積滿 **21 個交易日**才算得出來；未滿時 `score` 為 `null`、`disp` 顯示「序列累積中 n/21」。兩份歷史各保留最近 90 筆。
 
-**`margin_hist` 不必等**（v2.1.6 起）：`MI_MARGN` 吃 `date=` 參數，`backfill_margin_hist()` 會在筆數不足 21 時往回抓（最多回看 45 個日曆日、跳過週末、每次請求間隔 0.3 秒），補滿之後每次執行直接跳過。**它只補、不覆蓋既有筆**。`idx_hist` 目前沒有對應的回補——`MI_INDEX` 走的是 openapi 的當日快照端點，要回補得改走 `www.twse.com.tw/rwd/...?date=` 那條路。**`scripts/tw_idx_probe.py` 是先探那條路的工具**（不寫任何檔案）：逐一試 RWD 的 `MI_INDEX?type=IND`／`type=ALL`／`BFIAMU`，印出 HTTP 狀態、回應形狀、以及找不找得到「發行量加權股價指數」與「電子類指數」。**探完再實作**——`backfill_margin_hist()` 可以照抄，但只有在那條路確實存在、而且回的是我們以為的形狀時才照抄。
+**`margin_hist` 不必等**（v2.1.6 起）：`MI_MARGN` 吃 `date=` 參數，`backfill_margin_hist()` 會在筆數不足 21 時往回抓（最多回看 45 個日曆日、跳過週末、每次請求間隔 0.3 秒），補滿之後每次執行直接跳過。**它只補、不覆蓋既有筆**。**`idx_hist` 自 v2.2.7 起也能回補**：改走 `www.twse.com.tw/rwd/zh/afterTrading/MI_INDEX?date=&type=IND`（23KB；`type=ALL` 回 4.1MB、含 32,000 列個股行情，不要用），`backfill_idx_hist()` 作法照抄 `backfill_margin_hist()`。**指數一律用精確名 `發行量加權股價指數`／`電子工業類指數`，沒有子字串退路**——舊版的退路 `"電子" in nm and "報酬" not in nm` 取第一個命中，實測抓到的是第三條序列（見 `MAINTENANCE.md` §6.20）。**寬鬆的退路在這裡不是保險，是安靜換掉量測對象的機制**；TWSE 改名的正確處理是報錯。回補時會先丟掉不在電子工業類指數量級（500–12000）的舊筆——**混尺度算出來的 20 期變化不是訊號是垃圾，而它會長得像一個正常的數字**。`scripts/tw_idx_probe.py` 是當初探路的工具，`--which` 可以重現舊版退路咬到哪一列。
 
 ### 5.5 新聞流 `events`
 
@@ -176,6 +176,7 @@ params     { nvda_eps, ngdp_nominal, megaipo_done }
 
 | 版本 | 日期 | 改了什麼 | 為什麼／事故經過 |
 |---|---|---|---|
+| **v2.2.7** | 2026-08-22 | `idx_hist` 可回補（RWD `MI_INDEX?date=&type=IND`）＋**修掉一個安靜的量測錯誤**：`tw_index_today()` 的精確名 `電子類指數` 在 openapi 裡不存在，每次都落到子字串退路並咬到第三條序列（存的是 24,519，正解是電子工業類指數 2,872）。改用精確名、移除退路、回補時丟掉舊尺度的筆；healthcheck 新增 elec 尺度一致性檢查 | `MAINTENANCE.md` §6.20 |
 | **v2.2.6** | 2026-08-22 | 離線退路快照改由引擎自動重灌（`refresh_fallback_snapshot()`）——只在落後 >14 天／`composite` 差 >3／版本或 regime 不同時才動，寫回前先驗 JSON，`gate.py` 與 workflow 同步納入 `index.html`。新增 `scripts/tw_idx_probe.py`（`idx_hist` 回補的前置探針，不寫任何檔案） | 見 §5 與本節 |
 | **v2.2.5** | 2026-08-22 | 規格書拆成兩檔：§5 資料管線／§6 schema／§10 變更紀錄搬到 `INTERNALS.md`（**編號沿用**，既有交叉引用零改動），`AGENT_BRIEF.md` −36%（39,024 → 24,956 字元）。§4 錨點表刻意不搬——healthcheck 對它做機械對帳，搬了就要改 parse 路徑。新增三道守衛檢查指向鏈與防回填 | `MAINTENANCE.md` §6.19 |
 | **v2.2.4** | 2026-08-22 | `senti` 的 VIX 補第二層來源（FRED `VIXCLS` → yfinance `^VIX`），命中層記在 `senti.vix.src`、`asof` 跟著實際來源走。**沒有新增任何輸入**——期限結構（來源停更 35 天）、`^VVIX`（與 VIX 的 20 日變化相關 0.79，是同一件事量兩次）、`^SKEW`（與 VIX 幾乎正交，但中位數 36 年上移 21%，固定錨點站不住）三個候選各死在一條事前判準上 | `MAINTENANCE.md` §6.18 |

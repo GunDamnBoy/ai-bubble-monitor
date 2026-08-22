@@ -1117,6 +1117,17 @@ def check_code(repo, d):
         except OSError:
             pass
 
+    # idx_hist 的 elec 混到不同尺度 → elec_rel 的 20 期變化變成垃圾，而它會長得像數字。
+    # 2026-08-22 實測發生過：舊的子字串退路抓到第三條序列（24,519 vs 正解 2,872）。
+    ih = ((d or {}).get("tw") or {}).get("idx_hist") or []
+    ev = [float(h["elec"]) for h in ih if isinstance(h.get("elec"), (int, float))]
+    if len(ev) >= 2:
+        if max(ev) / max(min(ev), 1e-9) > 3:
+            bad(f"tw.idx_hist 的 elec 橫跨 {min(ev):.0f}–{max(ev):.0f}，"
+                "量級差超過 3 倍——混了兩條不同的指數，elec_rel 會算出垃圾")
+        else:
+            ok(f"tw.idx_hist 的 elec 尺度一致（{min(ev):.0f}–{max(ev):.0f}，{len(ev)} 筆）")
+
     mt = os.path.join(repo, "MAINTENANCE.md")
     ok("MAINTENANCE.md 存在") if os.path.isfile(mt) else bad("找不到 MAINTENANCE.md")
 

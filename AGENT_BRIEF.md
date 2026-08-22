@@ -31,7 +31,6 @@
 | GitHub repo `GunDamnBoy/ai-bubble-monitor` | `index.html`、`data.json`、`scripts/update_data.py`、`.github/workflows/update.yml`、本檔、`MAINTENANCE.md`、`healthcheck.py`、`scripts/backtest.py`（回測，只手動觸發） | GitHub Actions（自動）＋維護者 |
 | 網站 <https://gundamnboy.github.io/ai-bubble-monitor/> | GitHub Pages，從 `main` 分支根目錄直出 | Actions 推送後由 API 明確要求重建 |
 | Cowork 桌面 artifact `ai-bubble-monitor` | 內嵌 `data.json` 的單檔 HTML 快照 | 維護工作階段（桌面連線時）；排程執行連不到桌面，只交付 HTML 檔 |
-| Excel `AI泡沫監控儀表板.xlsm` | v1 版、含 `UpdateAll()` 巨集按鈕 | 使用者手動按按鈕；**尚未升到 v2**，見 `MAINTENANCE.md` 第 5 節 |
 
 **唯讀分工**：`index.html`（外殼與繪圖）極少需要動；`data.json` 是每日被機器改寫的資料層；`scripts/update_data.py` 是引擎。
 
@@ -142,14 +141,18 @@ support = 100 − L3             ← 基本面還有多少支撐（L3 越高＝�
 | `cape` | Shiller CAPE（標普500） | 自動 | multpl.com | `[[25,0],[32,33],[40,67],[44.19,100]]` |
 | `mag7` | Mag7 佔標普500市值比重 | 自動 | SlickCharts | `[[20,0],[25,33],[32,67],[38,100]]` |
 | `nvdape` | NVIDIA 本益比 | 自動 | Yahoo/Stooq ÷ `params.nvda_eps` | `[[20,0],[35,33],[55,67],[90,100]]` |
-| `gsy_runup` | **GSY 24 個月漲幅（SOXX）** | 自動 | 價格序列 | `[[25,0],[50,25],[100,60],[150,85],[250,100]]` |
+| `gsy_runup` | **24 個月漲幅（SOXX 價格序列，非固定指數——見下）** | 自動 | 價格序列 | `[[25,0],[50,25],[100,60],[150,85],[250,100]]` |
 | `gsy_accel` | GSY 加速度（**當下 24 月漲幅 − 一年前 24 月漲幅**） | 自動 | 價格序列 | `[[-30,5],[0,30],[30,60],[80,90],[150,100]]` |
 | `volchg` | 已實現波動率一年變化 | 自動 | 價格序列 | `[[-6,10],[0,33],[5,67],[15,100]]` |
 | `soxmom` | 半導體相對動能（SOXX−SPY，3個月） | 自動 | 價格序列 | `[[0,0],[10,33],[25,67],[60,100]]` |
 | `senti` | 情緒與投機溫度（合成） | 自動 | AAII＋CBOE P/C＋VIX＋CNN F&G **等權平均（可得幾項平均幾項）** | 見 4.4 |
 | `narrative` | 泡沫敘事熱度 | **質化** | 媒體監測 | 1–5 級 →10/30/50/70/90 |
 
-**`gsy_runup` 是全表唯一有實證參照的指標——但那個實證不是在這個標的上做的**（Greenwood-Shleifer-You, JFE 2018；2026-08-17 逐句核對過原文）：
+**`gsy_runup` 有兩層錯位，兩層都不能靠改程式解決。**
+
+第一層：**標的本身換過定義。** SOXX 於 2021-06-21 把標的指數由 PHLX Semiconductor Sector（`^SOX`）換成 ICE Semiconductor（現名 NYSE Semiconductor），基金同時改名；`^SOX` 自己也於 2024-04-22 把權重上限由「前五大各 8%」改為「前三大 12%／10%／8%」。實測兩者的 24 月漲幅差距：2003–2020 中位 0.7pp、2024 起 3pp、2025–26 達 9–10pp（`scripts/sox_compare.py`）。**任何跨 2021 或跨 2024 的比較都不是同一籃股票**——趨勢可看，尺不同。理由與完整數據見 `MAINTENANCE.md` §6.16。
+
+第二層：**它是全表唯一有實證參照的指標，但那個實證不是在這個標的上做的**（Greenwood-Shleifer-You, JFE 2018；2026-08-17 逐句核對過原文）：
 
 - **論文的 run-up 定義有三個條件**：過去 2 年 raw ≥門檻 **且** 淨大盤 ≥門檻，再加過去 5 年 raw ≥50%。**本指標只實作了第一個。**
 - **論文的崩盤定義是「識別日後 24 個月內最大回撤 ≥40%」**，回撤起點是窗內任一點——不是從識別日起算（論文自述崩盤案例平均在識別後 6 個月才見頂、期間再漲 30%）。
@@ -190,7 +193,7 @@ support = 100 − L3             ← 基本面還有多少支撐（L3 越高＝�
 - **分段線性 `pw(v, anchors)`**：錨點須依 x 遞增；區間內線性內插，兩端夾住。**分數只在 Python 端計算**，前端不重算、只渲染 `data.json` 裡的 `score`（v1 曾在前端另算一份，兩邊會漂）。
   **燈號 `zone` 是例外**：`indicators[]` 有存 `zone`、前端直接渲染，但 `tw.items[]` 沒有（`tupd()` 不寫），所以台股卡片與 TAB4 引用台股指標時是由前端的 `zoneOf(score)` 現算。也就是說 §3.4 的 `<33/33–67/67–84/≥84` 這組界**在引擎的 `zone()` 與前端的 `zoneOf()`／`stripHTML()` 各有一份實作**——改這組界三個地方要一起改。`healthcheck.py` 會把三處各自解出來對帳（`stripHTML()` 那份是從色帶區段寬度 33/34/17/16 累積推算），不一致是 **FAIL**；哪一處解不出來（被重構）是 **WARN**，不會靜默放行。
 - **VIX 非單調特例**（`vix_score`）：`≥35→95`／`28–35→67~95 線性`／`18–28→33`／`13–18→50`／`<13→70`。低 VIX 是自滿、高 VIX 是恐慌，兩端都不是「健康」。
-- **`senti` 是合成指標**：AAII 多空差、CBOE 個股 Put/Call（取負）、VIX 特例分數、CNN Fear & Greed（2026-08-10 接入，見 §9），**可得幾項就平均幾項**。哪幾項真的參與了合成，看卡片的 `sub`——`sub`／`dir`／`src`／`url` 這四欄都由引擎依當次成功的來源生成，不是寫死的（v2.0.2 前 `dir`／`src`／`url`／`note` 寫死三來源，只有 `sub` 誠實）。`note` 已改寫成不提「這次合成了哪幾個」的結構性說明（原本還寫著「散戶淨空」，那是 AAII 導出的判斷，AAII 被擋的日子就是憑空的）。目前穩定被擋的只有 AAII（CBOE 一度時好時壞，2026-08-17 連續成功 16 次後已退場，見第 9 節）。
+- **`senti` 是合成指標**：AAII 多空差、CBOE 個股 Put/Call（取負）、VIX 特例分數、CNN Fear & Greed（2026-08-10 接入，2026-08-22 退出 §9 白名單），**可得幾項就平均幾項**。哪幾項真的參與了合成，看卡片的 `sub`——`sub`／`dir`／`src`／`url` 這四欄都由引擎依當次成功的來源生成，不是寫死的（v2.0.2 前 `dir`／`src`／`url`／`note` 寫死三來源，只有 `sub` 誠實）。`note` 已改寫成不提「這次合成了哪幾個」的結構性說明（原本還寫著「散戶淨空」，那是 AAII 導出的判斷，AAII 被擋的日子就是憑空的）。目前穩定被擋的只有 AAII（CBOE 一度時好時壞，2026-08-17 連續成功 16 次後已退場，見第 9 節）。
   兩個子輸入的錨點：AAII 多空差 `[[-25,5],[0,40],[20,75],[35,100]]`、**取負後**的個股 P/C `[[-1.0,10],[-0.8,33],[-0.62,67],[-0.45,100]]`；CNN F&G 本身就是 0–100 貪婪度，**直讀不經錨點**。**注意它與 `vix_score` 在恐慌端方向相反**：F&G 極恐慌→趨近 0（降溫），`vix_score` VIX≥35→95（恐慌也是風險）——這是接受的取捨，senti 量的是投機熱度，恐慌日「不熱」是事實，VIX 特例才是刻意的例外；另 F&G 的七個成分本身含 VIX，有部分重複計入，接受。
 
 #### 錨點不在 `data.json` 裡的三個指標
@@ -506,7 +509,9 @@ L1 除 `narrative` 外全部、L2 除三項質化外全部、L3 除 `cloudrev`�
 發布因此改為**人機協作**：
 
 1. 覆核／維護工作階段在 `/tmp` 的 clone 內 commit（身分 `GunDamnBoy` / `haonung.chiang@gmail.com`），`git format-patch -1 --stdout` 產出 patch，連同 `data-YYYY-MM-DD.json`（檔名格式固定，見下）與內嵌新資料的離線 HTML 一起 `SendUserFile` 交付。
-2. 使用者在本機執行 `bubble-publish`（zsh 函數，位於 `~/Projects/ai-bubble-monitor` 的 clone：抓 `~/Downloads` 最新的 `data-*.json` → 蓋 `data.json` → 跑 `healthcheck.py` 當關卡 → commit → push）。**只改 `data.json` 的覆核走這條**；動到程式或文件的維護改動交 `.patch`，使用者 `git am` 後推送。
+2. 使用者在本機執行 `bubble-publish`。**它在 2026-08-22 之前並不存在於這台機器上**——2026-08-17 那次覆核因此沒有發布出去（commit 記錄裡 07-20／07-27／08-03／08-10 有、08-17 沒有）。現行版本：zsh 函數，正本 `~/.bubble-publish.zsh`，clone 在 `~/Projects/ai-bubble-monitor`（**刻意在 iCloud 之外**——iCloud 會同步 `.git` 底下的檔案，「最佳化儲存空間」會把物件抽成佔位符）。流程：`git pull --ff-only`（Actions 每天在推，本地一定落後）→ 取 `~/Downloads` 最新的 `data-YYYY-MM-DD.json`（同日期的 `index-*.html` 一併套用）→ `scripts/gate.py` → `healthcheck.py` → 任一道不過就**還原工作區、不留半套狀態** → commit → push。內容無差異時不做空提交。
+
+   **只改 `data.json` 的覆核走這條**；動到程式或文件的維護改動交 `.patch`，使用者 `git am` 後推送。
 3. 本機推送用使用者自己的 gh 憑證，會正常觸發 Pages 重建（§7）。
 
 **發布後的線上驗證不再由覆核排程做**（它交付完就結束了）。維護工作階段代使用者驗證時用 WebFetch 抓 `data.json` 回報 `meta.built`／`composite`／`quadrant.regime`——注意**沒有任何已驗證有效的 cache-buster**（`?t=` 與多斜線都實測無效），且**同一個工作階段內同一個 URL 一小時抓不了第二次**（擋在抓取工具，不是 Pages）；完整對策與「換檔名」技巧見 `MAINTENANCE.md` §4 與 §6.10；`raw.githubusercontent.com` 只證明 commit 進去了，證明不了 Pages 已重建。
@@ -546,7 +551,6 @@ L1 除 `narrative` 外全部、L2 除三項質化外全部、L3 除 `cloudrev`�
 | 來源 | 追蹤 | 狀況 | 目前處置 |
 |---|---|---|---|
 | AAII 情緒調查 | `attempt("AAII")` | Actions runner 持續被擋 | `senti` 少一個輸入，不報錯 |
-| CNN Fear & Greed | `attempt("CNN FearGreed")` | 2026-08-10 新接入；端點以 WebFetch 驗證過活著，**Actions runner 能否連上未實測** | `senti` 的第四輸入（0–100 直讀）；失敗就退出當次平均。若 streak 連續成功 ≥15 次，把本列與 `KNOWN_FAIL` 一起移除 |
 | TAIFEX 台積電權重 | `attempt("TW 台積電權重")` | 擋機器人 | 由每週覆核人工更新（種子值 44.78%，2026-07-31） |
 | Stooq | **無**（`px_rows()` 內部第三層備援，沒有自己的 `attempt()`） | Actions runner 被擋 | 已降為價格三層備援的最後一層 |
 | 美國商務部資料中心營建支出 | **無**（還沒有程式碼） | 需免費 API 金鑰 | 未納入；接入條件與勘查結果見 `MAINTENANCE.md` §5 |
@@ -559,7 +563,7 @@ L1 除 `narrative` 外全部、L2 除三項質化外全部、L3 除 `cloudrev`�
 
 **「15 次」是執行次數不是三週**：workflow 除了 cron 還有 `workflow_dispatch` 與推程式碼觸發，同日重跑也會重複累加（`history` 有同日去重、`streak` 沒有）。所以 15 次是「至少三週」的下限，不是日曆意義上的三週——它的用途是提醒你回來看一眼，不是自動下結論。
 
-**`senti` 的輸入數會浮動**（穩定的只有 VIX），情緒面因此偏鈍。2026-08-10 已照「加一個不擋機器人的情緒源」的方向接入 CNN Fear & Greed，Actions 端通不通由 streak 見真章。仍然**不要把 `senti` 拿掉**——拿掉等於改了 L1 的權重結構。
+**`senti` 的輸入數會浮動**（穩定的是 VIX、CBOE 個股 Put/Call、CNN Fear & Greed 三項），情緒面因此偏鈍。2026-08-10 接入的 CNN Fear & Greed 已於 2026-08-22 連續成功 17 次退出白名單——當初「Actions runner 通不通未實測」由 streak 回答了。目前穩定被擋的只剩 AAII。仍然**不要把 `senti` 拿掉**——拿掉等於改了 L1 的權重結構。
 
 ---
 
@@ -569,6 +573,8 @@ L1 除 `narrative` 外全部、L2 除三項質化外全部、L3 除 `cloudrev`�
 
 | 版本 | 日期 | 改了什麼 | 為什麼／事故經過 |
 |---|---|---|---|
+| **v2.2.3** | 2026-08-22 | 發布路徑修復：`bubble-publish` 與本機 clone 在這台機器上**根本不存在**，8/17 那次每週覆核因此沒有發布出去；§8.3 改寫成現行流程（clone 在 iCloud 之外、先 `git pull --ff-only`、`gate.py`＋`healthcheck.py` 兩道關卡、不過就還原）。Excel 版正式退場（不再維護，相關敘述全部移除） | `MAINTENANCE.md` §6.17 |
+| **v2.2.2** | 2026-08-22 | `gsy_runup` 的標的本身換過兩次定義（SOXX 於 2021-06-21 換標的指數、`^SOX` 於 2024-04-22 改權重上限），§4.1 與卡片 `note` 加註「跨 2021／2024 不是同一籃股票」；**指標不改**。CNN Fear & Greed 退出 §9 與 `KNOWN_FAIL`（streak 17 ≥ 15）。新增 `scripts/gate.py` 發布閘門與 `scripts/sox_compare.py` | `MAINTENANCE.md` §6.16 |
 | **v2.2.1** | 2026-08-17 | 回測第一輪的結論：`gsy_runup` 的文獻機率是**引用**、不是本標的的校準（論文的 run-up 三條件我們只實作了一個、崩盤是窗內最大回撤、單位是 ≥10 家公司的產業組合）。§4.1 改寫、`gsy150` 出處加限定、卡片 `note` 改由引擎寫 | `MAINTENANCE.md` §6.15 |
 | **v2.2.0** | 2026-08-17 | 回測第一階段的工具：`scripts/backtest.py` ＋ 只手動觸發的 `backtest.yml`，驗 `gsy_runup` 那組唯一有文獻校準的錨點；產出進 `backtest/`，不碰 `data.json`、已排除在每日 workflow 的 push 觸發之外 | `MAINTENANCE.md` §5 |
 | **v2.1.10** | 2026-08-17 | 複驗第二輪：前端補齊 `null` 防禦（`support` 為 null 時不畫象限點、`[null,null]` 不進軌跡、六處會印出 `null` 的地方）；§3.2／§3.3／§8.4 的公式與 §4.6／§6 的項數跟上 v2.1.7–8 | `MAINTENANCE.md` §6.14 |

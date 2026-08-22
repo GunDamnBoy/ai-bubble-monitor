@@ -83,11 +83,10 @@ LAYER_N = {"L1": 9, "L2": 7, "L3": 6}
 KNOWN_FAIL = {
     "AAII": "AAII",
     "TW 台積電權重": "台積電權重",
-    # 2026-08-10 新接入 senti 的第四輸入。端點以 WebFetch 驗證過活著，但 Actions runner
-    # 通不通未實測（CNN 對機器人的態度不明）——先進白名單讓失敗只 WARN 不 FAIL，
-    # 由 streak 見真章：連續成功 ≥15 次就會 WARN 提醒把它從這裡與 §9 一起移除。
-    "CNN FearGreed": "CNN",
 }
+# CNN Fear & Greed 已於 2026-08-22 退場：streak 連續成功 17 次（門檻 15），照 brief §9
+# 的規則從白名單與 §9 的表一起移除。當初「Actions runner 通不通未實測」的疑慮，
+# 由 streak 回答了。它之後再壞掉會是 FAIL 而不是 WARN——那正是目的。
 # CBOE 已於 2026-08-17 退場：streak 連續成功 16 次（門檻 15），照 brief §9 的規則
 # 從白名單與 §9 的表一起移除。它之後再壞掉就會是 FAIL 而不是 WARN——那正是目的。
 # 白名單的意義是「這個來源壞掉屬於已知、只 WARN 不擋交付」；反過來說，把一個來源

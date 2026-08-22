@@ -836,8 +836,20 @@ def main():
     def f_pc():
         senti["pc"] = cboe_putcall()
     def f_vixv():
-        d, v, _ = fred_latest_and_back("VIXCLS", 0)
-        senti["vix"] = {"v": v, "date": str(d)}
+        # VIX 是 senti 唯一一項從來沒被擋過的輸入，而它只有 FRED 一個來源——
+        # 那條線斷掉，senti 就只剩 CBOE 與 CNN 兩項在撐。yfinance 的 ^VIX
+        # 有 1990 起、36.6 年的完整序列，2026-08 實測落後 1 天，當第二層剛好。
+        # **哪一層命中要記錄下來**：兩個來源的日期會差一天，asof 必須跟著實際來源走，
+        # 否則就是拿 FRED 的日期標 yfinance 的值（§8.4 的 asof 通則）。
+        try:
+            d, v, _ = fred_latest_and_back("VIXCLS", 0)
+            src = "FRED"
+        except Exception as e_fred:
+            rows = yf_chart("^VIX", "1y")
+            d, v = rows[-1]
+            src = "yfinance"
+            log(f"[VIX] FRED 失敗（{str(e_fred)[:60]}），改用 yfinance ^VIX {d}")
+        senti["vix"] = {"v": v, "date": str(d), "src": src}
         sp["vix"] = {"now": v, "asof": str(d)}
     def f_fg():
         d, v = cnn_fear_greed()

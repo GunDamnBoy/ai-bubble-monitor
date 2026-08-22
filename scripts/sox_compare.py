@@ -92,14 +92,18 @@ def pct(xs, q):
 
 def fwd_dd(rows, i, horizon=505):
     """從第 i 天起、往後 horizon 個交易日內，**窗內任一點**起算的最大回撤。
-    §6.15 那次就是把起點寫成穿越當日，才產出一個看起來像結論的 0%。"""
+    §6.15 那次就是把起點寫成穿越當日，才產出一個看起來像結論的 0%。
+
+    回 (值, 是否走完)。**窗沒走完一定要說**——一個只走了三個月的 24 個月窗，
+    印出來的 -28.6% 跟一個真的走完的 -28.6% 在畫面上長得一模一樣，
+    而前者根本還不是結論。它只會愈跌愈深，不會變淺。"""
     seg = [c for _, c in rows[i:i + horizon + 1]]
-    if len(seg) < 20: return None
+    if len(seg) < 20: return None, False
     peak, worst = seg[0], 0.0
     for c in seg:
         peak = max(peak, c)
         worst = min(worst, c / peak - 1)
-    return worst * 100
+    return worst * 100, len(seg) >= horizon + 1
 
 
 def main():
@@ -157,9 +161,9 @@ def main():
             nxt = peaks[k + 1] if k + 1 < len(peaks) else None
             seg = [d for d in pre if d >= st and (nxt is None or d < nxt)]
             pk = max(seg, key=lambda d: R["^SOX"][d]["ret24"])
-            r = R["^SOX"][pk]["ret24"]; dd = fwd_dd(rows["^SOX"], idx[pk])
-            print(f"{str(st):<12}{r:>10.1f}{eng.pw(r, anchors):>10.1f}  {str(pk):<12}"
-                  f"{(f'{dd:.1f}%' if dd is not None else '窗未走完'):>14}")
+            r = R["^SOX"][pk]["ret24"]; dd, done = fwd_dd(rows["^SOX"], idx[pk])
+            tag = "窗未走完" if dd is None else (f"{dd:.1f}%" if done else f"{dd:.1f}%（窗未走完）")
+            print(f"{str(st):<12}{r:>10.1f}{eng.pw(r, anchors):>10.1f}  {str(pk):<12}{tag:>14}")
 
     # ---- 三、全樣本的 gsy150 事件 ----
     print("\n" + "=" * 78); print("三、^SOX 全樣本的 gsy150 穿越事件"); print("=" * 78)
@@ -172,17 +176,49 @@ def main():
           f"　→ 前瞻窗不重疊的獨立事件 **{len(ev)}** 次")
     print("中間那兩步不能省：同一段行情在門檻上下擺盪會被數成十幾次，"
           "而相隔不到 24 個月的兩次穿越，崩盤與否看的是同一段資料。")
-    print(f"{'穿越日':<12}{'ret24':>9}{'後24月最大回撤':>16}{'≥40%?':>8}")
-    hits = 0
+    print("穿越日           ret24    後24月最大回撤   ≥40%?   窗")
+    hits = done_n = 0
     for d in ev:
-        dd = fwd_dd(rows["^SOX"], idx[d])
-        if dd is not None and dd <= -40: hits += 1
-        print(f"{str(d):<12}{R['^SOX'][d]['ret24']:>9.1f}"
-              f"{(f'{dd:.1f}%' if dd is not None else '窗未走完'):>16}"
-              f"{('是' if dd is not None and dd <= -40 else '否'):>8}")
-    if ev:
-        print(f"\n崩盤率 {hits}/{len(ev)}　文獻（Greenwood-Shleifer-You）在 150% 組是 80%")
+        dd, done = fwd_dd(rows["^SOX"], idx[d])
+        if done:
+            done_n += 1
+            if dd is not None and dd <= -40: hits += 1
+            verdict = "是" if dd <= -40 else "否"
+        else:
+            verdict = "未定"
+        print(f"{str(d):<12}{R['^SOX'][d]['ret24']:>10.1f}"
+              f"{(f'{dd:.1f}%' if dd is not None else '—'):>16}{verdict:>8}"
+              f"{('走完' if done else '**未走完**'):>10}")
+    if done_n:
+        print(f"\n崩盤率 **{hits}/{done_n}**（分母只算窗走完的；"
+              f"另有 {len(ev)-done_n} 個窗還開著）")
+        print("文獻（Greenwood-Shleifer-You）在 150% 組是 80%。")
         print("**事件數是個位數，這只能說「與文獻方向一致／不一致」，不可能是統計顯著性。**")
+
+    # ---- 四、門檻上的分歧，要看段落不是看百分比 ----
+    print("\n" + "=" * 78)
+    print("四、150% 門檻上兩者判定不同的段落（聚合百分比會把這件事藏起來）")
+    print("=" * 78)
+    runs, cur = [], None
+    for d in common:
+        a, b = R["^SOX"][d]["ret24"] >= 150, R["SOXX"][d]["ret24"] >= 150
+        if a != b:
+            if cur and (d - cur[-1]).days <= 7: cur.append(d)
+            else:
+                if cur: runs.append(cur)
+                cur = [d]
+    if cur: runs.append(cur)
+    if not runs:
+        print("重疊期內沒有任何一天判定不同")
+    else:
+        print(f"{'起':<12}{'訖':<12}{'天':>5}{'^SOX':>9}{'SOXX':>9}  誰在門檻之上")
+        for r in runs:
+            mid = r[len(r) // 2]
+            a, b = R["^SOX"][mid]["ret24"], R["SOXX"][mid]["ret24"]
+            print(f"{str(r[0]):<12}{str(r[-1]):<12}{len(r):>5}{a:>9.1f}{b:>9.1f}"
+                  f"  {'^SOX' if a >= 150 else 'SOXX'}")
+        print("\n**一次觸發器該不該亮，不是用 5810 天裡的百分比來判斷的。**"
+              "\n這種事件本來就十年兩次，聚合比例永遠會說『兩者幾乎一樣』。")
 
     out = {"overlap": {"n": n, "median_dret": pct(dr, .5), "max_dret": max(dr),
                        "median_dscore": pct(ds, .5), "max_dscore": max(ds),

@@ -111,30 +111,62 @@ def main():
          f"{BASE}/variables/category_code.json", key)
     show("三、data_type_code 的可用值", f"{BASE}/variables/data_type_code.json", key)
 
-    # v1 漏了 seasonally_adj，Census 回 400「missing required variable/predicate」。
-    # 那是個好錯誤——它明講缺什麼。這裡兩種寫法都試（放進 get、或當 predicate）。
-    j = show("四、實際撈一年的資料（seasonally_adj 放進 get）",
+    # 到這裡為止已知：values 端點不存在（只回變數 metadata），
+    # seasonally_adj 是必填，API 文件頁也沒有代碼對照表。
+    # 38 個 category_code 全是不透明縮寫，而「Data center」在 C30 定義裡
+    # 是 Office 底下的子類（census.gov/construction/c30/definitions.html 已查證）。
+    # **不再猜形狀，改成三路並進，讓資料自己指認。**
+
+    j = show("四、實際撈一年（seasonally_adj 放進 get）",
              f"{BASE}?get=cell_value,category_code,data_type_code,time_slot_id,seasonally_adj"
              f"&for=us:*&time={a.year}", key, dump=4)
-    if j is None:
-        j = show("四之二、改成 predicate 寫法",
-                 f"{BASE}?get=cell_value,category_code,data_type_code,time_slot_id"
-                 f"&seasonally_adj=no&for=us:*&time={a.year}", key, dump=4)
 
-    if j and isinstance(j, list) and len(j) > 1:
-        hdr = j[0]
-        try:
-            ci = hdr.index("category_code")
-        except ValueError:
-            print("\n  **回應裡沒有 category_code 欄**，形狀跟預期不同"); return
-        cats = sorted({r[ci] for r in j[1:] if len(r) > ci and r[ci]})
-        print(f"\n{'='*74}\n五、這一年實際出現過的 category_code 共 {len(cats)} 個\n{'='*74}")
-        for c in cats:
-            hit = any(k in str(c).lower() for k in KEYWORDS)
-            print(f"  {c:<28}{'**← 關鍵字命中**' if hit else ''}")
-        print("\n  **代碼多半是縮寫，看不出中文意思。** 對照 variables.json 的說明，"
-              "\n  或到 census.gov/construction/c30/definitions.html 查全名。"
-              "\n  在確認哪一個是資料中心之前，不要寫抓取。")
+    # 路一：把每個可能帶可讀文字的欄位都撈出來。program_code 的 label 是
+    # 「Component Name」，time_slot_name 是「Time Slot Name」——
+    # 其中任何一個若帶人看得懂的字串，代碼問題就解決了。
+    show("五、撈可讀欄位（program_code／time_slot_name／error_data）",
+         f"{BASE}?get=cell_value,category_code,program_code,time_slot_name,"
+         f"data_type_code,seasonally_adj&for=us:*&time={a.year}-06", key, dump=8)
+
+    if not isinstance(j, list) or len(j) < 2:
+        print("\n四節沒有資料，後面的指認做不了"); return
+    hdr = j[0]
+    ix = {k: hdr.index(k) for k in hdr}
+
+    # 路二：data_type_code 有哪幾種、各自的量級長什麼樣。
+    # MPCP 看起來是百分比變化（值 2.9／−3.2），要找的是金額那一種。
+    print(f"\n{'='*74}\n六、data_type_code 的種類與量級\n{'='*74}")
+    byd = {}
+    for r in j[1:]:
+        try: v = float(r[ix["cell_value"]])
+        except (ValueError, TypeError): continue
+        byd.setdefault(r[ix["data_type_code"]], []).append(abs(v))
+    print(f"{'code':<10}{'列數':>7}{'中位':>14}{'最大':>16}  推測")
+    for code, vals in sorted(byd.items()):
+        vals.sort(); mid = vals[len(vals)//2]
+        guess = "金額（百萬美元？）" if mid > 1000 else "百分比或指數"
+        print(f"{code:<10}{len(vals):>7}{mid:>14,.1f}{vals[-1]:>16,.1f}  {guess}")
+
+    # 路三：用金額型的 data_type 把 38 個類別依量級排出來。
+    # C30 公布表裡 Office 與 Data center 的金額是很有辨識度的數字，
+    # **對得上就指認得出來**——這是不靠代碼表也能收斂的一條路。
+    money = [c for c, v in byd.items() if sorted(v)[len(v)//2] > 1000]
+    for mcode in money[:2]:
+        print(f"\n{'='*74}\n七、data_type_code={mcode} 各類別的最新值（依量級排序）\n{'='*74}")
+        latest = {}
+        for r in j[1:]:
+            if r[ix["data_type_code"]] != mcode: continue
+            try: v = float(r[ix["cell_value"]])
+            except (ValueError, TypeError): continue
+            t = r[ix["time"]]
+            c = r[ix["category_code"]]
+            if c not in latest or t > latest[c][0]: latest[c] = (t, v)
+        print(f"{'category_code':<16}{'時間':<10}{'值':>16}")
+        for c, (t, v) in sorted(latest.items(), key=lambda x: -x[1][1]):
+            print(f"{c:<16}{t:<10}{v:>16,.1f}")
+        print("\n  **拿這張表去對 census.gov 公布的 C30 表**："
+              "\n  Total、Nonresidential、Office、Data center 的金額都是有辨識度的數字，"
+              "\n  對得上就指認得出代碼——不需要代碼對照表。")
 
 
 if __name__ == "__main__":

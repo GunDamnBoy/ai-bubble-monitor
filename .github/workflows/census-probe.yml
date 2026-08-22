@@ -1,0 +1,36 @@
+name: census-probe
+# 一次性查證作業：確認 Census VIP 的資料中心 category_code。
+# **只手動觸發**，跟 backtest.yml 同樣的定位——不碰 data.json、不進每日流程。
+#
+# 為什麼要跑在 Actions 上：使用者的 Mac 連不到 api.census.gov（需 VPN），
+# 而 Cowork 容器也連不到。Actions runner 兩邊都通，而且 repo secret 只在這裡讀得到。
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: probe census VIP
+        # **這個 repo 是公開的，Actions log 也是公開的。**
+        # census_probe.py 本身不印金鑰（只印長度，URL 全部遮成 key=***）；
+        # GitHub 另外會把註冊過的 secret 在 log 裡自動遮掉。兩層都要有，不靠其中一層。
+        env:
+          CENSUS_API_KEY: ${{ secrets.CENSUS_API_KEY }}
+        run: |
+          set -o pipefail
+          if [ -z "$CENSUS_API_KEY" ]; then
+            echo "::error::repo secret CENSUS_API_KEY 沒有設定或是空的"
+            exit 1
+          fi
+          {
+            echo '## Census VIP 探針'
+            echo '```'
+            python3 scripts/census_probe.py 2>&1
+            echo '```'
+          } | tee -a "$GITHUB_STEP_SUMMARY"

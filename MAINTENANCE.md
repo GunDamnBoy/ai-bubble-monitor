@@ -96,7 +96,7 @@
 ## 5. 待辦與觀察中
 
 - **`senti` 的輸入不穩**。AAII 持續被擋、CBOE 時好時壞（卡片的 `sub`／`dir`／`src`／`url` 由引擎依當次成功的來源生成）。**2026-08-10 已接入 CNN Fear & Greed 當第四輸入**（`production.dataviz.cnn.io` 的 graphdata 端點，0–100 直讀；WebFetch 端驗證過活著）——Actions runner 通不通看 `meta.lastAutoRun.streak` 的「CNN FearGreed」：連續成功 ≥15 次就把它從 §9／`KNOWN_FAIL` 退場；持續掛零就換下一個候選（FINRA 融資餘額、CBOE 官方 CSV 端點）。
-- **美國商務部（Census）資料中心營建支出**尚未納入，仍值得補——L3 少數能月頻反映實體投資的序列。**2026-08-10 已勘查端點**：`api.census.gov/data/timeseries/eits/vip`，變數為 `cell_value`／`category_code`／`data_type_code`／`time` 等 13 個，但**連 `category_code` 的可用值清單都要金鑰才查得到**（keyless 直接回「A valid key must be included」），資料中心類別碼因此未確認——寫沒驗證過的抓取違反 §5.1 精神，故本次不接。下一步：使用者到 api.census.gov 申請免費金鑰（**2026-08-23 已申請**）→ 存 repo secret `CENSUS_API_KEY` → **先跑 `scripts/census_probe.py` 確認資料中心的 `category_code`**（金鑰走環境變數，程式不印金鑰、所有輸出的 URL 遮成 `key=***`）→ 確認之後才依 `INTERNALS.md` §6 末的「幾處一組」流程接入 L3（記得 `LAYER_N`、「22 項指標」、質化權重 28.9% 都要跟著改）。
+- ~~**美國商務部（Census）資料中心營建支出**~~ **已結案：這條序列不存在。** 2026-08-23 用金鑰實測（`scripts/census_probe.py`，Actions run #4）：VIP 的 `category_code` 共 38 個，16 個編號類別加總**正好等於**非住宅總額，**沒有多出來的一格**；C30 公布表的非住宅列只有 Lodging／Office／Commercial／Health care／Educational／Religious／Amusement and recreation／Transportation／Communication／Power／Manufacturing，**「Data center」不是獨立列**。定義頁講的是「Office 這個類別*包含*資料中心這種建物」——那是定義的說明，不是一條可以抓的序列。詳見 §6.22。
 
 **「VIP 自 2024 起把 Data Center 從 Office 拆出獨立列示」是二手說法，沒有在 API 上驗過。** 探針存在的理由就是不要把它當成前提——寫一個沒驗證過的抓取違反 §5.1。
 - **`tsmc_weight` 每月人工更新**，容易忘。若連兩個月沒動，考慮改抓別的來源或降為季頻展示。
@@ -598,3 +598,54 @@ INTERNALS.md 存在、它有 §5／§6／§10 三節、brief 的三個殘節都�
 來源：GS BMRI 五因子（CNBC 2018-11-12 報導）；Citi Panic/Euphoria 輸入清單
 （SentimenTrader 的說明頁）；Man Group「The AI Bubble」Figure 7；
 Sahm Rule 定義與序列（FRED `SAHMREALTIME`）。
+
+### 6.22 2026-08-23：整個項目的前提是一句二手說法，而它是錯的
+
+「美國商務部資料中心營建支出」在待辦上掛了兩週，卡的點寫成
+「keyless 連 `category_code` 清單都查不到」。金鑰到手之後，**正確的下一步不是寫抓取，
+是查證那句前提**——而前提是：「VIP 自 2024 起把 Data Center 從 Office 拆出獨立列示」。
+
+實測（金鑰走 repo secret，探針跑在 Actions 上，Mac 與 Cowork 容器都連不到 api.census.gov）：
+
+| 查什麼 | 結果 |
+|---|---|
+| `variables/category_code.json` | **不是值清單端點**，只回該變數的 metadata（`label="Industry list"`） |
+| `?get=...` 少了 `seasonally_adj` | 400 `missing required variable/predicate` |
+| API 文件頁 `vip.html` | 沒有代碼對照表 |
+| 38 個 `category_code` | 全是不透明縮寫（`00XX`…`15XX`、`A00XX`…`A20IX`、`ANRXX`、`XXXX`） |
+
+沒有對照表就讓資料自己指認。`data_type_code=T`、2026-06、季調年化：
+
+```
+AXXXX  2,166,539   總額
+ANRXX  1,277,174   非住宅
+A00XX    889,365   住宅   （2,166,539 − 1,277,174 = 889,365，完全吻合）
+```
+
+`A` 前綴＝季調年化。**16 個編號類別（`A01XX`…`A15XX`＋`A20IX`）加總 = 1,277,175，
+正好等於 `ANRXX`。** 這一步就足以判死：若「Data center」在這 16 個裡有自己的代碼，
+加總會重複計入 Office 而對不上。
+
+C30 公布表確認同一件事：非住宅列只有 Lodging／Office／Commercial／Health care／
+Educational／Religious／Amusement and recreation／Transportation／Communication／
+Power／Manufacturing，**「Data center」不是獨立列**（Office 民間 2026-06 季調年化
+$115,808M）。定義頁講的是「Office 這個類別*包含*資料中心這種建物」——
+**那是定義的說明，不是一條可以抓的序列。**
+
+**結案：這個指標用免費公開資料做不出來。** 民間來源（Dodge、CBRE 之類）要付費。
+拿整個 Office 當代理不可行——它會把一般辦公樓和資料中心混在一起，
+而那正是這個指標要分開的兩件事。
+
+**教訓兩條：**
+
+1. **一個項目掛在待辦上兩週，卡的可能不是它自稱卡的那件事。**
+   寫的是「拿不到金鑰」，真正的問題是「那條序列不存在」。
+   金鑰只是讓我們有能力去確認前提是假的——**它沒有解鎖資料，它解鎖了否證。**
+2. **探針最大的價值不是讓功能做成，是讓做不成的功能便宜地死掉。**
+   照原計畫，下一步是拿金鑰去寫 `census_vip()`、接進 L3、改 `LAYER_N`、
+   改「22 項指標」那句話、重算質化佔比 28.9%——**然後才發現分不出資料中心。**
+   探針花了四次 Actions 執行、十二秒一次。
+
+`scripts/census_probe.py` 與 `census-probe.yml` 保留。哪天 Census 真的拆出來，
+重跑一次就知道；刪掉的話，下一個人會從「申請金鑰」重走一遍。
+

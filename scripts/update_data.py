@@ -1249,8 +1249,81 @@ def main():
     tmp = DATA.with_suffix(".json.tmp")
     tmp.write_text(json.dumps(data, ensure_ascii=False, indent=1))
     tmp.replace(DATA)
+    refresh_fallback_snapshot(data)
     log(f"done. composite={data['composite']} dims={dims} tw={tw.get('heat')} regime={regime} ok={len(ok)} fail={len(fail)}")
     if fail: log("failed (old values kept): " + ", ".join(fail))
+
+# ------------------------------------------------------------------ 離線退路快照
+
+FALLBACK_MAXLAG = 14        # 天。healthcheck 的 WARN 門檻是 45，這裡刻意更緊
+FALLBACK_MAXDIFF = 3.0      # composite 分差。healthcheck 是 5
+FALLBACK_HIST = 60          # 快照的 history 裁到最後幾筆（頁面大小）
+
+def refresh_fallback_snapshot(data, path=None):
+    """把 index.html 的 #dashboard-data 內嵌快照重灌成現行 data.json。
+
+    這份快照只有在 `fetch("data.json")` 失敗時才會被看到——**平常沒有人看得到它，
+    所以它一放就是好幾個月**，而 fetch 失敗那天使用者看到的就是它。
+    §6.7 記過同型的事：讀得到「鍵」不等於讀得到「欄位」。
+
+    **不是每天重灌**：每天改 index.html 會讓一個 110KB 的檔案每天多一筆
+    幾十 KB 的 diff，而快照本來就允許落後。只在「舊到會誤導」時重灌，
+    門檻比 healthcheck 的 WARN 更緊，所以那個 WARN 永遠不該有機會亮。
+
+    **決定重灌或不重灌都要 log。** 靜默跳過的守衛比沒有守衛更糟（§6.13）。
+    """
+    import re as _re
+    p = Path(path) if path else ROOT / "index.html"
+    if not p.is_file():
+        log("[snapshot] 找不到 index.html，略過"); return False
+    html = p.read_text(encoding="utf-8")
+    m = _re.search(r'(<script[^>]*id="dashboard-data"[^>]*>)(.*?)(</script>)', html, _re.S)
+    if not m:
+        log("[snapshot] index.html 找不到 #dashboard-data 區塊，略過"); return False
+
+    why = []
+    try:
+        old = json.loads(m.group(2))
+    except Exception as e:
+        old, why = None, [f"舊快照不是合法 JSON（{e.__class__.__name__}）"]
+    if old is not None:
+        if (old.get("meta") or {}).get("version") != (data.get("meta") or {}).get("version"):
+            why.append("meta.version 不同")
+        try:
+            lag = (dt.date.fromisoformat(str(data["meta"]["built"])[:10])
+                   - dt.date.fromisoformat(str(old["meta"]["built"])[:10])).days
+            if lag > FALLBACK_MAXLAG: why.append(f"落後 {lag} 天")
+        except Exception:
+            why.append("舊快照的 meta.built 解不出日期")
+        oc, dc = old.get("composite"), data.get("composite")
+        if isinstance(oc, (int, float)) and isinstance(dc, (int, float)) \
+                and abs(oc - dc) > FALLBACK_MAXDIFF:
+            why.append(f"composite 差 {abs(oc - dc):.1f}")
+        orx = (old.get("quadrant") or {}).get("regime")
+        drx = (data.get("quadrant") or {}).get("regime")
+        if orx and drx and orx != drx:
+            why.append("象限 regime 不同")
+
+    if not why:
+        log("[snapshot] 內嵌快照仍在容忍範圍內，不重灌"); return False
+
+    snap = dict(data)
+    snap["history"] = (data.get("history") or [])[-FALLBACK_HIST:]
+    body = json.dumps(snap, ensure_ascii=False, separators=(",", ":"))
+    new_html = html[:m.start(2)] + body + html[m.end(2):]
+    # 寫回之前先把自己產出的東西再解析一次。regex 換字串出錯時，
+    # 頁面仍然是合法 HTML、只是那塊 JSON 壞了——而它平常沒人看得到。
+    chk = _re.search(r'<script[^>]*id="dashboard-data"[^>]*>(.*?)</script>', new_html, _re.S)
+    try:
+        json.loads(chk.group(1))
+    except Exception as e:
+        log(f"**[snapshot] 重灌後的 JSON 解析失敗（{e}），沒有寫入 index.html**"); return False
+    tmp = p.with_suffix(".html.tmp")
+    tmp.write_text(new_html, encoding="utf-8")
+    tmp.replace(p)
+    log(f"[snapshot] 已重灌內嵌快照（{'、'.join(why)}）；history 裁到 {len(snap['history'])} 筆")
+    return True
+
 
 def selftest():
     assert abs(pw(42.18, [[25, 0], [32, 33], [40, 67], [44.19, 100]]) - 84.2) < 0.1

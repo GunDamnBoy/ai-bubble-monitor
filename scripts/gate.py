@@ -138,6 +138,24 @@ def main():
     else:
         ok(f"待數據指標 {nulls(old)} → {nulls(new)}")
 
+    # ---- 內嵌退路快照：引擎現在會自己重灌它，所以它也進了發布路徑 ----
+    # fetch("data.json") 失敗那天，使用者看到的就是這一塊。它壞掉的話頁面仍然是
+    # 合法 HTML、只是離線時整頁空白——**平常沒有人看得到，所以沒有人會發現**。
+    idx = "index.html"
+    if os.path.isfile(idx):
+        import re
+        h = open(idx, encoding="utf-8").read()
+        m = re.search(r'<script[^>]*id="dashboard-data"[^>]*>(.*?)</script>', h, re.S)
+        if not m:
+            block("index.html 找不到 #dashboard-data 內嵌退路快照")
+        else:
+            try:
+                snap = json.loads(m.group(1))
+                ok(f"內嵌退路快照可解析（built={(snap.get('meta') or {}).get('built')}，"
+                   f"{len(m.group(1))/1024:.0f} KB）")
+            except Exception as e:
+                block(f"內嵌退路快照不是合法 JSON：{e}")
+
     # ---- 戳記：引擎沒跑到底、或寫回更舊的東西 ----
     b_old, b_new = (old.get("meta") or {}).get("built"), (new.get("meta") or {}).get("built")
     if b_new and b_old and str(b_new) < str(b_old):

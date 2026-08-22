@@ -2,3 +2,4 @@ __pycache__/
 *.pyc
 data.json.tmp
 sox_compare.json
+senti_calib.json

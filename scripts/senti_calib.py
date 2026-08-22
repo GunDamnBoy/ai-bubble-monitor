@@ -24,7 +24,7 @@
 
     cd <repo>/scripts && python3 senti_calib.py
 """
-import json, os, sys, time
+import datetime as dt, json, os, sys, time
 
 CAND = [
     ("^VIX",    "VIX 水位",        "低＝自滿＝熱"),
@@ -34,13 +34,23 @@ CAND = [
     ("^SKEW",   "尾部風險定價",     "方向待定，見輸出"),
 ]
 GRID = [5, 10, 25, 33, 50, 67, 75, 90, 95]
+STALE_DAYS = 5
 
 
 def pull(yf, sym):
+    """**索引一律正規化成不帶時區的日期。**
+
+    第一版直接拿 yfinance 的索引去 align，TS9D 出來是空的——
+    因為不同代號的索引帶著不同的時間分量（有的 00:00、有的 09:30），
+    畫面上兩邊都寫 2026-07-17，join 卻一筆都對不上。
+    **兩條看起來對齊的序列，可能因為一個你看不到的時間分量而完全不相交。**"""
     df = yf.Ticker(sym).history(period="max", interval="1d", auto_adjust=False)
     c = df["Close"]
     n_raw = len(c)
     c = c.dropna()
+    c.index = c.index.tz_localize(None).normalize() if c.index.tz is not None \
+        else c.index.normalize()
+    c = c[~c.index.duplicated(keep="last")]
     return c, n_raw
 
 
@@ -60,18 +70,29 @@ def main():
     print("=" * 88); print("零、取值與尾端 NaN"); print("=" * 88)
     print("**這一節是這支程式最重要的一節。** 探針顯示 ^VIX9D／^VIX3M 的最後一列是 NaN——")
     print("序列 99.97% 完整，而唯一缺的那天正好是日更儀表板唯一會讀的那天。")
-    print(f"\n{'序列':<10}{'原始列':>8}{'去NaN':>8}{'尾端NaN':>9}{'最後有值日':>13}{'最後值':>10}")
+    today = dt.date.today()
+    print(f"\n{'序列':<10}{'原始列':>8}{'去NaN':>8}{'缺':>5}{'最後有值日':>13}"
+          f"{'落後天':>8}{'最後值':>10}  可用性")
+    stale = []
     for sym, name, _ in CAND:
         try:
             c, n_raw = pull(yf, sym)
             S[sym] = c
-            gap = n_raw - len(c)
-            print(f"{sym:<10}{n_raw:>8}{len(c):>8}{gap:>9}"
-                  f"{str(c.index[-1].date()):>13}{c.iloc[-1]:>10.2f}")
-            meta[sym] = str(c.index[-1].date())
+            last = c.index[-1].date()
+            lag = (today - last).days
+            if lag > STALE_DAYS: stale.append((sym, lag))
+            print(f"{sym:<10}{n_raw:>8}{len(c):>8}{n_raw-len(c):>5}{str(last):>13}"
+                  f"{lag:>8}{c.iloc[-1]:>10.2f}  "
+                  f"{'**日更不能用**' if lag > STALE_DAYS else 'ok'}")
+            meta[sym] = str(last)
         except Exception as e:
             print(f"{sym:<10}  失敗：{e.__class__.__name__}: {str(e)[:50]}")
         time.sleep(0.8)
+    if stale:
+        print(f"\n**以下序列落後超過 {STALE_DAYS} 天，日更儀表板不能用**："
+              + "、".join(f"{s}（{d} 天）" for s, d in stale))
+        print("落後一個月的序列每天都會給出同一個數字，而卡片上看起來完全正常——")
+        print("那不是「輸入少一項」，是「輸入在說謊」。**接進去之前必須先解決來源。**")
     if len(S) < 2: sys.exit("取到的序列太少")
 
     dates = {v: meta[v] for v in meta}
@@ -83,11 +104,11 @@ def main():
     # 衍生：期限結構
     if "^VIX9D" in S and "^VIX" in S:
         a, b = S["^VIX9D"].align(S["^VIX"], join="inner")
-        S["TS9D"] = a / b
+        if len(a): S["TS9D"] = a / b
         CAND.append(("TS9D", "期限結構 9D/30D", "<1 為正價差＝平靜＝熱"))
     if "^VIX" in S and "^VIX3M" in S:
         a, b = S["^VIX"].align(S["^VIX3M"], join="inner")
-        S["TS3M"] = a / b
+        if len(a): S["TS3M"] = a / b
         CAND.append(("TS3M", "期限結構 30D/3M", "<1 為正價差＝平靜＝熱"))
 
     print("\n" + "=" * 88); print("一、全樣本分位數（固定錨點要從這裡設，不是用猜的）"); print("=" * 88)
@@ -96,6 +117,8 @@ def main():
     for sym, name, _ in CAND:
         if sym not in S: continue
         c = S[sym]
+        if len(c) < 200:
+            print(f"{sym:<10}  只有 {len(c)} 筆，跳過"); continue
         yrs = (c.index[-1] - c.index[0]).days / 365.25
         row = "".join(f"{x:>8.2f}" for x in pcts(c.values))
         print(f"{sym:<10}{str(c.index[0].date()):>12}{yrs:>6.1f}" + row)

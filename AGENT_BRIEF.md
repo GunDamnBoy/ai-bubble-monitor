@@ -377,9 +377,17 @@ L1 除 `narrative` 外全部、L2 除三項質化外全部、L3 除 `cloudrev`�
 發布因此改為**人機協作**：
 
 1. 覆核／維護工作階段在 `/tmp` 的 clone 內 commit（身分 `GunDamnBoy` / `haonung.chiang@gmail.com`），`git format-patch -1 --stdout` 產出 patch，連同 `data-YYYY-MM-DD.json`（檔名格式固定，見下）與內嵌新資料的離線 HTML 一起 `SendUserFile` 交付。
-2. 使用者在本機執行 `bubble-publish`。**它在 2026-08-22 之前並不存在於這台機器上**——2026-08-17 那次覆核因此沒有發布出去（commit 記錄裡 07-20／07-27／08-03／08-10 有、08-17 沒有）。現行版本：zsh 函數，正本 `~/.bubble-publish.zsh`，clone 在 `~/Projects/ai-bubble-monitor`（**刻意在 iCloud 之外**——iCloud 會同步 `.git` 底下的檔案，「最佳化儲存空間」會把物件抽成佔位符）。流程：`git pull --ff-only`（Actions 每天在推，本地一定落後）→ 取 `~/Downloads` 最新的 `data-YYYY-MM-DD.json`（同日期的 `index-*.html` 一併套用）→ `scripts/gate.py` → `healthcheck.py` → 任一道不過就**還原工作區、不留半套狀態** → commit → push。內容無差異時不做空提交。
+2. **覆核把檔案寫進 `~/outbox/bubble/`，60 秒內由 launchd 自動發布，不需要人動手。**（v2.2.9 起；在此之前是人工下載＋手動執行，而 2026-08-17 那次覆核就是這樣沒發布出去的——commit 記錄裡 07-20／07-27／08-03／08-10 有、08-17 沒有。）
 
-   **只改 `data.json` 的覆核走這條**；動到程式或文件的維護改動交 `.patch`，使用者 `git am` 後推送。
+   `com.kenny.kbpublish.bubble` 每 60 秒跑 `scripts/auto_publish.py`：`git pull --rebase` → 套用草稿（同日期的 `index-*.html` 一併套用）→ `scripts/gate.py` → `healthcheck.py` → 任一道不過就**還原工作區並把草稿 park**（改名 `.parked`，不再重試——內容問題不會自己好）→ commit → push → 草稿移進 `_done/`。推送類的失敗**留著草稿下一輪再試**（網路會自己好），累計 30 次才 park。
+
+   **形狀比照另外四套 kbpublish，但跑的不是 kb-core 的 `tools/publish.py`。** 那支的核心是不可改寫守衛（`data/<date>.json` 已發布就不覆寫），而本專案的 `data.json` 每個交易日都被 Actions 覆寫，語意相反。**共用的是紀律不是程式碼。**
+
+   **每次發布都寫回執** `~/outbox/bubble/<日期>.receipt.json`：`exit 0` 才算上線。**沒有回執代表這支根本沒跑**，那跟「回執說失敗」是兩件事。空輪次完全不印東西（週頻系統一週有一萬次空輪）。
+
+   `bubble-publish`（zsh 函數，正本 `~/.bubble-publish.zsh`）保留為**手動覆寫**，抓 `~/Downloads` 的草稿。clone 在 `~/Projects/ai-bubble-monitor`，**刻意在 iCloud 之外**——iCloud 會同步 `.git` 底下的檔案，「最佳化儲存空間」會把物件抽成佔位符。
+
+   **只改 `data.json` 的覆核走這條**；動到程式或文件的維護改動交 `.patch`，使用者 `git pull --rebase` 之後 `git am` 再推送。
 3. 本機推送用使用者自己的 gh 憑證，會正常觸發 Pages 重建（§7）。
 
 **發布後的線上驗證不再由覆核排程做**（它交付完就結束了）。維護工作階段代使用者驗證時用 WebFetch 抓 `data.json` 回報 `meta.built`／`composite`／`quadrant.regime`——注意**沒有任何已驗證有效的 cache-buster**（`?t=` 與多斜線都實測無效），且**同一個工作階段內同一個 URL 一小時抓不了第二次**（擋在抓取工具，不是 Pages）；完整對策與「換檔名」技巧見 `MAINTENANCE.md` §4 與 §6.10；`raw.githubusercontent.com` 只證明 commit 進去了，證明不了 Pages 已重建。

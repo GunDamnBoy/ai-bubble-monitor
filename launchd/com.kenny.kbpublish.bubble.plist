@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <!-- 2026-08-23：AI 泡沫監控的每週質化覆核自動發布。形狀比照另外四支 kbpublish，
+       **但跑的不是 kb-core 的 tools/publish.py。**
+
+       理由：那支的第 2 條設計是不可改寫守衛（data/<date>.json 已存在且內容不同就
+       拒絕覆寫）。泡沫監控的 data.json 每個交易日都被 Actions 覆寫，語意正好相反，
+       硬塞進去會破壞那支程式存在的理由。所以共用的是紀律不是程式碼：
+       每 60 秒、自己的 outbox 子目錄、閘門在寫入之前、每次發布寫回執、永不 force。
+
+       **outbox 是 ~/outbox/bubble/ 這個子目錄，不是 ~/outbox/。**
+       跟另外四套一樣，用目錄做物理隔離，不靠紀律。
+
+       這一套是週頻的，絕大多數輪次都是空的——空輪次完全不印東西，
+       否則一週一萬行會把真正的訊息淹掉。
+
+       直譯器沿用另外四支已經證明在 launchd 下跑得起來的那個。
+       這條路（auto_publish／gate／healthcheck）只用標準庫，不需要 venv 的套件。 -->
+  <key>Label</key>
+  <string>com.kenny.kbpublish.bubble</string>
+
+  <key>ProgramArguments</key>
+  <array>
+    <string>/Users/macmini/.venvs/kb/bin/python</string>
+    <string>/Users/macmini/Projects/ai-bubble-monitor/scripts/auto_publish.py</string>
+    <string>/Users/macmini/outbox/bubble</string>
+    <string>/Users/macmini/Projects/ai-bubble-monitor</string>
+  </array>
+
+  <key>WorkingDirectory</key>
+  <string>/Users/macmini</string>
+
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>PATH</key>
+    <string>/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin</string>
+    <key>HOME</key>
+    <string>/Users/macmini</string>
+  </dict>
+
+  <key>StartInterval</key>
+  <integer>60</integer>
+
+  <key>RunAtLoad</key>
+  <false/>
+
+  <key>StandardOutPath</key>
+  <string>/Users/macmini/outbox/bubble/publish.log</string>
+  <key>StandardErrorPath</key>
+  <string>/Users/macmini/outbox/bubble/publish.log</string>
+</dict>
+</plist>

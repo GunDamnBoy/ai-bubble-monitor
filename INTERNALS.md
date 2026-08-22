@@ -176,6 +176,7 @@ params     { nvda_eps, ngdp_nominal, megaipo_done }
 
 | 版本 | 日期 | 改了什麼 | 為什麼／事故經過 |
 |---|---|---|---|
+| **v2.2.9** | 2026-08-23 | 每週覆核改為**自動發布**：覆核把 `data-YYYY-MM-DD.json` 寫進 `~/outbox/bubble/`，`com.kenny.kbpublish.bubble` 每 60 秒跑 `scripts/auto_publish.py`（pull --rebase → gate → healthcheck → commit → push → 回執）。形狀比照另外四套 kbpublish，但不共用 `tools/publish.py`——那支的不可改寫守衛與本專案「每日覆寫同一個 data.json」的語意相反。內容失敗 park、推送失敗重試 | `MAINTENANCE.md` §6.23 |
 | **v2.2.8** | 2026-08-22 | 新增觸發器 `sahm05`（Sahm Rule ≥0.50pp，FRED `SAHMREALTIME`）——七項觸發器過去全是市場與信用，這是唯一量實體經濟的一項。曲線斜率刻意不加：BMRI 用連續百分位、沒有公開門檻，自己選一個數字然後掛 GS 的名字就是 §6.15 換件衣服。觸發器 7 → 8，不動權重、不斷歷史 | `MAINTENANCE.md` §6.21 |
 | **v2.2.7** | 2026-08-22 | `idx_hist` 可回補（RWD `MI_INDEX?date=&type=IND`）＋**修掉一個安靜的量測錯誤**：`tw_index_today()` 的精確名 `電子類指數` 在 openapi 裡不存在，每次都落到子字串退路並咬到第三條序列（存的是 24,519，正解是電子工業類指數 2,872）。改用精確名、移除退路、回補時丟掉舊尺度的筆；healthcheck 新增 elec 尺度一致性檢查 | `MAINTENANCE.md` §6.20 |
 | **v2.2.6** | 2026-08-22 | 離線退路快照改由引擎自動重灌（`refresh_fallback_snapshot()`）——只在落後 >14 天／`composite` 差 >3／版本或 regime 不同時才動，寫回前先驗 JSON，`gate.py` 與 workflow 同步納入 `index.html`。新增 `scripts/tw_idx_probe.py`（`idx_hist` 回補的前置探針，不寫任何檔案） | 見 §5 與本節 |

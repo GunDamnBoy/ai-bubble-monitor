@@ -220,6 +220,39 @@ def main():
         print("\n**一次觸發器該不該亮，不是用 5810 天裡的百分比來判斷的。**"
               "\n這種事件本來就十年兩次，聚合比例永遠會說『兩者幾乎一樣』。")
 
+    # ---- 五、分歧是一路都在，還是換指數之後才擴大 ----
+    # SOXX 於 2021-06-21 把標的指數從 PHLX Semiconductor Sector（就是 ^SOX）
+    # 換成 ICE Semiconductor（現名 NYSE Semiconductor），來源：SEC 497 申報。
+    # 換指數會透過 24 個月窗持續影響到大約兩年之後。
+    print("\n" + "=" * 78)
+    print("五、逐年分歧（SOXX 於 2021-06-21 換掉標的指數）")
+    print("=" * 78)
+    SWITCH = 2021
+    by = {}
+    for d in common:
+        a, b = R["^SOX"][d]["ret24"], R["SOXX"][d]["ret24"]
+        y = by.setdefault(d.year, [])
+        y.append((abs(a - b), abs(eng.pw(a, anchors) - eng.pw(b, anchors)),
+                  zone(eng.pw(a, anchors)) != zone(eng.pw(b, anchors))))
+    print(f"{'年':<6}{'天':>6}{'|Δret24| 中位':>15}{'|Δ分數| 中位':>14}{'燈號不同':>10}")
+    for y in sorted(by):
+        v = by[y]; n2 = len(v)
+        mr = sorted(x[0] for x in v)[n2 // 2]
+        ms = sorted(x[1] for x in v)[n2 // 2]
+        zd = sum(1 for x in v if x[2])
+        mark = "  ← 換指數" if y == SWITCH else ""
+        print(f"{y:<6}{n2:>6}{mr:>15.1f}{ms:>14.1f}{zd:>10}{mark}")
+    pre = [x for y in by for x in by[y] if y < SWITCH]
+    post = [x for y in by for x in by[y] if y > SWITCH + 1]
+    if pre and post:
+        f = lambda v, i: sorted(x[i] for x in v)[len(v) // 2]
+        print(f"\n換指數前（–{SWITCH-1}）　|Δret24| 中位 {f(pre,0):.1f}pp　"
+              f"|Δ分數| 中位 {f(pre,1):.1f}")
+        print(f"換指數後（{SWITCH+2}–）　|Δret24| 中位 {f(post,0):.1f}pp　"
+              f"|Δ分數| 中位 {f(post,1):.1f}")
+        print("\n若後段明顯較大，代表拼接效應是真的：**同一個指標名稱，"
+              "前後量的不是同一籃股票。**")
+
     out = {"overlap": {"n": n, "median_dret": pct(dr, .5), "max_dret": max(dr),
                        "median_dscore": pct(ds, .5), "max_dscore": max(ds),
                        "zone_diff": zdiff, "trig_diff": tdiff},

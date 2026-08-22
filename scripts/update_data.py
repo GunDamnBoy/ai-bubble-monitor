@@ -1234,7 +1234,14 @@ def main():
         trig_vals["ff"] = (v, d)
     def f_y10():
         trig_vals["y10"] = fred_latest_and_back("DGS10", 91)
+    def f_sahm():
+        # Sahm Rule：三個月失業率移動平均，較前 12 個月的三月均最低值上升 ≥0.50pp。
+        # FRED 直接發布這個序列（月頻），**不要自己從 UNRATE 重算**——
+        # 重算一次就多一份會漂的定義，而 FRED 那份就是規則作者的定義。
+        d, v, _ = fred_latest_and_back("SAHMREALTIME", 0, days=1200)
+        trig_vals["sahm"] = (v, d)
     attempt("FRED CPI", f_cpi); attempt("FRED FEDFUNDS", f_ff); attempt("FRED DGS10", f_y10)
+    attempt("FRED Sahm", f_sahm)
 
     def set_trig(tid, state, val, asof=None, prog=None):
         """asof 要填「這個判斷所依據的資料」的日期，不是今天。
@@ -1269,6 +1276,12 @@ def main():
         set_trig("policy_gap", v >= params["ngdp_nominal"],
                  f"FF {v:.2f}% vs 名目GDP≈{params['ngdp_nominal']}%", d,
                  prog=(v / params["ngdp_nominal"] * 100) if params.get("ngdp_nominal") else None)
+    if "sahm" in trig_vals:
+        v, d = trig_vals["sahm"]
+        # 唯一量得到實體經濟的觸發器。其餘七項幾乎全是市場與信用，
+        # 而泡沫要破通常需要實體端先出事——這一項補的是那個盲區。
+        set_trig("sahm05", v >= 0.50, f"{v:+.2f}pp", d,
+                 prog=max(0.0, v) / 0.50 * 100)
     if "y10" in trig_vals:
         d, v, b = trig_vals["y10"]
         set_trig("y10_5", v >= 5.0, f"{v:.2f}%", d, prog=v / 5.0 * 100)

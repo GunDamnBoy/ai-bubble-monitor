@@ -375,12 +375,16 @@ def check_data(repo):
         ok(f"質化 {len(QUAL)} 項的 note 軌跡、日期與 asof 新鮮度皆正常")
 
     # 觸發器
-    TRIG = {"hy80", "ccc12", "gsy150", "cpi4", "policy_gap", "y10_5", "megaipo"}
+    TRIG = {"hy80", "ccc12", "gsy150", "cpi4", "policy_gap", "y10_5", "megaipo", "sahm05"}
     tr = d.get("triggers", [])
     tids = {t.get("id") for t in tr}
     if tids == TRIG:
         lit = [t["id"] for t in tr if t.get("state")]
-        ok(f"觸發器 7 項齊全，點亮 {len(lit)}/7" + ("：" + ", ".join(lit) if lit else ""))
+        # 項數從 TRIG 現算。原本這行把「7」寫死在訊息字串裡——集合比對通過了
+        # （8 == 8），印出來的字卻還在說 7。**通過的檢查印出說謊的字**，
+        # 是 §6.4／§6.8 那一族最小的一顆。
+        ok(f"觸發器 {len(TRIG)} 項齊全，點亮 {len(lit)}/{len(TRIG)}"
+           + ("：" + ", ".join(lit) if lit else ""))
     else:
         bad(f"觸發器集合漂移：多 {sorted(tids - TRIG)}、少 {sorted(TRIG - tids)}")
     if any(t.get("state") not in (0, 1, True, False) for t in tr):
@@ -757,7 +761,7 @@ def check_brief(repo, d):
         ok(f"brief §9 已知失效來源與 healthcheck 白名單一致（{len(KNOWN_FAIL)} 項）")
 
     # 觸發器門檻文字
-    for tid in ("hy80", "ccc12", "gsy150", "cpi4", "policy_gap", "y10_5", "megaipo"):
+    for tid in ("hy80", "ccc12", "gsy150", "cpi4", "policy_gap", "y10_5", "megaipo", "sahm05"):
         if f"`{tid}`" not in txt:
             bad(f"brief 第 3.5 節缺觸發器 {tid}")
 

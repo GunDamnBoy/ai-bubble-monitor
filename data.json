@@ -2114,6 +2114,15 @@
    "note": "Hartnett：大頂前的最後供給事件（每週人工覆核）",
    "asof": "2026-08-22",
    "prog": null
+  },
+  {
+   "id": "sahm05",
+   "name": "Sahm Rule ≥0.50pp（失業率轉折）",
+   "state": 0,
+   "value": "待數據",
+   "note": "唯一量實體經濟的觸發器：三月失業率均較前 12 個月低點升 ≥0.50pp",
+   "asof": "2026-07-01",
+   "prog": null
   }
  ],
  "quadrant": {

@@ -96,7 +96,9 @@
 ## 5. 待辦與觀察中
 
 - **`senti` 的輸入不穩**。AAII 持續被擋、CBOE 時好時壞（卡片的 `sub`／`dir`／`src`／`url` 由引擎依當次成功的來源生成）。**2026-08-10 已接入 CNN Fear & Greed 當第四輸入**（`production.dataviz.cnn.io` 的 graphdata 端點，0–100 直讀；WebFetch 端驗證過活著）——Actions runner 通不通看 `meta.lastAutoRun.streak` 的「CNN FearGreed」：連續成功 ≥15 次就把它從 §9／`KNOWN_FAIL` 退場；持續掛零就換下一個候選（FINRA 融資餘額、CBOE 官方 CSV 端點）。
-- **美國商務部（Census）資料中心營建支出**尚未納入，仍值得補——L3 少數能月頻反映實體投資的序列。**2026-08-10 已勘查端點**：`api.census.gov/data/timeseries/eits/vip`，變數為 `cell_value`／`category_code`／`data_type_code`／`time` 等 13 個，但**連 `category_code` 的可用值清單都要金鑰才查得到**（keyless 直接回「A valid key must be included」），資料中心類別碼因此未確認——寫沒驗證過的抓取違反 §5.1 精神，故本次不接。下一步：使用者到 api.census.gov 申請免費金鑰 → 存 repo secret `CENSUS_API_KEY` → 維護工作階段先用金鑰查 `category_code` 確認資料中心類別（VIP 自 2024 起把 Data Center 從 Office 拆出獨立列示）→ 依 `INTERNALS.md` §6 末的「幾處一組」流程接入 L3（記得 `LAYER_N`、「22 項指標」、質化權重 28.9% 都要跟著改）。
+- **美國商務部（Census）資料中心營建支出**尚未納入，仍值得補——L3 少數能月頻反映實體投資的序列。**2026-08-10 已勘查端點**：`api.census.gov/data/timeseries/eits/vip`，變數為 `cell_value`／`category_code`／`data_type_code`／`time` 等 13 個，但**連 `category_code` 的可用值清單都要金鑰才查得到**（keyless 直接回「A valid key must be included」），資料中心類別碼因此未確認——寫沒驗證過的抓取違反 §5.1 精神，故本次不接。下一步：使用者到 api.census.gov 申請免費金鑰（**2026-08-23 已申請**）→ 存 repo secret `CENSUS_API_KEY` → **先跑 `scripts/census_probe.py` 確認資料中心的 `category_code`**（金鑰走環境變數，程式不印金鑰、所有輸出的 URL 遮成 `key=***`）→ 確認之後才依 `INTERNALS.md` §6 末的「幾處一組」流程接入 L3（記得 `LAYER_N`、「22 項指標」、質化權重 28.9% 都要跟著改）。
+
+**「VIP 自 2024 起把 Data Center 從 Office 拆出獨立列示」是二手說法，沒有在 API 上驗過。** 探針存在的理由就是不要把它當成前提——寫一個沒驗證過的抓取違反 §5.1。
 - **`tsmc_weight` 每月人工更新**，容易忘。若連兩個月沒動，考慮改抓別的來源或降為季頻展示。
 - **回測：範圍已釐清，第一階段的工具已備妥（2026-08-17）。** 整套錨點除了 `gsy_runup` 之外都沒有歷史校準，是專家判斷——這是本系統最大的方法論弱點。這次逐一查證了資料可得性，結論是**範圍比預期窄很多**：
 

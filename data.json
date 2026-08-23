@@ -2,7 +2,7 @@
  "meta": {
   "version": 2,
   "built": "2026-08-23",
-  "builtTime": "2026-08-23（每週質化覆核）",
+  "builtTime": "2026-08-23（GitHub Actions 自動更新）",
   "nextUpdate": "每交易日自動更新（GitHub Actions）｜質化指標每週覆核｜v2 三層架構",
   "artifactId": "ai-bubble-monitor",
   "lastAutoRun": {
@@ -49,39 +49,39 @@
    "streak": {
     "AAII": 0,
     "TW 台積電權重": 0,
-    "px SOXX": 31,
-    "px SPY": 31,
-    "px NVDA": 31,
-    "px 2330": 31,
-    "calc GSY": 31,
-    "calc soxmom": 31,
-    "calc nvdape": 31,
-    "multpl CAPE": 31,
-    "slickcharts Mag7": 31,
-    "CBOE putcall": 31,
-    "FRED VIX": 31,
-    "CNN FearGreed": 23,
-    "calc senti": 31,
-    "FRED HY": 31,
-    "FRED CCC": 31,
-    "ORCL bond": 18,
-    "FRED IG": 31,
-    "FRED FEDFUNDS 磚塊": 31,
-    "FRED USINFO 磚塊": 31,
-    "EDGAR RPO": 31,
-    "EDGAR quarterly": 31,
-    "TW 月營收": 31,
-    "TW 官方PE": 31,
-    "calc TW 2330": 31,
-    "TW 電子指數": 31,
-    "TW 融資餘額": 31,
-    "TW 當沖比重": 15,
-    "TW 海關出口": 31,
-    "FRED CPI": 31,
-    "FRED FEDFUNDS": 31,
-    "FRED DGS10": 31,
-    "FRED Sahm": 6,
-    "Google News": 31
+    "px SOXX": 32,
+    "px SPY": 32,
+    "px NVDA": 32,
+    "px 2330": 32,
+    "calc GSY": 32,
+    "calc soxmom": 32,
+    "calc nvdape": 32,
+    "multpl CAPE": 32,
+    "slickcharts Mag7": 32,
+    "CBOE putcall": 32,
+    "FRED VIX": 32,
+    "CNN FearGreed": 24,
+    "calc senti": 32,
+    "FRED HY": 32,
+    "FRED CCC": 32,
+    "ORCL bond": 19,
+    "FRED IG": 32,
+    "FRED FEDFUNDS 磚塊": 32,
+    "FRED USINFO 磚塊": 32,
+    "EDGAR RPO": 32,
+    "EDGAR quarterly": 32,
+    "TW 月營收": 32,
+    "TW 官方PE": 32,
+    "calc TW 2330": 32,
+    "TW 電子指數": 32,
+    "TW 融資餘額": 32,
+    "TW 當沖比重": 16,
+    "TW 海關出口": 32,
+    "FRED CPI": 32,
+    "FRED FEDFUNDS": 32,
+    "FRED DGS10": 32,
+    "FRED Sahm": 7,
+    "Google News": 32
    }
   }
  },
@@ -1591,6 +1591,16 @@
  },
  "events": [
   {
+   "d": "08-23",
+   "t": "Investors try to catch ‘falling knife’ with bets on risky funds during chip rout｜Financial Times",
+   "url": "https://news.google.com/rss/articles/CBMihAFBVV95cUxNQnpYQlJMSmJvX19tS1ZrdjNBaG1uZG9hcVo2czdEVEFPR3lKVHMyMlRnX1NNVVE1VkxLNnNnWVJHVll6UFlzdnBNcTB0TTVWNW42ZFVic3BKdFZtTTNWY1BZZmhHZzYyYlNBaWVZWFIzWWNadUl3NnJyTjc3bVh4aU4wY24?oc=5"
+  },
+  {
+   "d": "08-23",
+   "t": "Nvidia Is Spending $6 Billion to Build a Powerful U.S. Alternative to Chinese AI｜WSJ",
+   "url": "https://news.google.com/rss/articles/CBMitgFBVV95cUxPWHdVbW56NVZvU3ZwQTRIcmdRUVVZWjBVc1J4TFhhVUs2VE5RY21CNEpSdHA2NUJLa0daUVhYcGJwaGh6bERReE5fcFdFdHJ5bWpXa1dPTkFweDVVS3AycGxMa3VqS2JDS0VTZDNIb2RYLVVYcmdxT2xQUUpRSXNFbHhTTVozVjVyUkVYRmItTzc5SlIwS2M0NVZseUtUWFZDX3V6azMxTHJhdHJwYm5XU28yUmlzUQ?oc=5"
+  },
+  {
    "d": "08-22",
    "t": "Anthropic IPO filing will show AI backlash as a risk factor, sources say｜CNBC",
    "url": "https://news.google.com/rss/articles/CBMiogFBVV95cUxNeXdwbzNJcERVMTFvY2JtSkNBMUVaWGpSNlRqYXM1MndRT0lFOWw0NFpURjU4aVFZeTZvdjNRRWs0VWNaWXhzTXQ1QlJ4eUEwR2FXdl9Ca2xIQzVwQmgteVVLRkZneTlHMUt1dXJWNGk3UWladzNVQWZRc3ZpRFlQR2xTbGZLdGlRZzF2RWRvTk5CcVJQM19ZZlA1U2tCN1lkRkHSAacBQVVfeXFMTXQtbkxtMGJVQ0lSUjgwcG1EUFZkb1pWRjY4czE4M3NlQ1RsVWtWOVBESjM2SllMby1jN2haVy1wMWYxR2FnSFpwOUhKT180bVpRTzlETERmYjVQdE1SYjBiYXc0VzRRQnVSUC10Z2lpc0FqZlJibF8waTdOSndRa091YXZwUkRSWnlxbEI3NTYyeW55a1NkZ2NGVTc4YUM3UHZtQ056aGM?oc=5"
@@ -1612,6 +1622,11 @@
   },
   {
    "d": "08-21",
+   "t": "Samsung Electronics expects shareholder returns up to $80 billion this year｜Reuters",
+   "url": "https://news.google.com/rss/articles/CBMizgFBVV95cUxQYU00V3Z3amhPOVhYbVlXazNVMUpSMkxFeHRKSVJET2p0aFNkVDB2OGFRamNLZ3V5RllYVEItOTYwelFPZlg0SDEwX0NMNjVyanRDZkwwWWRKTVN2cURMTllSV0t1N0VOMkVWZEVCT3BXODZjWFZUZkZkY0d1enpzVzhJMkNlcGgzbWg0c21vT08wcGQzMkpadmtqZ3Rvb0U0M2pGUTBNUGdlcDkxNnF5R01yUWF3WWt3cjNWWEgxUTUtSUtsOUo1UXRsZWozQQ?oc=5"
+  },
+  {
+   "d": "08-21",
    "t": "Exclusive | Nvidia in Talks to Invest in Data-Center Power Developer Cloverleaf Infrastructure｜WSJ",
    "url": "https://news.google.com/rss/articles/CBMixAFBVV95cUxQZDFTbmlITF9SbTZJcXNLUFhXbEJxVHZBSFlFSnJZbXJSczNUZ25COHQ4ejMzdGlycWJlX3M4UFVra2JQdlFhSm1FQmU4dy1BM1hNc3BfbmdNLTI1cG81RkxJX3RJMkhsbTBfVVlXODBCQTFQWG1mUXkyY0FZejBvY3ZwVFNibVFfLVBmUjVRTGp4NjMwaU9RdXpiVTBBZm1paWVVTFg4SmFuTkk5Yl9Rb1ZXQ3FVQ1dLY3hEN2hsbjBqNjhs?oc=5"
   },
@@ -1622,28 +1637,13 @@
   },
   {
    "d": "08-21",
-   "t": "Anthropic to SpaceX: You ain’t bigger｜Fortune",
-   "url": "https://news.google.com/rss/articles/CBMidkFVX3lxTE4yMEE0VmFiTFJreFBETjdKeEY4NjJ2bUpub3dRWWRYaGtGbUlxaE1IUDNwSnBCN0VjTVJLS2JmNnFqV29mT1dOZHQ1eFNYWXBDUWs3LTltTVlCQkR5bzQ1bmhSWHdWX1V4b21sRlZTMExFdWFtelE?oc=5"
-  },
-  {
-   "d": "08-21",
-   "t": "Samsung Plans Biggest-Ever Buyback Amid AI Windfall｜WSJ",
-   "url": "https://news.google.com/rss/articles/CBMikwFBVV95cUxPMkRsVFl1ZHQ0YlUwSk1EdmN6SlA3UVA3UmRxZEdhOGpDRmI3MURrblBtYVNuSVpMUHd1cHhoTTdHVUpGRWxGb0dLLWdUWi0tekY0Y3JxdWd5dFpaajJTdmVFSEhGSEs0QjVhZ01ERko0X2ZGbzNjS3BlbjlkT2h0Y0xsUFpid0ZRVzJiM3RLSjZIQ3M?oc=5"
-  },
-  {
-   "d": "08-21",
-   "t": "Samsung Electronics expects shareholder returns up to $80 billion this year｜Reuters",
-   "url": "https://news.google.com/rss/articles/CBMizgFBVV95cUxQYU00V3Z3amhPOVhYbVlXazNVMUpSMkxFeHRKSVJET2p0aFNkVDB2OGFRamNLZ3V5RllYVEItOTYwelFPZlg0SDEwX0NMNjVyanRDZkwwWWRKTVN2cURMTllSV0t1N0VOMkVWZEVCT3BXODZjWFZUZkZkY0d1enpzVzhJMkNlcGgzbWg0c21vT08wcGQzMkpadmtqZ3Rvb0U0M2pGUTBNUGdlcDkxNnF5R01yUWF3WWt3cjNWWEgxUTUtSUtsOUo1UXRsZWozQQ?oc=5"
+   "t": "Broadcom seeks more than $60 billion in latest AI debt deal, Bloomberg News reports｜Reuters",
+   "url": "https://news.google.com/rss/articles/CBMiwwFBVV95cUxNWjl6el9aTXd3V2hKVng5WF9iUUJpOG9zdXBWZzJhQkt1aUtVWE5wWi1MRGVXX0hCU25sR0NXTE9ocGU5SVZqYUJlZmZFRF81MmdxLU1xcEtLaVZnMGg2ejluTjgyN0Fyb2I2bWxFZzlSM3N6N3VDbXpFR09FMGthQXFBSF9rNzRDTkxJbjk2aGsxQ3Nxb2JIcFhZTFozaExoVm50a1FBSnl2TEhoWXhreG1kWTFrRld1eEs2X0haTXA5aFU?oc=5"
   },
   {
    "d": "08-21",
    "t": "Nvidia looks well placed to benefit from the next stage of the AI boom｜Financial Times",
    "url": "https://news.google.com/rss/articles/CBMihAFBVV95cUxNMkgwUER1MS1DT0lLaklkeHhmZ2pwd0F5eUlOV1BLZ1VhNjJpeldONFd6UXhPRWNUZlU5WUtBSGxzYUF6YmQwZHJjOHpMSDFoM0ZQQThmeHNBODQwT1FKODZ4OUZCNDNRdHJUUUR4TTdQY0hKMjZJMnNpSlp4V1J3MTZMNEY?oc=5"
-  },
-  {
-   "d": "08-20",
-   "t": "SK Hynix workers to get 60% of this year's bonuses in stock rather than all cash｜Reuters",
-   "url": "https://news.google.com/rss/articles/CBMisAFBVV95cUxOanNWYk1iU1JLems3WEdKRHVmeThRbkNudy1VU0VlOV9Wal8tNC1TZXNHVENIdkJ3TWNYclNWM09ZTmpCVGhjQl9KNExuR3cxN0NReWY3U2p5NF9RNlVEM2NLQUd2YVh3aEdCeUNKd3gtelEzTFdOb1AzR2VKTFlHM1c4NXdnNTNhLW16WC1wTDZXZ1hNNjNBQ21GX28wSl9PalBWV0gybmZsNXo1eWJhSw?oc=5"
   },
   {
    "d": "08-20",

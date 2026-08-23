@@ -19,6 +19,24 @@ exit 11 拒絕覆寫——「已發布的一期就是已發布的樣子」。
 週頻系統的絕大多數輪次都是空的。**空輪次完全不印東西**——
 一週會有一萬次，印了就把真正的訊息淹掉。有草稿才開始寫 log。
 
+**但「安靜」不可以等於「查不出來還活著沒」。** 2026-08-23 這支被連續兩次
+讀成「從來沒跑過」，因為空輪次把兩個觀測點同時變成不可分辨：
+
+| 觀測點 | 空輪次 | 也可能是 |
+|---|---|---|
+| `publish.log` 是 0 bytes | 一直在跑，只是沒草稿 | **plist 根本沒被 load** |
+| `launchctl list` 回 `0` | 沒草稿 | **剛剛成功發布了** |
+
+而這支自己的檔頭下面就寫著「沒有回執代表這支根本沒跑」——
+那個判斷需要一個能回答「它還活著嗎」的東西，而空輪次正好把它拿掉了。
+
+所以空輪次做兩件不印東西的事：**覆寫**（不是附加）`~/outbox/bubble/.heartbeat`，
+以及回 **13**（EMPTY_ROUND，與 kb-core 那五支同義，`launchd/README.md` 有記
+「沒有草稿的日子永遠是 13，那是設計上的正常」）。log 一個位元組都沒有長。
+
+⚠️ 改成非 0 之前確認 plist **沒有** `KeepAlive`／`SuccessfulExit`——
+有的話 13 會被當成失敗而不斷重生。`StartInterval` 單獨使用不看退出碼。
+
 ## 失敗的兩種，處理方式不同
 
 - **內容問題**（gate.py 或 healthcheck.py 不過）：草稿改名成 `.parked`，
@@ -78,7 +96,14 @@ def main():
     drafts = sorted((p for p in outbox.glob("data-*.json") if STAMP.match(p.name)),
                     key=lambda p: p.stat().st_mtime)
     if not drafts:
-        return 0                      # 空輪次：安靜。一週一萬次。
+        # 安靜，但留得下痕跡——理由見檔頭「空輪次」。
+        # 心跳是**覆寫**，所以檔案永遠一行、log 不成長。
+        try:
+            (outbox / ".heartbeat").write_text(
+                dt.datetime.now().astimezone().isoformat() + "\n", encoding="utf-8")
+        except OSError:
+            pass                      # 心跳寫不進去不該讓發布器停擺
+        return 13                     # EMPTY_ROUND
     draft = drafts[-1]
     stamp = STAMP.match(draft.name).group(1)
     log(f"=== 發現草稿 {draft.name} ===")

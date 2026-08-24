@@ -2,11 +2,11 @@
  "meta": {
   "version": 2,
   "built": "2026-08-24",
-  "builtTime": "2026-08-24（每週質化覆核）",
+  "builtTime": "2026-08-24（GitHub Actions 自動更新）",
   "nextUpdate": "每交易日自動更新（GitHub Actions）｜質化指標每週覆核｜v2 三層架構",
   "artifactId": "ai-bubble-monitor",
   "lastAutoRun": {
-   "date": "2026-08-23",
+   "date": "2026-08-24",
    "ok": [
     "px SOXX",
     "px SPY",
@@ -49,39 +49,39 @@
    "streak": {
     "AAII": 0,
     "TW 台積電權重": 0,
-    "px SOXX": 33,
-    "px SPY": 33,
-    "px NVDA": 33,
-    "px 2330": 33,
-    "calc GSY": 33,
-    "calc soxmom": 33,
-    "calc nvdape": 33,
-    "multpl CAPE": 33,
-    "slickcharts Mag7": 33,
-    "CBOE putcall": 33,
-    "FRED VIX": 33,
-    "CNN FearGreed": 25,
-    "calc senti": 33,
-    "FRED HY": 33,
-    "FRED CCC": 33,
-    "ORCL bond": 20,
-    "FRED IG": 33,
-    "FRED FEDFUNDS 磚塊": 33,
-    "FRED USINFO 磚塊": 33,
-    "EDGAR RPO": 33,
-    "EDGAR quarterly": 33,
-    "TW 月營收": 33,
-    "TW 官方PE": 33,
-    "calc TW 2330": 33,
-    "TW 電子指數": 33,
-    "TW 融資餘額": 33,
-    "TW 當沖比重": 17,
-    "TW 海關出口": 33,
-    "FRED CPI": 33,
-    "FRED FEDFUNDS": 33,
-    "FRED DGS10": 33,
-    "FRED Sahm": 8,
-    "Google News": 33
+    "px SOXX": 34,
+    "px SPY": 34,
+    "px NVDA": 34,
+    "px 2330": 34,
+    "calc GSY": 34,
+    "calc soxmom": 34,
+    "calc nvdape": 34,
+    "multpl CAPE": 34,
+    "slickcharts Mag7": 34,
+    "CBOE putcall": 34,
+    "FRED VIX": 34,
+    "CNN FearGreed": 26,
+    "calc senti": 34,
+    "FRED HY": 34,
+    "FRED CCC": 34,
+    "ORCL bond": 21,
+    "FRED IG": 34,
+    "FRED FEDFUNDS 磚塊": 34,
+    "FRED USINFO 磚塊": 34,
+    "EDGAR RPO": 34,
+    "EDGAR quarterly": 34,
+    "TW 月營收": 34,
+    "TW 官方PE": 34,
+    "calc TW 2330": 34,
+    "TW 電子指數": 34,
+    "TW 融資餘額": 34,
+    "TW 當沖比重": 18,
+    "TW 海關出口": 34,
+    "FRED CPI": 34,
+    "FRED FEDFUNDS": 34,
+    "FRED DGS10": 34,
+    "FRED Sahm": 9,
+    "Google News": 34
    }
   }
  },
@@ -163,7 +163,7 @@
     ]
    ],
    "dir": "越高越熱",
-   "asof": "2026-08-23",
+   "asof": "2026-08-24",
    "fresh": "ok",
    "src": "multpl.com",
    "url": "https://www.multpl.com/shiller-pe",
@@ -197,7 +197,7 @@
     ]
    ],
    "dir": "越高越熱",
-   "asof": "2026-08-23",
+   "asof": "2026-08-24",
    "fresh": "ok",
    "src": "SlickCharts",
    "url": "https://www.slickcharts.com/sp500",
@@ -394,7 +394,7 @@
    "zone": "yellow",
    "anchors": null,
    "dir": "合成規則（本次：CBOE 個股 Put/Call＋VIX＋CNN F&G）",
-   "asof": "2026-08-23",
+   "asof": "2026-08-24",
    "fresh": "ok",
    "src": "CBOE 個股 Put/Call / VIX / CNN F&G",
    "url": "https://www.cboe.com/us/options/market_statistics/",
@@ -563,7 +563,7 @@
     ]
    ],
    "dir": "越高越熱",
-   "asof": "2026-08-23",
+   "asof": "2026-08-24",
    "fresh": "ok",
    "src": "Public.com 債券報價",
    "url": "https://public.com/bonds/corporate/oracle-corp/orcl-4.375-05-15-2055-68389xbg9",
@@ -735,7 +735,7 @@
    "zone": "green",
    "anchors": null,
    "dir": "成長越快支撐越強（反證維度）",
-   "asof": "2026-08-23",
+   "asof": "2026-08-24",
    "fresh": "ok",
    "src": "SEC EDGAR XBRL",
    "url": "https://data.sec.gov/",
@@ -1521,7 +1521,7 @@
    },
    "orclbond": {
     "now": 7.7,
-    "asof": "2026-08-23"
+    "asof": "2026-08-24"
    }
   }
  },
@@ -1591,6 +1591,16 @@
  },
  "events": [
   {
+   "d": "08-24",
+   "t": "Samsung Electronics shares fall after shareholder return announcement｜Reuters",
+   "url": "https://news.google.com/rss/articles/CBMiwgFBVV95cUxPN1FoeGxWWi1vYWUxU1dKa1lpYmZYQlFXRm53UjMzcWYyY1h1U3NSdG5ZcFlaWkNxb3JZdWx4bEUtS0loT2tqajd3X21HaUxMQTEwYnhKY3R1ZVdYNTFrVENwcWJhNExoMmkyUjQ3NU9lZG9NQmpiMkJoeG91YmZfR216MnlINEpwTE5vVGxtNGtCdlNDX1JPTURLRXQ1cU9iLXZjeE9Jd0ZiSjlCT1JJb3VJWlRPbHhSTHFmdE9HR2s2Zw?oc=5"
+  },
+  {
+   "d": "08-23",
+   "t": "Anthropic’s best AI model struggles to attract users as cheaper tools thrive｜Financial Times",
+   "url": "https://news.google.com/rss/articles/CBMihAFBVV95cUxOQldWM1lpRFZ5SjhkcXQxalo3S3p0RWw2RHR1Rm5vaXlONzU5a1dSM0VoWGJ6dVJQYWE2Q2VlU0QxT0V2OVpsWDE1ZlJDeE90cEl5TDNrQUxZNWlEMVNkczNGWHVJVmNVQ3c5Ym9GQnp5V2gxSG5Hc0NpNHhRSFFHS3kxZ08?oc=5"
+  },
+  {
    "d": "08-23",
    "t": "Investors try to catch ‘falling knife’ with bets on risky funds during chip rout｜Financial Times",
    "url": "https://news.google.com/rss/articles/CBMihAFBVV95cUxNQnpYQlJMSmJvX19tS1ZrdjNBaG1uZG9hcVo2czdEVEFPR3lKVHMyMlRnX1NNVVE1VkxLNnNnWVJHVll6UFlzdnBNcTB0TTVWNW42ZFVic3BKdFZtTTNWY1BZZmhHZzYyYlNBaWVZWFIzWWNadUl3NnJyTjc3bVh4aU4wY24?oc=5"
@@ -1608,7 +1618,7 @@
   {
    "d": "08-21",
    "t": "Broadcom debt deal expected to reach upwards of $70 billion, sources say｜CNBC",
-   "url": "https://news.google.com/rss/articles/CBMipgFBVV95cUxQdHdTRkJtbmdWdUNiV1NVeHNybVJfaGo4WnJIcWhfcmxGVkE4dE5ILTlUM2dLNnBOREQ0eXBLMFdsdHBaX3N4QlZVblNTRGdUWnczR0dlUVVFdWJDN0lKVE5TZXFRR1ZLcnIyWXBEbWxyelJIYmozSTdMUW9YQ0FLem9ab1ZrUHY4MkpteWtnSjIyTjZOT0lPdkVJNlFWdGhndTNUbXJn0gGrAUFVX3lxTE9oNGVBMHU1VGxMRjlEMmZITmJUMHdDc184VnhTSVpRYVZ6dUphOFN3aWthQ2RIYVlVQmticXNiVmFjN0luQ1ZlZF9UbzdEd1dsY25NbWhDclVnXzBSRnNlZDZ1c3hlSW02eWxxMHZrbkcwbjRVbVVjSEs3R3JqVHAzd2EyWXEwRnlGaHZLUkhWOEM2UUtvWTJFOWVUMHdhbnpYQUVfQnl0UkZiRQ?oc=5"
+   "url": "https://news.google.com/rss/articles/CBMiqwFBVV95cUxPaDRlQTB1NVRsTEY5RDJmSE5iVDB3Q3NfOFZ4U0laUWFWenVKYThTd2lrYUNkSGFZVUJrYnFzYlZhYzdJbkNWZWRfVG83RHdXbGNuTW1oQ3JVZ18wUkZzZWQ2dXN4ZUltNnlscTB2a25HMG40VW1VY0hLN0dyalRwM3dhMllxMEZ5Rmh2S1JIVjhDNlFLb1kyRTllVDB3YW56WEFFX0J5dFJGYkXSAasBQVVfeXFMT2g0ZUEwdTVUbExGOUQyZkhOYlQwd0NzXzhWeFNJWlFhVnp1SmE4U3dpa2FDZEhhWVVCa2Jxc2JWYWM3SW5DVmVkX1RvN0R3V2xjbk1taENyVWdfMFJGc2VkNnVzeGVJbTZ5bHEwdmtuRzBuNFVtVWNISzdHcmpUcDN3YTJZcTBGeUZodktSSFY4QzZRS29ZMkU5ZVQwd2FuelhBRV9CeXRSRmJF?oc=5"
   },
   {
    "d": "08-21",
@@ -1636,19 +1646,9 @@
    "url": "https://news.google.com/rss/articles/CBMihAFBVV95cUxQTTZEUzJKWjRsSnV4S1cwYzdnYWpjbmJ3VkZzTXJqRV94VHBFOHRhbGgxMWFGSGF4Y3FkR3Fkb1RCUENZbjVidTdKZlR1YUJGUUZVT0dhNnZ0S01RbUMzLVE0Q2NSOWNTbmJVV1Z3TG1PS3B6ZVFtR2dDNE1UemsxNFMyN00?oc=5"
   },
   {
-   "d": "08-21",
-   "t": "Broadcom seeks more than $60 billion in latest AI debt deal, Bloomberg News reports｜Reuters",
-   "url": "https://news.google.com/rss/articles/CBMiwwFBVV95cUxNWjl6el9aTXd3V2hKVng5WF9iUUJpOG9zdXBWZzJhQkt1aUtVWE5wWi1MRGVXX0hCU25sR0NXTE9ocGU5SVZqYUJlZmZFRF81MmdxLU1xcEtLaVZnMGg2ejluTjgyN0Fyb2I2bWxFZzlSM3N6N3VDbXpFR09FMGthQXFBSF9rNzRDTkxJbjk2aGsxQ3Nxb2JIcFhZTFozaExoVm50a1FBSnl2TEhoWXhreG1kWTFrRld1eEs2X0haTXA5aFU?oc=5"
-  },
-  {
-   "d": "08-21",
-   "t": "Nvidia looks well placed to benefit from the next stage of the AI boom｜Financial Times",
-   "url": "https://news.google.com/rss/articles/CBMihAFBVV95cUxNMkgwUER1MS1DT0lLaklkeHhmZ2pwd0F5eUlOV1BLZ1VhNjJpeldONFd6UXhPRWNUZlU5WUtBSGxzYUF6YmQwZHJjOHpMSDFoM0ZQQThmeHNBODQwT1FKODZ4OUZCNDNRdHJUUUR4TTdQY0hKMjZJMnNpSlp4V1J3MTZMNEY?oc=5"
-  },
-  {
    "d": "08-20",
-   "t": "Opinion | AI Bubble May Deflate, Not Burst｜WSJ",
-   "url": "https://news.google.com/rss/articles/CBMid0FVX3lxTE81M0tqRVRGYm9WemwzQUs2ZGh1N29EWHp4RmZFNWhHQmpPMFBIV0VQXzdNZmlhc0RtZnpTVl9uOUNxdVRoZ2FubFd2bmIzZi1oM0x0U3RveXNGWkdOZVR4cGozV2w3TkFocHZub2VNM0hXMHBkOVFJ?oc=5"
+   "t": "The AI Bond Bonanza Could Be a Big Problem for the Stock Market｜Barron's",
+   "url": "https://news.google.com/rss/articles/CBMiqAFBVV95cUxOQ1d5eEdaTTlEdkNMYVJqcDY4OFZscWFzRFVqRW9BaFZrTXNtajZ2X3hIMld5a1ZMNkFOX25kT3pGMWlXclBLWjFBRzZqcUwxa3UyemQyeGwtdjM1S2xzbEZCSUZJbTdad3Z2UEpFUDNqVm52eVVZa3U3ck5UbzMybHE2QV9od3ZndDhPdGQ2RVRZc2dGSzAzOFlER1c0ZlBKZWN6MjYyNWE?oc=5"
   }
  ],
  "history": [
@@ -2194,7 +2194,7 @@
    "state": 0,
    "value": "未發生",
    "note": "Hartnett：大頂前的最後供給事件（每週人工覆核）",
-   "asof": "2026-08-23",
+   "asof": "2026-08-24",
    "prog": null
   },
   {

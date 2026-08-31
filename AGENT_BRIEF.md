@@ -2,7 +2,7 @@
 
 > 這份是**現在的規格與判斷規則**，是本系統的唯一真相來源。
 > 每週質化覆核排程每次執行前完整讀一次。事故經過與被否決的選項寫在 `MAINTENANCE.md` 第 6 節，不要寫進這裡。
-> 版本：**v2.2.1（三層頻率架構）**｜最後修訂 2026-08-17
+> 版本：**v2.2.10（三層頻率架構）**｜最後修訂 2026-08-31
 
 ---
 
@@ -28,9 +28,9 @@
 
 | 位置 | 內容 | 更新者 |
 |---|---|---|
-| GitHub repo `GunDamnBoy/ai-bubble-monitor` | `index.html`、`data.json`、`scripts/update_data.py`、`.github/workflows/update.yml`、本檔、`MAINTENANCE.md`、`healthcheck.py`、`scripts/backtest.py`（回測，只手動觸發） | GitHub Actions（自動）＋維護者 |
+| GitHub repo `GunDamnBoy/ai-bubble-monitor` | `index.html`、`data.json`、`scripts/update_data.py`、`.github/workflows/update.yml`、本檔、`INTERNALS.md`、`MAINTENANCE.md`、`healthcheck.py`、`scripts/gate.py`、`scripts/auto_publish.py`、`launchd/`、`skills/`、`scripts/backtest.py`（回測，只手動觸發） | GitHub Actions（自動）＋發布器 `com.kenny.kbpublish.bubble`＋維護者 |
 | 網站 <https://gundamnboy.github.io/ai-bubble-monitor/> | GitHub Pages，從 `main` 分支根目錄直出 | Actions 推送後由 API 明確要求重建 |
-| Cowork 桌面 artifact `ai-bubble-monitor` | 內嵌 `data.json` 的單檔 HTML 快照 | 維護工作階段（桌面連線時）；排程執行連不到桌面，只交付 HTML 檔 |
+| Cowork 桌面 artifact `ai-bubble-monitor` | 內嵌 `data.json` 的單檔 HTML 快照 | 維護工作階段（桌面連線時）。**覆核排程不更新它**——排程走的是 `~/outbox/bubble/` 那條（§8.3），不經過 artifact |
 
 **唯讀分工**：`index.html`（外殼與繪圖）極少需要動；`data.json` 是每日被機器改寫的資料層；`scripts/update_data.py` 是引擎。
 
@@ -158,7 +158,7 @@ support = 100 − L3             ← 基本面還有多少支撐（L3 越高＝�
 
 第一層：**標的本身換過定義。** SOXX 於 2021-06-21 把標的指數由 PHLX Semiconductor Sector（`^SOX`）換成 ICE Semiconductor（現名 NYSE Semiconductor），基金同時改名；`^SOX` 自己也於 2024-04-22 把權重上限由「前五大各 8%」改為「前三大 12%／10%／8%」。實測兩者的 24 月漲幅差距：2003–2020 中位 0.7pp、2024 起 3pp、2025–26 達 9–10pp（`scripts/sox_compare.py`）。**任何跨 2021 或跨 2024 的比較都不是同一籃股票**——趨勢可看，尺不同。理由與完整數據見 `MAINTENANCE.md` §6.16。
 
-第二層：**它是全表唯一有實證參照的指標，但那個實證不是在這個標的上做的**（Greenwood-Shleifer-You, JFE 2018；2026-08-17 逐句核對過原文）：
+第二層：**它是全表唯一有實證參照的指標，但那個實證不是在這個標的上做的**（Greenwood-Shleifer-You, JFE 2019；2026-08-17 逐句核對過原文）：
 
 - **論文的 run-up 定義有三個條件**：過去 2 年 raw ≥門檻 **且** 淨大盤 ≥門檻，再加過去 5 年 raw ≥50%。**本指標只實作了第一個。**
 - **論文的崩盤定義是「識別日後 24 個月內最大回撤 ≥40%」**，回撤起點是窗內任一點——不是從識別日起算（論文自述崩盤案例平均在識別後 6 個月才見頂、期間再漲 30%）。
@@ -319,9 +319,9 @@ support = 100 − L3             ← 基本面還有多少支撐（L3 越高＝�
 
 `.github/workflows/update.yml`
 
-- 排程 `cron: '30 22 * * 1-5'`（UTC）＝ **台北 06:30 週二～週六**（美股收盤後）。另有 `workflow_dispatch` 手動觸發，以及 `push` 到 `main`（`paths-ignore: ['data.json']`）——推程式碼會跑一次，推資料不會，避免自我觸發迴圈。
+- 排程 `cron: '30 22 * * 1-5'`（UTC）＝ **台北 06:30 週二～週六**（美股收盤後）。另有 `workflow_dispatch` 手動觸發，以及 `push` 到 `main`（`paths-ignore: ['data.json', 'backtest/**']`）——推程式碼會跑一次，推資料或回測產出不會，避免自我觸發迴圈。
 - `permissions: contents: write, pages: write`
-- 步驟：checkout → Python 3.12 → `pip install requests yfinance` → 跑更新 → commit `data.json` → **明確要求 Pages 重建**
+- 步驟：checkout → Python 3.12 → `pip install "requests==2.34.2" "yfinance==1.6.0"`（**釘版本**，免得上游改版在無人看管的排程裡炸掉）→ 跑更新 → `scripts/gate.py`（擋發布）→ `healthcheck.py --repo .`（report only，寫進 step summary）→ commit **`data.json` 與 `index.html`**（後者因 `refresh_fallback_snapshot()` 可能被重灌）→ **明確要求 Pages 重建**
 - **最後一步不可刪**：
 
   ```
@@ -336,7 +336,7 @@ support = 100 − L3             ← 基本面還有多少支撐（L3 越高＝�
 
 ## 8. 每週質化覆核（人機分工）
 
-排程任務：**「AI 泡沫監控：每週質化覆核與發布（v2）」**，cron `0 1 * * 1`（UTC）＝ **台北每週一 09:00**，開啟推播。
+排程任務 `bubble-weekly-0900`（舊名「AI 泡沫監控：每週質化覆核與發布（v2）」），cron `0 9 * * 1`＝ **台北每週一 09:00**，開啟推播。**跑在 Mac 本機、建立時要夾帶資料夾**——沒夾帶就會被當成雲端任務丟進容器，而容器拿不到 `~/outbox`，草稿永遠送不到發布器。prompt 正本在 repo 的 `skills/bubble/SKILL.md`，排程裡那份是副本。
 
 ### 8.1 機器負責（GitHub Actions，每交易日）
 
@@ -359,38 +359,68 @@ L1 除 `narrative` 外全部、L2 除三項質化外全部、L3 除 `cloudrev`�
 ### 8.3 覆核只動 §8.2 那張清單
 
 > **人這一輪要碰的欄位，就是這兩份的聯集**：§8.2 那張清單（六項質化分數、`params`、`tsmc_weight`、`stage` 整塊），加上 §8.4 收尾七步會寫到的每一個欄位（`zone`、`dims`、`composite`、`quadrant`、`tw.subs`／`tw.heat`、`history` 附加一筆、`meta.built`／`meta.builtTime`）。
-> **這兩份以外的一律沿用引擎寫入的值**——`events`、`triggers`，以及 §8.1 所有自動指標的 `value`／`score`／`asof`。這是硬護欄：在覆核容器裡重抓它們，拿到的是空值或殘值，然後蓋掉每日管線的好資料。
+> **這兩份以外的一律沿用引擎寫入的值**——`events`、`triggers`，以及 §8.1 所有自動指標的 `value`／`score`／`asof`。這是硬護欄：即興重抓它們，拿到的是空值或殘值，然後蓋掉每日管線的好資料。
 
-原因是覆核容器的網路有**兩條路，能力不一樣**，這點常被誤記成「容器只放行 GitHub」：
+**這條禁令的理由不是「連不到網路」。** 覆核自 2026-08-23 起跑在 Mac 本機（見下方「發布」），FRED／Stooq／SEC EDGAR／TAIFEX **確實連得到**——本機甚至跑得動 `update_data.py` 本身。**能連得到，不代表該由你去連。**
 
-| 路徑 | 實測結果（2026-08 逐一實測） | 意義 |
-|---|---|---|
-| Bash 的 `curl`／`requests`（引擎走這條） | 只通得到 `github.com` 與 `raw.githubusercontent.com`——而且 **git 只有讀，push 被 git proxy 擋**（見下方「發布」）。**連 `gundamnboy.github.io` 都不通**（回 http=000），`api.github.com` 根路徑 200 但 repo 端點 403，`example.com` 不通，FRED／Stooq／SEC EDGAR／TAIFEX 一律連線失敗 | 在覆核工作階段裡**跑不動 `update_data.py`**，也不能自己 `curl` 補數字 |
-| `WebSearch`／`WebFetch`（走 Anthropic 的抓取服務） | **可以連到外部網站**，包括 FRED、TAIFEX、TWSE，以及 `github.io` 上的 `data.json`。**能不能讀到內容要看來源**（2026-08-17 逐一實測）：HTML 頁面沒問題；`data.sec.gov` 與 CNN Fear & Greed 的 **JSON 讀得到**；FRED 的 `fredgraph.csv` 回 `[binary data]`；Yahoo chart API 與 Stooq 回空 | 質化研究（§8.2）與 `tsmc_weight` 月更靠這條；維護工作階段代使用者驗證線上時也走這條（見下） |
+真正的理由是：**一次即興抓取不是引擎那條管線。** 引擎帶重試、帶三層備援、帶 `attempt()` 降級；覆核手上的是一次性的 `curl` 或 `WebFetch`。兩者拿到的東西在 `data.json` 裡長得一模一樣，而**硬抓的結果是空值或殘值蓋掉好的舊值**，要等下一個交易日引擎跑完才會被改回來——中間那段時間網站上是錯的，而沒有任何東西會叫。
 
-所以「不自己重抓」的真正理由不是「連不到網路」，而是：**能連到網路的那條路（WebFetch）拿不到引擎要的東西**。WebFetch 讀網頁得到的是經過摘要的文字，而數值端點**能不能讀到要看來源**（見上表）——即使讀得到 JSON，那也是一次即興抓取，不是引擎那條帶重試、帶三層備援、帶 `attempt()` 降級的管線。硬要用只會抓到殘值或讀錯數字，然後把每日管線抓到的好值蓋掉。
+> **這一段在 2026-08-23 之前寫的是雲端容器的網路限制**（「Bash 只通得到 github.com」「連 `gundamnboy.github.io` 都不通」）。覆核搬到本機之後那些描述每一條都不再成立，而**禁令本身仍然要留**——留錯理由比沒有理由更糟：下一輪只要實測發現連得到，就會把整條禁令一起丟掉。
 
-#### 發布：雲端推不上去，改為交付（2026-08-10 起）
+#### 發布：寫進 outbox，launchd 接手（v2.2.9 起，2026-08-23）
 
-**雲端工作階段（覆核排程與維護）已無法 push 這個 repo。** 2026-07 起平台的 git proxy 擋掉所有授權清單外的推送，回 403「not in this session's authorized repository set」——**自備 PAT 也無效**，proxy 在 GitHub 看到憑證之前就先擋下（上游回報 anthropics/claude-code#76248，未修）。這不是故障：**不要重試、不要找繞路、不要索取或使用 token**（原本存放於排程 prompt 的 PAT 已於 2026-08-10 移除並應撤銷）。
+**覆核的工作是把檔案放到那個目錄，不是把它送上線。**
 
-發布因此改為**人機協作**：
+覆核把兩個檔寫進 `~/outbox/bubble/`，60 秒內由 launchd 自動發布，不需要人動手：
 
-1. 覆核／維護工作階段在 `/tmp` 的 clone 內 commit（身分 `GunDamnBoy` / `haonung.chiang@gmail.com`），`git format-patch -1 --stdout` 產出 patch，連同 `data-YYYY-MM-DD.json`（檔名格式固定，見下）與內嵌新資料的離線 HTML 一起 `SendUserFile` 交付。
-2. **覆核把檔案寫進 `~/outbox/bubble/`，60 秒內由 launchd 自動發布，不需要人動手。**（v2.2.9 起；在此之前是人工下載＋手動執行，而 2026-08-17 那次覆核就是這樣沒發布出去的——commit 記錄裡 07-20／07-27／08-03／08-10 有、08-17 沒有。）
+```
+~/outbox/bubble/data-<日期>.json      ← /tmp clone 的 data.json
+~/outbox/bubble/index-<日期>.html     ← 內嵌同一份資料的離線退路（history 裁 60 筆）
+```
 
-   `com.kenny.kbpublish.bubble` 每 60 秒跑 `scripts/auto_publish.py`：`git pull --rebase` → 套用草稿（同日期的 `index-*.html` 一併套用）→ `scripts/gate.py` → `healthcheck.py` → 任一道不過就**還原工作區並把草稿 park**（改名 `.parked`，不再重試——內容問題不會自己好）→ commit → push → 草稿移進 `_done/`。推送類的失敗**留著草稿下一輪再試**（網路會自己好），累計 30 次才 park。
+**檔名格式是硬的**：`auto_publish.py` 的 glob 認的就是 `data-YYYY-MM-DD.json`，並會把**同日期**的 `index-YYYY-MM-DD.html` 一併套用成 `index.html`。日期對不上，HTML 那份會被留在原地，網站的離線退路就跟線上資料脫節。
 
-   **形狀比照另外四套 kbpublish，但跑的不是 kb-core 的 `tools/publish.py`。** 那支的核心是不可改寫守衛（`data/<date>.json` 已發布就不覆寫），而本專案的 `data.json` 每個交易日都被 Actions 覆寫，語意相反。**共用的是紀律不是程式碼。**
+`com.kenny.kbpublish.bubble` 每 60 秒跑 `scripts/auto_publish.py`：`git pull --rebase` → 套用草稿 → `scripts/gate.py` → `healthcheck.py` → 任一道不過就**還原工作區並把草稿 park**（改名 `.parked`，不再重試——內容問題不會自己好）→ commit → push → 草稿移進 `_done/`。推送類的失敗**留著草稿下一輪再試**（網路會自己好），累計 30 次才 park。
 
-   **每次發布都寫回執** `~/outbox/bubble/<日期>.receipt.json`：`exit 0` 才算上線。**沒有回執代表這支根本沒跑**，那跟「回執說失敗」是兩件事。空輪次完全不印東西（週頻系統一週有一萬次空輪）。
+**`healthcheck.py` 是真的閘門，不是提醒。** 任何 FAIL 都會擋住發布（`auto_publish.py` 的 gate／healthcheck 迴圈，不過就 `return 5`、草稿改名 `.parked`）。所以 §8.4 的「FAIL 必須是 0」沒有例外——**包含 `fresh`**。改了 `asof` 就用引擎自己的 `set_fresh()` 重算，不要手改 `data.json` 的 `fresh`、也不要把 `asof` 蓋成今天去消音。
 
-   `bubble-publish`（zsh 函數，正本 `~/.bubble-publish.zsh`）保留為**手動覆寫**，抓 `~/Downloads` 的草稿。clone 在 `~/Projects/ai-bubble-monitor`，**刻意在 iCloud 之外**——iCloud 會同步 `.git` 底下的檔案，「最佳化儲存空間」會把物件抽成佔位符。
+> 2026-08-23 之前這裡寫著「`fresh` 的 FAIL 可以照常交付」。那條例外是雲端時代留下的——當時沒有閘門，交付訊息照樣送到人手上，所以「可以照常交付」是真的。**搬到本機之後閘門變成真的，那條例外就變成一個讀起來合理、做下去必定被 park 的指令。** 2026-08-23 那輪的第一次投遞就是這樣在 15:01 被 park（回執 exit 5）。
 
-   **只改 `data.json` 的覆核走這條**；動到程式或文件的維護改動交 `.patch`，使用者 `git pull --rebase` 之後 `git am` 再推送。
-3. 本機推送用使用者自己的 gh 憑證，會正常觸發 Pages 重建（§7）。
+**形狀比照另外四套 kbpublish，但跑的不是 kb-core 的 `tools/publish.py`。** 那支的核心是不可改寫守衛（`data/<date>.json` 已發布就不覆寫），而本專案的 `data.json` 每個交易日都被 Actions 覆寫，語意相反。**共用的是紀律不是程式碼。**
 
-**發布後的線上驗證不再由覆核排程做**（它交付完就結束了）。維護工作階段代使用者驗證時用 WebFetch 抓 `data.json` 回報 `meta.built`／`composite`／`quadrant.regime`——注意**沒有任何已驗證有效的 cache-buster**（`?t=` 與多斜線都實測無效），且**同一個工作階段內同一個 URL 一小時抓不了第二次**（擋在抓取工具，不是 Pages）；完整對策與「換檔名」技巧見 `MAINTENANCE.md` §4 與 §6.10；`raw.githubusercontent.com` 只證明 commit 進去了，證明不了 Pages 已重建。
+##### 怎麼知道它跑了：回執與心跳
+
+**每次發布都寫回執** `~/outbox/bubble/<日期>.receipt.json`，**`exit 0` 才算上線**。
+
+**「沒有回執」與「回執說失敗」是兩件不同的事**：後者代表閘門擋下來了（去看 `publish.log`），前者代表發布器根本沒跑到你這一份。但**空輪次完全不印東西**（週頻系統一週有一萬次空輪），所以空的 `publish.log` 與「plist 從沒被 load」長得一模一樣——2026-08-23 這支就因此被連續兩次讀成「從來沒跑過」。
+
+解法是空輪次做兩件不印東西的事，這是判斷「它還活著嗎」的**唯一觀測點**：
+
+| 觀測點 | 意義 |
+|---|---|
+| `~/outbox/bubble/.heartbeat` 被**覆寫**成剛剛的時間 | 它活著，只是這一輪沒有草稿 |
+| 空輪次回 **13**（`EMPTY_ROUND`，與 kb-core 那五支同義） | 同上。kb-core 的 `launchd/README.md` 記「沒有草稿的日子永遠是 13，那是設計上的正常」——**本 repo 的 `launchd/` 只有 plist，沒有那份 README** |
+
+`.heartbeat` 舊到不像話（例如超過幾分鐘），才是「發布器沒在跑」。**先看心跳再下結論。**
+
+⚠️ 改動 plist 時確認**沒有** `KeepAlive`／`SuccessfulExit`——有的話 13 會被當成失敗而不斷重生。`StartInterval` 單獨使用不看退出碼。
+
+##### 兩條路：資料走 outbox，程式與文件走 patch
+
+- **只改 `data.json` 的覆核走 outbox 那條**（上面那兩個檔）。
+- **動到程式或文件的維護改動交 `.patch`**：在 `/tmp` 的 clone 內 commit（身分 `GunDamnBoy` / `haonung.chiang@gmail.com`），`git format-patch -1 --stdout` 產出，使用者 `git pull --rebase` 之後 `git am` 再推送。`auto_publish.py` 不認 patch，放進 outbox 不會有人理它。
+
+**覆核不要自己 `git push`。** 在 Mac 上你**推得動**——但兩道閘門（`gate.py` 與 `healthcheck.py`）在 `auto_publish.py` 裡，繞過它就是繞過閘門。**不索取、不使用、不顯示任何 token**（原本存放於排程 prompt 的 PAT 已於 2026-08-10 移除並應撤銷）。
+
+> **雲端工作階段（若還有）仍然推不動這個 repo**：2026-07 起平台的 git proxy 擋掉授權清單外的推送，回 403「not in this session's authorized repository set」，自備 PAT 也無效（上游回報 anthropics/claude-code#76248，未修）。這不是故障，不要重試、不要找繞路。
+
+`bubble-publish`（zsh 函數，正本 `~/.bubble-publish.zsh`）保留為**手動覆寫**，抓 `~/Downloads` 的草稿。clone 在 `~/Projects/ai-bubble-monitor`，**刻意在 iCloud 之外**——iCloud 會同步 `.git` 底下的檔案，「最佳化儲存空間」會把物件抽成佔位符。**那個工作區歸發布器所有**（每 60 秒在裡面做 git 操作），覆核與維護一律在 `/tmp` 的複本上做；在別人的工作區裡改東西，症狀會出現在發布那一邊。
+
+##### 覆核與當日自動更新的先後
+
+排程在台北週一 09:00，Actions 的 cron 是 `30 22 * * 1-5`（UTC）。**同一天稍後的自動更新會接手覆核的成果**：同日 `history` 去重，`meta.builtTime` 會由「每週質化覆核」被改寫成「GitHub Actions 自動更新」，改過的 `params` 也會在那一輪生效。這是設計，不是覆蓋事故——質化分數與 `stage` 都在引擎不碰的欄位裡。但**推播摘要引用的讀數會在幾十分鐘內過時**，摘要裡不要寫「將於下一個交易日生效」這種話。
+
+**發布後的線上驗證不由覆核排程做**（它寫完檔、讀完回執就結束）。維護工作階段代使用者驗證時用 WebFetch 抓 `data.json` 回報 `meta.built`／`composite`／`quadrant.regime`——注意**沒有任何已驗證有效的 cache-buster**（`?t=` 與多斜線都實測無效），且**同一個工作階段內同一個 URL 一小時抓不了第二次**（擋在抓取工具，不是 Pages）；完整對策與「換檔名」技巧見 `MAINTENANCE.md` §4 與 §6.10；`raw.githubusercontent.com` 只證明 commit 進去了，證明不了 Pages 已重建。
 
 `events` 若真的漏了重大結構性事件，最多**補 1–2 條**（附 url），不要整批重寫。
 
@@ -416,9 +446,13 @@ L1 除 `narrative` 外全部、L2 除三項質化外全部、L3 除 `cloudrev`�
 
 **只改指標分數而不重算，頁面會顯示彼此矛盾的數字。** 收尾跑一次 `healthcheck.py`，它會把上面每一項重算後與存檔比對，**FAIL 必須是 0 才可以交付**。
 
-交付流程見 §8.3「發布」：commit 訊息 `data: weekly qualitative review YYYY-MM-DD`，產出 patch＋`data-YYYY-MM-DD.json`＋離線 HTML（內嵌快照的 `history` 裁到最後 60 筆，見 §6 的快照段），SendUserFile 交給使用者本機推送。**不使用、不索取任何 token。**
+交付流程見 §8.3「發布」：把 `data-YYYY-MM-DD.json` 與 `index-YYYY-MM-DD.html`（內嵌快照的 `history` 裁到最後 60 筆，見 `INTERNALS.md` §6 的快照段）寫進 `~/outbox/bubble/`，然後**等回執**。`auto_publish.py` 自己 commit，訊息格式在它裡面，覆核不必也不該自己 commit。**不使用、不索取任何 token。**
 
-推播摘要格式：綜合溫度與上週比較、`regime` 變化、觸發器點亮數變化、跨區指標、檢查清單變化、本週焦點 2–3 條、網站連結，末行提醒「下載 `data-YYYY-MM-DD.json` 後執行 `bubble-publish` 發布」。溫度週變動 ≥5、任一指標轉紅、或觸發器新點亮 → 開頭標「⚠ 警示」；**「還沒發布」是流程常態，不算警示**。
+推播摘要格式：綜合溫度與上週比較、`regime` 變化、觸發器點亮數變化、跨區指標、檢查清單變化、本週焦點 2–3 條、網站連結，**末行寫發布狀態**——回執 `exit 0` 就寫「已上線」並附 commit。
+
+開頭標「⚠ 警示」的條件分兩類。**資料面**：溫度週變動 ≥5、任一指標轉紅、或觸發器新點亮。**流程面**：`healthcheck.py` 的 FAIL 不是 0（收尾卡住），或**沒有回執**。
+
+> 舊版寫「『還沒發布』是流程常態，不算警示」——那在人工下載＋手動執行的年代是對的。**改成 60 秒自動發布之後，沒有回執已經不是常態而是異常訊號**，該去看 `.heartbeat` 與 `publish.log`（§8.3）。
 
 ---
 
@@ -429,7 +463,7 @@ L1 除 `narrative` 外全部、L2 除三項質化外全部、L3 除 `cloudrev`�
 | AAII 情緒調查 | `attempt("AAII")` | Actions runner 持續被擋 | `senti` 少一個輸入，不報錯 |
 | TAIFEX 台積電權重 | `attempt("TW 台積電權重")` | 擋機器人 | 由每週覆核人工更新（種子值 44.78%，2026-07-31） |
 | Stooq | **無**（`px_rows()` 內部第三層備援，沒有自己的 `attempt()`） | Actions runner 被擋 | 已降為價格三層備援的最後一層 |
-| 美國商務部資料中心營建支出 | **無**（還沒有程式碼） | 需免費 API 金鑰 | 未納入；接入條件與勘查結果見 `MAINTENANCE.md` §5 |
+| 美國商務部資料中心營建支出 | **無**（不會有） | **這條序列不存在** | 已結案（2026-08-23 用金鑰實測）：VIP 的 38 個 `category_code` 裡沒有資料中心這一格，C30 非住宅列也沒有「Data center」——「2024 起從 Office 拆出獨立列示」是二手說法，API 上不成立。**不要再嘗試接入**，理由見 `MAINTENANCE.md` §6.22 |
 
 「追蹤」欄位是刻意加的：**後兩列在定義上永遠不會出現在 `ok` 或 `fail` 任一邊**，因為 `meta.lastAutoRun` 的字串來自 `attempt()` 的標籤。下面那條退場規則對它們不適用，別去 `ok` 裡找它們然後困惑。
 

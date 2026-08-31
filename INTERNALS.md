@@ -119,7 +119,7 @@ indicators [ 22 × {id, dim, name, value, disp, score, zone, anchors, dir,
              dir 是**給人看的方向說明字串**（"越高越熱"、"越負越熱"、
              "質化評分（0-100）"…），純展示、不參與計分。方向相反的指標走
              **§3.2 的兩套慣例之一**（取負號／遞減錨點），不要照 dir 另寫邏輯
-triggers   [ 7 × {id, name, state(0/1), value, note, asof, prog} ]
+triggers   [ 8 × {id, name, state(0/1), value, note, asof, prog} ]
              prog＝距門檻進度 0–100%（現值÷門檻，夾在 0–100），由引擎逐日重算；
              megaipo 是人工旗標無連續量，prog 恆為 null。它是展示欄位，
              不參與任何計分（觸發器本來就不進綜合溫度，§3.5）。
@@ -162,7 +162,7 @@ params     { nvda_eps, ngdp_nominal, megaipo_done }
 
 **快照有一個結構性例外：它的 `fresh` 是凍住的。** `fresh` 自 v2.1.4 起是活徽章，但快照裡那份永遠停在重灌當天的值——所以 fetch 失敗、頁面退到離線快照的那一天，不管快照多舊都不會出現「⚠ 資料延遲」。這是接受的取捨（快照本來就是應急拷貝，`meta.built` 會誠實顯示它有多舊），機器不驗這一項。
 
-**第五處，而且最常被漏掉：`healthcheck.py` 自己。** 它為了能獨立驗算，硬寫了幾組常數——`LAYER_N`（各層指標項數）、`QUAL`（質化指標集合）、`TRIG`（觸發器 id）、`KNOWN_FAIL`（已知失效來源白名單）、`QUAL_MAXAGE`（質化 `asof` 的過期門檻，見 §4.5）。**引擎那邊還有一張 `IND_MAXAGE`**（全部 22 個指標的 `fresh` 門檻）——它不在 `healthcheck.py` 裡，但加減指標時一樣要跟著改，漏了那一項會靜默套 45 天預設；`healthcheck.py` 會比對它的 key 集合與 `data.json` 的指標集合，不符即 FAIL。**加減指標、改層歸屬、換觸發器、或某個來源恢復／新壞掉時，這個檔案也要改。** 它是把關每週交付的工具（FAIL 必須是 0），所以漏改它的下場不是靜靜少畫一塊，而是整條每週流程被自己的檢查擋住。
+**第五處，而且最常被漏掉：`healthcheck.py` 自己。** 它為了能獨立驗算，硬寫了幾組常數——`LAYER_N`（各層指標項數）、`QUAL`（質化指標集合）、`TRIG`（觸發器 id）、`KNOWN_FAIL`（已知失效來源白名單）、`QUAL_MAXAGE`（質化 `asof` 的過期門檻，見 §4.5）。**引擎那邊還有兩張表**：`IND_MAXAGE`（全部 22 個指標的 `fresh` 門檻）與 **`TRIG_NOTE`**（全部 8 個觸發器的卡片說明，v2.2.10 起由引擎無條件覆寫）——兩張都不在 `healthcheck.py` 裡，但加減指標或觸發器時一樣要跟著改：`IND_MAXAGE` 漏了會靜默套 45 天預設，`TRIG_NOTE` 漏了會靜默沿用種子值（那正是 `gsy150` 那顆的成因）。`healthcheck.py` 兩張都會比對 key 集合，不符即 FAIL。**加減指標、改層歸屬、換觸發器、或某個來源恢復／新壞掉時，這個檔案也要改。** 它是把關每週交付的工具（FAIL 必須是 0），所以漏改它的下場不是靜靜少畫一塊，而是整條每週流程被自己的檢查擋住。
 
 不過**這幾組常數的嚴厲程度不一樣**，別記成一律 FAIL：`QUAL`、`TRIG`、`KNOWN_FAIL` 對不上是 **FAIL**（擋住交付），`QUAL_MAXAGE` 與 `index.html` 的 `QUALF` 分級對不上也是 **FAIL**（`asof` 單純超過門檻則是 WARN），`LAYER_N` 與 `data.json` 對不上只是 **WARN**。這個差別是刻意的——FAIL 那幾組不一致必然代表有人漏改，而層人數本來就會因為「刻意增減指標」而變動，那時該提醒的是「記得回頭改 §4 各層表與 §4.5 的 28.9%」，不是把人擋在門外。
 
@@ -176,6 +176,7 @@ params     { nvda_eps, ngdp_nominal, megaipo_done }
 
 | 版本 | 日期 | 改了什麼 | 為什麼／事故經過 |
 |---|---|---|---|
+| **v2.2.10** | 2026-08-31 | **把三類「沒有守衛的敘述」收回引擎，並讓規格追上本機發布制**：① `triggers[].note` 改由引擎的 `TRIG_NOTE` 無條件覆寫——它過去是種子值，v2.2.1 把 `indicators[].note` 交給引擎時漏了這一份，`gsy150` 因此繼續對使用者宣稱「歷史崩盤機率 80% 區」，而 §4.1 早已禁止這句話——同時在 `healthcheck.py` 補上`TRIG_NOTE` ⊇ `TRIG` 的 FAIL 級守衛，比照 `IND_MAXAGE` 的做法，免得同型漏洞原地重生；② `rpo` 的 `asof` 改填申報期別（取三家最舊），`IND_MAXAGE` 由 10 天改回 130 天——先前不帶 `asof` 落成執行日，既謊報新鮮度也讓過期門檻永遠不觸發；③ `AGENT_BRIEF` §8.3／§8.4、`MAINTENANCE` §2／§3 由雲端交付制改寫為 outbox＋launchd，補進 `.heartbeat` 與 exit 13、把「沒有回執」由常態改判為異常；④ 頁面兩句寫死敘述（觸發器出處、申報時滯）與 §5 四條已完成的待辦一併更正 | `MAINTENANCE.md` §6.24 |
 | **v2.2.9** | 2026-08-23 | 每週覆核改為**自動發布**：覆核把 `data-YYYY-MM-DD.json` 寫進 `~/outbox/bubble/`，`com.kenny.kbpublish.bubble` 每 60 秒跑 `scripts/auto_publish.py`（pull --rebase → gate → healthcheck → commit → push → 回執）。形狀比照另外四套 kbpublish，但不共用 `tools/publish.py`——那支的不可改寫守衛與本專案「每日覆寫同一個 data.json」的語意相反。內容失敗 park、推送失敗重試 | `MAINTENANCE.md` §6.23 |
 | **v2.2.8** | 2026-08-22 | 新增觸發器 `sahm05`（Sahm Rule ≥0.50pp，FRED `SAHMREALTIME`）——七項觸發器過去全是市場與信用，這是唯一量實體經濟的一項。曲線斜率刻意不加：BMRI 用連續百分位、沒有公開門檻，自己選一個數字然後掛 GS 的名字就是 §6.15 換件衣服。觸發器 7 → 8，不動權重、不斷歷史 | `MAINTENANCE.md` §6.21 |
 | **v2.2.7** | 2026-08-22 | `idx_hist` 可回補（RWD `MI_INDEX?date=&type=IND`）＋**修掉一個安靜的量測錯誤**：`tw_index_today()` 的精確名 `電子類指數` 在 openapi 裡不存在，每次都落到子字串退路並咬到第三條序列（存的是 24,519，正解是電子工業類指數 2,872）。改用精確名、移除退路、回補時丟掉舊尺度的筆；healthcheck 新增 elec 尺度一致性檢查 | `MAINTENANCE.md` §6.20 |

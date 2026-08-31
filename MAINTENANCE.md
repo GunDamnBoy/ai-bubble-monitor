@@ -1,7 +1,7 @@
 # AI 泡沫監控儀表板 · 維護說明
 
 > 規格看 `AGENT_BRIEF.md`。這一份放**怎麼改、踩過什麼坑、為什麼是現在這樣**。
-> 最後修訂 2026-08-17
+> 最後修訂 2026-08-31
 
 ---
 
@@ -26,11 +26,14 @@
 2. 改 `AGENT_BRIEF.md`（規格）。
 3. 改 `scripts/update_data.py`（引擎）。動到 `to_quarters`／`pw`／`vix_score`／`bucket`／`gsy_stats`／新聞解析時，**一定要跑 `python3 scripts/update_data.py --selftest`**。
 4. 動到 `data.json` 結構時，走 `INTERNALS.md` §6 末的**「幾處一組」**——那份清單是正本（目前五處：`INTERNALS.md` §6 的 schema、`update_data.py`、`index.html` 的 render 函式、內嵌離線快照、`healthcheck.py` 的硬寫常數），**這裡不重抄，因為它每次都在長**。
-5. 只在**流程或人機分工改變**時才動每週排程 prompt。**先讀現有全文**：`mcp__claude-code-remote__list_triggers` 找「AI 泡沫監控：每週質化覆核與發布（v2）」，輸出很大、可能超過 token 上限而被存成檔案，那就用 Python 解析——結構是 `{"data": [ ... ]}`，prompt 在 `job_config` 底下。改用 `mcp__claude-code-remote__update_trigger` 送回。**沒有這個工具的工作階段就做不了 brief ↔ prompt 的比對，照實回報，不要憑印象比。**
+5. 只在**流程或人機分工改變**時才動每週排程 prompt。排程 id 是 **`bubble-weekly-0900`**（舊名「AI 泡沫監控：每週質化覆核與發布（v2）」）。**先讀現有全文**：本機工作階段用 `mcp__scheduled-tasks__list_scheduled_tasks` 取得它的 `path`（`~/Claude/Scheduled/bubble-weekly-0900/SKILL.md`）再 Read；雲端工作階段用 `mcp__claude-code-remote__list_triggers`，輸出很大、可能超過 token 上限而被存成檔案，那就用 Python 解析——結構是 `{"data": [ ... ]}`，prompt 在 `job_config` 底下。**兩個工具都沒有的工作階段就做不了 brief ↔ prompt 的比對，照實回報，不要憑印象比。**
    **`prompt` 是整份取代，不是局部編輯**——送出前確認所有段落都帶上了，漏掉的段落等於刪除。
 6. 在 `INTERNALS.md` 第 10 節加變更紀錄，**寫清楚為什麼改**；事故經過與被否決的選項寫進本檔第 6 節。
-7. **交付與發布（2026-08-10 起，見 §3）**：雲端工作階段推不了這個 repo，改動完成、healthcheck FAIL=0 之後，commit 到 /tmp 的 clone → `git format-patch -1 --stdout` 產出 patch → SendUserFile 交給使用者本機套用推送（只改 `data.json` 的走 `bubble-publish`，動到程式或文件的走 `git am`）。
-8. 使用者推送後**代為驗證線上**（維護工作階段做得到，覆核排程交付完就結束；2026-08-10 前的文件與變更紀錄把這一步稱為「第 7 步」——當時交付步驟還不存在）：用 WebFetch 抓 `data.json`（**不能用 `curl`**，本容器連不到 `github.io`），比對 `meta.built` 與 `composite`。
+7. **交付與發布（v2.2.9 起，見 §3）**：改動完成、healthcheck FAIL=0 之後——
+   - **只改 `data.json`**（每週覆核）：把 `data-YYYY-MM-DD.json` 與同日期的 `index-YYYY-MM-DD.html` 寫進 `~/outbox/bubble/`，60 秒內由 launchd 的 `auto_publish.py` 自動發布，然後**等回執**。
+   - **動到程式或文件**（維護改動）：`auto_publish.py` 不認 patch。commit 到 /tmp 的 clone → `git format-patch -1 --stdout` → 交給使用者 `git pull --rebase && git am` 再推送。
+   - **兩者都不要自己 `git push`**：本機推得動，但兩道閘門（`gate.py`、`healthcheck.py`）在 `auto_publish.py` 裡，繞過它就是繞過閘門。
+8. 使用者推送後**代為驗證線上**（維護工作階段做得到，覆核排程交付完就結束；2026-08-10 前的文件與變更紀錄把這一步稱為「第 7 步」——當時交付步驟還不存在）：用 WebFetch 抓 `data.json`，比對 `meta.built` 與 `composite`。（**雲端工作階段不能用 `curl`**，那邊連不到 `github.io`；本機沒有這個限制，但 WebFetch 一樣夠用，而且下面那條 15 分鐘快取的坑兩邊都有。）
    **拿到舊值時不要立刻判定 Pages 沒重建**——`data.json` 有 15 分鐘快取，而**目前沒有任何已驗證有效的 cache-buster**（`?t=` 無效、多打斜線也無效，見第 4 節最後三條）。正解是**去抓這次推送裡改過的另一個檔案**（例如 `MAINTENANCE.md`、`AGENT_BRIEF.md`），那個 URL 從沒被抓過、不可能有快取；它若是新版，站台就已經好了，`data.json` 只是你這一端看到的舊拷貝。
    **但那種乾淨 URL 是耗材，一個檔名只能用一次。** 推送後**先等 60–90 秒**再抓第一張，抓早了等於在站台還沒好的時候把票用掉；第一張是舊的就換第二個改過的檔名，別重抓同一個。詳見第 4 節第 3 點與第 6.10 節。
 
@@ -40,16 +43,23 @@
 
 ---
 
-## 3. 部署與發布（2026-08-10 改制，見 §6.11）
+## 3. 部署與發布（v2.2.9 改制，2026-08-23；前身見 §6.11）
 
 - 日常資料更新走 GitHub Actions，**不需要人介入**。
-- **雲端工作階段（覆核排程、維護、Cowork）對本 repo 只有讀、沒有寫。** clone／fetch 走公開 URL 即可：
-  `git clone --depth 1 https://github.com/GunDamnBoy/ai-bubble-monitor.git`
-  push 一律被平台的 git proxy 擋（403「not in this session's authorized repository set」），**自備 PAT 也無效**——proxy 在 GitHub 看到憑證之前就先擋（2026-07 平台變更，上游回報 anthropics/claude-code#76248）。**不要重試、不要繞路、不要索取或使用 token**；原存於排程 prompt 的 PAT 已於 2026-08-10 移除。GitHub API 的 repo 端點同樣被擋，要看 repo 狀態就用 git。
-- **發布路徑＝人機協作**：雲端產出檔案 → SendUserFile → 使用者本機推送。
-  - 只改 `data.json`（每週覆核）：交付 `data-YYYY-MM-DD.json`，使用者跑 **`bubble-publish`**——他 `~/.zshrc` 裡的 zsh 函數，在 `~/Projects/ai-bubble-monitor` 的 clone 內抓 `~/Downloads` 最新的 `data-*.json` 蓋掉 `data.json`、跑 `healthcheck.py` 當關卡、commit（`data: weekly qualitative review YYYY-MM-DD`）、push。**檔名格式要對得上它的 glob。**
-  - 動到程式／文件（維護改動）：交付 `git format-patch` 的 `.patch`，使用者 `git am *.patch && git push`。
-  - 使用者本機用 gh 憑證推送，會正常觸發 Pages 重建（不需要 workflow 那個 `POST /pages/builds`，那是給 GITHUB_TOKEN 的）。
+- **每週覆核跑在 Mac 本機**（排程 `bubble-weekly-0900`，台北週一 09:00），發布由 launchd 的 `com.kenny.kbpublish.bubble` 每 60 秒跑 `scripts/auto_publish.py` 接手。工作區在 `~/Projects/ai-bubble-monitor`（**刻意在 iCloud 之外**）。
+- **兩條交付路徑，用途不同**：
+
+  | 改了什麼 | 怎麼交 | 誰發 |
+  |---|---|---|
+  | 只有 `data.json`（每週覆核） | 寫 `~/outbox/bubble/data-YYYY-MM-DD.json` ＋ 同日期的 `index-YYYY-MM-DD.html` | `auto_publish.py`，60 秒內自動 |
+  | 程式或文件（維護改動） | `git format-patch -1 --stdout` 出 `.patch` | 使用者 `git pull --rebase && git am` 再推送 |
+
+  **`auto_publish.py` 只認 `data-*.json` 的 glob**，patch 放進 outbox 不會有人理它。
+- **兩道閘門在發布器裡**：`gate.py` 與 `healthcheck.py`，任一 FAIL 就還原工作區、把草稿改名 `.parked` 且不再重試（內容問題不會自己好）。推送類失敗留著草稿下一輪再試，累計 30 次才 park。**所以「healthcheck FAIL 必須是 0」沒有例外**——包含 `fresh`。
+- **回執與心跳**：每次發布寫 `~/outbox/bubble/<日期>.receipt.json`，`exit 0` 才算上線。空輪次不印任何東西，但會**覆寫** `~/outbox/bubble/.heartbeat` 並回 **13**（`EMPTY_ROUND`）——那是判斷「發布器還活著嗎」的唯一觀測點，**沒有回執時先看心跳再下結論**（2026-08-23 曾因此被連續兩次誤判成「從沒跑過」）。改 plist 時確認沒有 `KeepAlive`／`SuccessfulExit`，否則 13 會被當失敗而不斷重生。
+- **不要自己 `git push`。** 本機推得動，但閘門在 `auto_publish.py` 裡；繞過它就是繞過閘門。**不索取、不使用、不顯示任何 token。**
+- **雲端工作階段（若還有）對本 repo 只有讀、沒有寫**：clone／fetch 走公開 URL，push 一律被平台的 git proxy 擋（403「not in this session's authorized repository set」），自備 PAT 也無效（2026-07 平台變更，上游回報 anthropics/claude-code#76248）。**不要重試、不要繞路。** 原存於排程 prompt 的 PAT 已於 2026-08-10 移除。
+- `bubble-publish`（zsh 函數，正本 `~/.bubble-publish.zsh`）保留為**手動覆寫**，抓 `~/Downloads` 的草稿。
 - 手動觸發一次完整更新：repo → Actions → `update-and-deploy` → Run workflow（人在瀏覽器前）。
 
 ---
@@ -71,7 +81,7 @@
 **其他反覆出現的坑：**
 
 - **圖表卡在上一季不是壞掉**。公司開財報會 ≠ 10-Q 進 EDGAR，中間有數天到數週。有 ≥3/5 家申報就會出現空心點的「初步」季度；不到 3 家就是照設計在等。
-- **`meta.lastAutoRun.fail` 出現 AAII／TAIFEX 是已知狀態**，不是新事故。看到它們不用緊張，看到別的才要查（`healthcheck.py` 的 `KNOWN_FAIL` 就是這份白名單，新面孔會直接 FAIL）。**CBOE 已於 2026-08-17 退場**（streak 連續成功 16 次），所以它現在若出現在 `fail` 裡就是 **FAIL、會擋住交付**——那是刻意的，不要把它當已知正常狀態放過。`senti` 卡片上的來源時多時少仍是正常的（AAII 持續被擋、CNN F&G 觀察中），看 `sub` 就知道當次合成了哪幾個。
+- **`meta.lastAutoRun.fail` 出現 AAII／TAIFEX 是已知狀態**，不是新事故。看到它們不用緊張，看到別的才要查（`healthcheck.py` 的 `KNOWN_FAIL` 就是這份白名單，新面孔會直接 FAIL）。**CBOE 已於 2026-08-17（streak 16）、CNN Fear & Greed 已於 2026-08-22（streak 17）退場**，所以這兩個現在若出現在 `fail` 裡就是 **FAIL、會擋住交付**——那是刻意的，不要把它當已知正常狀態放過。`senti` 卡片上的來源時多時少仍是正常的（AAII 持續被擋），看 `sub` 就知道當次合成了哪幾個。
 - **白名單的「反向」現在有機器在看**。`meta.lastAutoRun.streak` 記每個來源的連續成功次數，某個白名單來源連續成功 ≥15 次（約三週）healthcheck 就會 WARN，提醒把它從 §9 與 `KNOWN_FAIL` 一起移除。在這之前，「某來源其實早就修好了」只能靠人記得，而沒有人會記得。
 - **`elec_rel`／`tw_margin` 顯示「序列累積中 n/21」是正常的**，這兩項要靠累積 21 個交易日才算得出來。引擎每次執行寫一筆，寫的是**前一個交易日**的值（所以永遠落後一天），一週約 5 筆。序列的起算日看 `tw.idx_hist`／`tw.margin_hist` 的第一筆，不要記在腦子裡。
   - **`tw_margin` 自 2026-08-17（v2.1.6）改為回補**：`MI_MARGN` 吃 `date=`，`backfill_margin_hist()` 在筆數不足時往回抓。**我們等了兩次才發現不必等**——引擎其實一直用 `date=` 在往回找交易日，只是沒想到同一招可以拿來補歷史。這是「以為做不到、其實沒試過」，跟第 6.10 節那三次「以為有效、其實沒驗過」是同一枚硬幣的兩面。
@@ -95,12 +105,12 @@
 
 ## 5. 待辦與觀察中
 
-- **`senti` 的輸入不穩**。AAII 持續被擋、CBOE 時好時壞（卡片的 `sub`／`dir`／`src`／`url` 由引擎依當次成功的來源生成）。**2026-08-10 已接入 CNN Fear & Greed 當第四輸入**（`production.dataviz.cnn.io` 的 graphdata 端點，0–100 直讀；WebFetch 端驗證過活著）——Actions runner 通不通看 `meta.lastAutoRun.streak` 的「CNN FearGreed」：連續成功 ≥15 次就把它從 §9／`KNOWN_FAIL` 退場；持續掛零就換下一個候選（FINRA 融資餘額、CBOE 官方 CSV 端點）。
+- **`senti` 的輸入只剩 AAII 一個問題**。CBOE 已於 2026-08-17（streak 16）、CNN Fear & Greed 已於 2026-08-22（streak 17）達門檻退場，兩者現在都是正常來源，不在 §9／`KNOWN_FAIL` 裡。**只剩 AAII 持續被 Actions runner 擋**，`senti` 因此常態少一個輸入（卡片的 `sub` 會誠實顯示當次合成了哪幾個）。要不要換掉 AAII：候選是 FINRA 融資餘額；在換掉之前，少一個輸入是可接受的降級，**不要因為它常失敗就把 `senti` 移出 L1**（那等於改了 L1 的權重結構）。
 - ~~**美國商務部（Census）資料中心營建支出**~~ **已結案：這條序列不存在。** 2026-08-23 用金鑰實測（`scripts/census_probe.py`，Actions run #4）：VIP 的 `category_code` 共 38 個，16 個編號類別加總**正好等於**非住宅總額，**沒有多出來的一格**；C30 公布表的非住宅列只有 Lodging／Office／Commercial／Health care／Educational／Religious／Amusement and recreation／Transportation／Communication／Power／Manufacturing，**「Data center」不是獨立列**。定義頁講的是「Office 這個類別*包含*資料中心這種建物」——那是定義的說明，不是一條可以抓的序列。詳見 §6.22。
 
-**「VIP 自 2024 起把 Data Center 從 Office 拆出獨立列示」是二手說法，沒有在 API 上驗過。** 探針存在的理由就是不要把它當成前提——寫一個沒驗證過的抓取違反 §5.1。
+  （「VIP 自 2024 起把 Data Center 從 Office 拆出獨立列示」這個二手說法**已於 2026-08-23 在 API 上驗過並否證**。探針存在的理由就是不要把它當成前提——寫一個沒驗證過的抓取違反 `INTERNALS.md` §5.1。這一條**不必再看**。）
 - **`tsmc_weight` 每月人工更新**，容易忘。若連兩個月沒動，考慮改抓別的來源或降為季頻展示。
-- **回測：範圍已釐清，第一階段的工具已備妥（2026-08-17）。** 整套錨點除了 `gsy_runup` 之外都沒有歷史校準，是專家判斷——這是本系統最大的方法論弱點。這次逐一查證了資料可得性，結論是**範圍比預期窄很多**：
+- **回測：第一階段已完成（2026-08-17 備妥工具、其後跑完兩輪，結論已寫回 `AGENT_BRIEF.md` §4.1）。** 以下保留的是**範圍與限制**，不是待辦——下次有人想擴大回測範圍時，先讀這張表再決定值不值得。 整套錨點除了 `gsy_runup` 之外都沒有歷史校準，是專家判斷——這是本系統最大的方法論弱點。這次逐一查證了資料可得性，結論是**範圍比預期窄很多**：
 
   | 想驗到 | 實際起點 | 涵蓋事件 |
   |---|---|---|
@@ -113,10 +123,10 @@
 
   **最刺的一條**：`gsy_runup` 是唯一有文獻校準的錨點，而 SOXX 這檔 ETF 2001 年才成立——**它自己也回不到 2000**。用它的門檻談 2000 年網通泡沫，永遠只能是專家判斷。
 
-  **第一階段的工具**：`scripts/backtest.py` ＋ `.github/workflows/backtest.yml`（**只手動觸發**）。抓取必須在 Actions runner 上跑——覆核／維護容器連不到 Yahoo／Stooq／FRED（brief §8.3）。它只驗 `gsy_runup` 那一項：**如果連唯一有機率意義的那個錨點都驗不出來，其餘 21 項的專家判斷就更沒有立足點**。產出進 `backtest/`，該路徑已排除在每日 workflow 的 push 觸發之外，也不碰 `data.json`。
+  **第一階段的工具（已跑完）**：`scripts/backtest.py` ＋ `.github/workflows/backtest.yml`（**只手動觸發**），產出在 `backtest/`。抓取固定在 Actions runner 上跑——理由是可重現、不佔本機、且與每日管線同一個環境，**不是因為連不到**（覆核自 2026-08-23 起跑在 Mac 本機，那些來源連得到；為什麼仍然不自己抓見 `AGENT_BRIEF.md` §8.3）。它只驗 `gsy_runup` 那一項：**如果連唯一有機率意義的那個錨點都驗不出來，其餘 21 項的專家判斷就更沒有立足點**。產出進 `backtest/`，該路徑已排除在每日 workflow 的 push 觸發之外，也不碰 `data.json`。
   **樣本數會是個位數**，所以結論只能是「與文獻方向一致／不一致」，不可能是統計顯著性——這一點要先寫進報告，不要事後假裝樣本夠。
 - **質化指標佔 28.9% 權重**（L1 3.9%＋L2 15.0%＋L3 10.0%），漂移風險真實存在。防線只有「`note` 必須記錄上週分數與變動理由」這一條。加減指標會改變這個數字，改完要回頭更正 `AGENT_BRIEF.md` 第 4.5 節與這一行。
-- **`index.html` 內嵌的離線退路快照需要手動重灌**。它平常沒人看得到（只在 fetch 失敗時才用），所以一放就是好幾個月；2026-08 已隨 v2 重灌過一次。`healthcheck.py` 現在比對它的 `meta.version`、v2 必要區塊是否齊全、`history` 筆數（超過 60 筆 WARN，頁面會過肥），以及**它跟現行 `data.json` 有沒有脫節到會誤導**——`meta.built` 落後超過 45 天、`composite` 差超過 5 分、或象限 `regime` 不同，就 WARN。門檻刻意鬆：快照本來就是舊的拷貝，只有舊到「離線那天使用者看到另一個故事」才算問題。
+- ~~**`index.html` 內嵌的離線退路快照需要手動重灌**~~ **已自動化（v2.2.6，2026-08-22）**：引擎的 `refresh_fallback_snapshot()` 在每日更新末尾判斷要不要重灌（門檻：`meta.version` 不同、落後 >14 天、`composite` 差 >3 分、`regime` 不同），`gate.py` 另有一道。人不必再記得重灌，**但仍要記得它的存在**——它平常沒人看得到，只在 fetch 失敗時才用。`healthcheck.py` 現在比對它的 `meta.version`、v2 必要區塊是否齊全、`history` 筆數（超過 60 筆 WARN，頁面會過肥），以及**它跟現行 `data.json` 有沒有脫節到會誤導**——`meta.built` 落後超過 45 天、`composite` 差超過 5 分、或象限 `regime` 不同，就 WARN。門檻刻意鬆：快照本來就是舊的拷貝，只有舊到「離線那天使用者看到另一個故事」才算問題。
 
 ---
 
@@ -674,7 +684,7 @@ $115,808M）。定義頁講的是「Office 這個類別*包含*資料中心這�
 | gate／healthcheck 不過 | 還原工作區、草稿改名 `.parked`、不再重試 | **內容問題不會自己好**，每 60 秒重試一次只會洗版 |
 | pull／push 失敗 | 留著草稿、累計次數、下一輪再試，30 次才 park | **網路會自己好，設定錯誤不會** |
 
-五條路徑都在假 repo 上實測過：空輪次安靜且 exit 0、內容失敗 park 且工作區乾淨、
+五條路徑都在假 repo 上實測過：空輪次安靜且 exit 0（**v2.2.9 之後改為覆寫 `.heartbeat` 並回 13**，見 §3）、內容失敗 park 且工作區乾淨、
 內容相同不做空提交、真的推出去且草稿移進 `_done/`、推送失敗留著重試且工作區乾淨。
 
 **測試過程本身驗證了閘門是緊的**：我兩次手工捏造「合法」的草稿都被 healthcheck 擋下來
@@ -685,3 +695,65 @@ healthcheck 不驗的欄位才推得出去。**捏不出一個能騙過閘門的
 **Mac 的 Cowork app 沒開著的話那條橋不通**。所以覆核的 prompt 保留 SendUserFile
 當退路，並且在橋接失敗時要在推播摘要裡明講，不要靜靜地什麼都沒發生。
 那正是 8/17 的失效模式。
+
+> **這一段自 2026-08-23 起已作廢**：覆核改為直接跑在 Mac 本機、夾帶資料夾，
+> 檔案是本機寫入，不再經過桌面橋接，`SendUserFile` 那條退路也不存在了
+> （本機執行拿不到那個工具）。**單點換了位置而不是消失**：現在的單點是
+> launchd 有沒有在跑，觀測點是 `.heartbeat`（§3）。
+
+---
+
+### 6.24 2026-08-31：規格追不上執行環境，於是它開始說謊
+
+**起因是一次例行稽核，不是事故。** 每週覆核照常跑完、healthcheck FAIL=0、
+網站也更新了——但子代理的漂移比對抓出四件事，它們的共同形狀值得記下來。
+
+**第一件：搬家之後，舊理由比沒有理由更危險。**
+覆核在 2026-08-23 從雲端容器搬到 Mac 本機，但 `AGENT_BRIEF` §8.3 整節還在描述
+雲端的網路限制——「Bash 只通得到 github.com」「連 `gundamnboy.github.io` 都不通」
+「FRED／Stooq／SEC／TAIFEX 一律連線失敗」。這些描述在本機**每一條都是錯的**。
+
+問題不在描述錯了，在於**那些描述是「不要自己重抓自動指標」這條禁令的理由**。
+禁令本身仍然完全正確（一次即興抓取不是引擎那條帶重試、帶三層備援的管線，
+硬抓的殘值會蓋掉好資料，而且要到下一個交易日才會被改回來），
+但它掛在一個一驗就倒的理由上——**下一輪只要實測發現連得到，就會連禁令一起丟掉**。
+所以這次不是刪掉理由了事，而是換成真正的理由，並把舊理由留成一段引文說明它為什麼被換掉。
+
+**同一節裡還有一組互相否定的步驟**：第 1 步寫「`git format-patch` ＋ `SendUserFile` 交付」，
+第 2 步寫「寫進 `~/outbox/bubble/`，60 秒內自動發布，不需要人動手」。
+兩者是新舊兩代的替代方案，卻被排成先後兩步。照著讀的人會先做一遍已經廢棄的流程。
+
+**第二件：規格漏掉了唯一能回答「它還活著嗎」的觀測點。**
+`auto_publish.py` 的檔頭記著 2026-08-23 那次教訓——空輪次什麼都不印，
+於是「一直在跑只是沒草稿」與「plist 根本沒被 load」長得一模一樣，因此加了
+`.heartbeat`（覆寫）與 exit 13（`EMPTY_ROUND`）。但 brief 只留了那句被推翻的
+「沒有回執代表這支根本沒跑」，**`.heartbeat` 與 13 一個字都沒有**。
+覆核端照 brief 執行，手上就沒有那個觀測點。順帶更正的還有 §8.4 的推播規則：
+「還沒發布不算警示」在人工發布年代是對的，在 60 秒自動發布下已經反過來了。
+
+**第三件：沒有守衛的欄位會安靜地過期，而且只會往「對使用者說謊」的方向。**
+這次抓到的三顆全長在同一類地方——**引擎從不覆寫的種子欄位與前端寫死的字串**：
+
+| 哪裡 | 說了什麼 | 為什麼是假的 |
+|---|---|---|
+| `triggers[].note`（`gsy150`） | 「GSY：歷史崩盤機率 80% 區」 | §4.1 明文禁止把論文的 53%／80% 當成本標的的校準對外講——SOXX 2001 才成立，在論文定義下從未觸發過 |
+| `index.html` 觸發器卡片底注 | 「門檻取 GS／BofA／UBS 框架聯集」 | `sahm05`（v2.2.8）出自 Sahm (2019)，不在那三家裡 |
+| `index.html` TAB5 誠實聲明 | 申報時滯「~4-5 週」 | 引擎 `IND_MAXAGE` 的註解與 130 天門檻都是照「6–10 週」訂的 |
+
+`gsy150` 那顆特別值得記：**v2.2.1 已經把「會過期的敘述交給引擎」這條規矩訂下來了，
+但只執行到 `indicators[].note`，`set_trig()` 從頭到尾不碰 `note`。**
+規矩訂了、範圍漏了一半，而漏掉的那一半沒有任何機器在看。
+這與 §6.4 的 `tsmc_pe` 掛 Google Finance、與 `gsy_runup` 同一張卡 `src` 寫 JFE 2019
+而 `note` 寫 JFE 2018，是同一個失效模式的第三次。
+處置：`triggers[].note` 收進引擎的 `TRIG_NOTE` 表無條件覆寫。
+
+**第四件（附帶，但它是真的資料錯誤）：`rpo` 的 `asof` 一直是執行日。**
+`f_rpo` 呼叫 `upd()` 時不帶 `asof`，於是落成當天，而底層是季報、實際落後 6–10 週。
+兩層後果：卡片對使用者謊報新鮮度（§8.4「`asof` 一律填資料本身的日期」），
+而且**因為永遠是今天，`IND_MAXAGE` 那 10 天的門檻永遠不會觸發**——
+這一項自 `fresh` 在 v2.1.4（2026-08-17）修活以來就沒有守衛，連帶讓「`rpo` 被誤歸在日頻 10 天」這個筆誤也一直沒浮出來。
+改成取三家申報期別裡**最舊**的那個：合成值的新鮮度由最落後的成分決定。
+
+**這一輪的通則**：漂移不會讓任何檢查變紅。healthcheck 這次是 FAIL 0、
+網站畫得好好的、每週覆核也照常跑完——會過期的東西全都躲在「沒有機器看得到」的那一格。
+所以 `DRIFT-AUDIT.md` 的子代理比對不是可選步驟，它是唯一會看那一格的東西。

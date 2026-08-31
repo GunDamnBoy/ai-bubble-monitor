@@ -18,6 +18,6 @@ description: "AI 泡沫監控儀表板（ai-bubble-monitor）的維護入口指�
 
 三件在動手前就該知道的事：
 
-- **本 repo 對雲端工作階段只讀不寫**（git proxy 擋推送，自備 token 也無效）。發布走「雲端交付檔案 → 使用者本機推送」，細節見 `MAINTENANCE.md` §3。**不索取、不使用任何 token。**
-- **數字一律有來源，抓不到就空著**（`AGENT_BRIEF.md` §5.1）。這是整套系統的根本契約。
+- **發布走發布器，不要自己 push。** 只改 `data.json` 就寫進 `~/outbox/bubble/`（60 秒內由 launchd 自動發布）；動到程式或文件交 `.patch` 由使用者 `git am`。兩道閘門（`gate.py`、`healthcheck.py`）在 `auto_publish.py` 裡，繞過它就是繞過閘門。細節見 `MAINTENANCE.md` §3。**不索取、不使用任何 token。**
+- **數字一律有來源，抓不到就空著**（`INTERNALS.md` §5.1）。這是整套系統的根本契約。
 - **`history` 只附加、同日去重、永不改寫既有日期**——象限軌跡與主題匯流訊號報的跨期比較都靠它。

@@ -44,7 +44,7 @@ LIT = {100.0: 53.0, 150.0: 80.0}      # 美國產業組合，Table 3 Panel A
 LIT_BASE = 14.0                       # 無條件崩盤率（1928–2013 全部 industry-months；1970 後 11%）
 CRASH_DRAWDOWN = -40.0
 
-# 論文（Greenwood-Shleifer-You, NBER WP 23191 / JFE 2018）的定義，2026-08-17 逐句核對過：
+# 論文（Greenwood-Shleifer-You, NBER WP 23191 / JFE 2019）的定義，2026-08-17 逐句核對過：
 #
 # run-up：過去 2 年 **raw ≥ 門檻 且 net-of-market ≥ 門檻**，再加過去 5 年 raw ≥50%
 #         （p.7；5 年那個條件正文寫 50%、Table 1/2 表註寫 100%，取正文並在此標明差異）

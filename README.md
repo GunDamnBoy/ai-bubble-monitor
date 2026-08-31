@@ -7,17 +7,17 @@
 - **L1 市場與情緒**（權重 0.35，9 項，日頻）／**L2 資金與信用**（0.35，7 項，日～週頻）／
   **L3 基本面兌現**（0.30，6 項，月～季頻）。層分數是該層非 null 指標的等權平均，
   綜合溫度是三層加權和。
-- 另有**象限**（熱度 =(L1+L2)/2、支撐 =100−L3）與**七項點火觸發器**——觸發器刻意
+- 另有**象限**（熱度 =(L1+L2)/2、支撐 =100−L3）與**八項點火觸發器**——觸發器刻意
   不進綜合溫度，只做獨立的布林警示。
 - **量化指標**：GitHub Actions 於每個交易日結束後（台北時間清晨）自動抓取
   FRED、Yahoo／Stooq、SEC EDGAR、multpl、SlickCharts、TWSE／TAIFEX 等來源重算並提交
-  `data.json`（完整來源表見 `AGENT_BRIEF.md` §5.2）。
+  `data.json`（完整來源表見 `INTERNALS.md` §5.2）。
 - **質化指標**（VC 集中度、循環融資、敘事熱度等 6 項，約佔總權重 28.9%）：每週由
   Claude 覆核更新。
 - 任一來源抓取失敗時保留舊值並標註「資料延遲」；連舊值都沒有就給 null 並退出當層
   平均，**絕不編造數字**。
 
-台灣供應鏈另有 10 項獨立計分（`tw.heat`），不進綜合溫度。
+台灣供應鏈另有 11 項獨立計分（`tw.heat`），不進綜合溫度。
 
 資料與方法論詳見網站內「方法論與更新」分頁。本專案為研究監測工具，不構成投資建議。
 
@@ -26,6 +26,6 @@
 - `AGENT_BRIEF.md`——完整規格（指標定義、錨點、人機分工、收尾重算順序）。動手改任何
   東西之前先讀它。
 - `MAINTENANCE.md`——事故與決策檔案：踩過的坑、為什麼這樣設計、待辦。
-- `healthcheck.py`——唯讀機械檢查（`python3 healthcheck.py`）。**FAIL 必須是 0 才可以發布**（雲端交付前、以及本機 `bubble-publish` 內都會跑它把關）。
+- `healthcheck.py`——唯讀機械檢查（`python3 healthcheck.py`）。**FAIL 必須是 0 才可以發布**——`scripts/auto_publish.py` 與手動的 `bubble-publish` 兩條發布路徑都會跑它把關，不過就不發。每日 Actions 裡那一步是 `continue-on-error`、**只當體檢報告不擋**（文件漂移不該讓每天的資料停更；擋每日更新的是 `scripts/gate.py`）。
 - `skills/bubble-maintain/SKILL.md`——維護流程本身（Cowork 內用 `/bubble-maintain` 觸發）。
   這份是權威副本；帳號端的 skill 若遺失或走鐘，從這裡重新上傳即可。改流程時兩邊要一起改。

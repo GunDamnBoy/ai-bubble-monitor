@@ -390,6 +390,33 @@ def check_data(repo):
     if any(t.get("state") not in (0, 1, True, False) for t in tr):
         bad("觸發器 state 必須是 0/1")
 
+    # 觸發器的 note 自 v2.2.10 起由引擎的 TRIG_NOTE 無條件覆寫。少一個 id 就會
+    # 靜默沿用 data.json 的種子值——`gsy150` 那顆對使用者宣稱「歷史崩盤機率 80% 區」
+    # 十四天沒人發現，就是因為 v2.2.1 把 indicators[].note 交給引擎時漏了這一份，
+    # 而沒有任何機器在看種子欄位。這條檢查就是那一格的守衛，比照 IND_MAXAGE 的做法。
+    # 定級 FAIL：漏一個 id 的後果是頁面上留著一句沒人維護的舊話。
+    mtn = re.search(r"^\s*TRIG_NOTE = (\{.*?^\s*\})", eng_src, re.S | re.M)
+    if not eng_src:
+        pass                      # 沒有引擎原始碼（例如只驗 data.json）就不驗這一項
+    elif not mtn:
+        warn("解不出引擎的 TRIG_NOTE，觸發器 note 無法對帳"
+             "——被重構過就要同步更新本檢查，不要讓它靜默跳過")
+    else:
+        tn = ast.literal_eval(mtn.group(1))
+        miss = sorted(TRIG - set(tn))
+        extra = sorted(set(tn) - TRIG)
+        if miss or extra:
+            bad(f"TRIG_NOTE 與觸發器集合不符——缺：{miss or '無'}（會靜默沿用種子 note）／"
+                f"多：{extra or '無'}")
+        else:
+            stale = [t["id"] for t in tr
+                     if t.get("id") in tn and t.get("note") != tn[t["id"]]]
+            if stale:
+                warn(f"觸發器 note 與引擎的 TRIG_NOTE 不同（下次引擎跑完會自動改寫）："
+                     f"{', '.join(stale)}")
+            else:
+                ok(f"TRIG_NOTE 涵蓋全部 {len(TRIG)} 項觸發器，且與 data.json 一致")
+
     # asof 不可以是未來：那只可能來自「拿今天當來源日期」這類編造
     future = []
     for label, rows in (("指標", inds), ("觸發器", tr),

@@ -71,9 +71,11 @@ IND_MAXAGE = {
     # 日頻自動
     "cape": 10, "mag7": 10, "nvdape": 10, "gsy_runup": 10, "gsy_accel": 10,
     "volchg": 10, "soxmom": 10, "senti": 10, "hyoas": 10, "ccc": 10,
-    "orclbond": 10, "rpo": 10,
+    "orclbond": 10,
     # 季頻 EDGAR（一季結束到 10-Q 進 EDGAR 常態要 6–10 週）
-    "debt": 130, "capexocf": 130, "fcf": 130, "dnagap": 130,
+    # `rpo` 自 v2.2.10 起也在這一組：它一直都是季頻，先前歸在日頻 10 天是筆誤，
+    # 但因為 asof 落成執行日、永遠不會過期，這個筆誤十個月沒有浮出來。
+    "debt": 130, "capexocf": 130, "fcf": 130, "dnagap": 130, "rpo": 130,
     # 質化，與 healthcheck 的 QUAL_MAXAGE 同一組數字
     "narrative": 21, "circular": 21, "weakcredit": 21,
     "tokens": 75, "vc": 130, "cloudrev": 130,
@@ -297,8 +299,17 @@ def orcl_bond_yield():
 RPO_CIKS = {"MSFT": "0000789019", "GOOGL": "0001652044", "ORCL": "0001341439"}
 
 def rpo_backlog():
+    """回傳 (yoy%, 合計 $B, 明細字串, 申報期別)。
+
+    第四個回傳值是給 `asof` 用的。v2.2.10 之前 `f_rpo` 呼叫 `upd()` 不帶 `asof`，
+    於是它落成執行日——而這一項的底層是季報，實際落後 6–10 週。後果有兩層：
+    卡片對使用者謊報新鮮度（§8.4「asof 一律填資料本身的日期」），而且因為
+    asof 永遠是今天，`IND_MAXAGE` 那 10 天的門檻**永遠不會觸發**，等於沒有守衛。
+    取三家裡**最舊**的那個期別是刻意的：合成值的新鮮度由最落後的成分決定，
+    取最新的會樂觀報。
+    """
     tot_now = tot_prior = 0.0
-    det = []
+    det, latests = [], []
     for co, cik in RPO_CIKS.items():
         j = http_get(f"https://data.sec.gov/api/xbrl/companyconcept/CIK{cik}/us-gaap/RevenueRemainingPerformanceObligation.json",
                      ua=UA_SEC).json()
@@ -313,9 +324,11 @@ def rpo_backlog():
         prior = min(ends, key=lambda e: abs((dt.date.fromisoformat(e) - target).days))
         if abs((dt.date.fromisoformat(prior) - target).days) > 75: continue
         tot_now += pts[latest]; tot_prior += pts[prior]
+        latests.append(latest)
         det.append(f"{co} ${pts[latest] / 1e9:.0f}B({latest[:7]})")
     if tot_prior <= 0: raise RuntimeError("rpo: insufficient history")
-    return (tot_now / tot_prior - 1) * 100, tot_now / 1e9, "＋".join(det)
+    return ((tot_now / tot_prior - 1) * 100, tot_now / 1e9, "＋".join(det),
+            min(latests)[:7] if latests else None)
 
 # ---------------- v2 新增：台灣公開數據 ----------------
 TW_BASKET = [("2330", "台積電", "晶圓代工"), ("2317", "鴻海", "AI伺服器組裝"), ("2382", "廣達", "AI伺服器ODM"),
@@ -871,7 +884,7 @@ def main():
         # 因為它是全站唯一對使用者宣稱機率的卡片，而 2026-08-17 的回測證明那個宣稱要限定條件。
         IND["gsy_runup"]["note"] = (
             "產業 24 個月漲幅的泡沫判準。**文獻的 53%／80% 是引用，不是本標的的校準**："
-            "Greenwood-Shleifer-You（JFE 2018）算的是「至少 10 家公司的市值加權產業組合」，"
+            "Greenwood-Shleifer-You（JFE 2019）算的是「至少 10 家公司的市值加權產業組合」，"
             "且要求 raw 與淨大盤兩個 24 月報酬同時 ≥門檻、再加 5 年 ≥50%，樣本 1928–2012；"
             "本指標只看 SOXX 這檔 ETF 自己的 raw 24 月漲幅，論文全文未討論套用到單一標的。"
             "我們自己在 SOXX 2003–2026 的回測：raw ≥100% 的 16 次穿越裡，其後 24 個月最大回撤 "
@@ -1022,9 +1035,10 @@ def main():
 
     # ============ L3 基本面兌現 ============
     def f_rpo():
-        yoy, tot, det = rpo_backlog()
+        yoy, tot, det, asof = rpo_backlog()
         upd("rpo", round(yoy, 1), f"+{yoy:.0f}%（合計 ${tot:.0f}B）",
-            pw(-yoy, [[-60, 0], [-35, 25], [-15, 55], [0, 80], [15, 100]]), sub=det)
+            pw(-yoy, [[-60, 0], [-35, 25], [-15, 55], [0, 80], [15, 100]]),
+            asof=asof, sub=det)
     attempt("EDGAR RPO", f_rpo)
 
     def f_edgar():
@@ -1243,6 +1257,20 @@ def main():
     attempt("FRED CPI", f_cpi); attempt("FRED FEDFUNDS", f_ff); attempt("FRED DGS10", f_y10)
     attempt("FRED Sahm", f_sahm)
 
+    TRIG_NOTE = {
+        "hy80": "信用市場確認轉向（GS／歷史典型）",
+        "ccc12": "最弱信用層壓力達 2022 熊市級",
+        # 這句自 v2.2.10 改寫：舊版寫「GSY：歷史崩盤機率 80% 區」，
+        # 而 §4.1 明文禁止把論文的 53%／80% 當成本標的的校準對外講——
+        # SOXX 2001 才成立，在論文定義下從未觸發過。卡片不可以替系統宣稱一個機率。
+        "gsy150": "產業 24 個月漲幅的極端值；論文機率是引用、非本標的校準（§4.1）",
+        "cpi4": "Hartnett：通膨迫使實質緊縮＝刺破機制",
+        "policy_gap": "UBS：貨幣條件由順風轉逆風",
+        "y10_5": "長久期 AI 資產的折現硬約束",
+        "megaipo": "Hartnett：大頂前的最後供給事件（每週人工覆核）",
+        "sahm05": "唯一量實體經濟的一項：三月失業率均較前 12 個月低點升 ≥0.50pp",
+    }
+
     def set_trig(tid, state, val, asof=None, prog=None):
         """asof 要填「這個判斷所依據的資料」的日期，不是今天。
 
@@ -1254,6 +1282,13 @@ def main():
         prog＝距門檻進度 0–100%（現值 ÷ 門檻，夾在 0–100），把布林警報變成連續
         預警：ccc 在 85% 和在 20% 是完全不同的訊息，state 都是 0。megaipo 是
         人工旗標沒有連續量，prog 恆為 None。觸發器本身仍不進綜合溫度（§3.5）。
+
+        `note` 自 v2.2.10 起也由這裡無條件覆寫（來源是上面的 `TRIG_NOTE`）。
+        在此之前它是 `data.json` 的種子值、引擎從不覆寫，於是 v2.2.1 把
+        `indicators[].note` 改由引擎寫時漏了觸發器這一份，`gsy150` 的卡片
+        就這樣繼續對使用者宣稱「歷史崩盤機率 80% 區」——而 §4.1 自 v2.2.1（2026-08-17）就已
+        禁止這句話。比照 §6.4／`tsmc_pe` 掛 Google Finance 的同型失效處理：
+        會過期的敘述一律交給引擎，不要留在種子值裡。
         """
         for t in data["triggers"]:
             if t["id"] == tid:
@@ -1261,6 +1296,7 @@ def main():
                 t["value"] = val
                 t["asof"] = str(asof or TODAY)
                 t["prog"] = None if prog is None else max(0, min(100, round(prog)))
+                if tid in TRIG_NOTE: t["note"] = TRIG_NOTE[tid]
     hy = sp.get("hy", {})
     if hy.get("now") is not None and hy.get("m3") is not None:
         d3 = (hy["now"] - hy["m3"]) * 100

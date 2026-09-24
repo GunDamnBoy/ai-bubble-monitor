@@ -408,6 +408,89 @@ def tw_margin_balance():
     raise RuntimeError("margin: no trading day found in 10 days")
 
 
+MARGN_TREND = "https://www.twse.com.tw/rwd/zh/marginTrading/MI_MARGN_TREND"
+MARGN_HISTORY = "https://www.twse.com.tw/rwd/zh/marginTrading/MI_MARGN_HISTORY"
+BFIJ3U = "https://www.twse.com.tw/rwd/zh/marginTrading/BFIJ3U"
+
+
+def tw_margin_trend(days=60):
+    """一次取回近 N 個交易日的融資餘額／張數、融券張數與市值。
+
+    來源是 TWSE 臺股儀表板（`/dashboard/zh/credit/margin.html`）背後的端點，2026-09-24 接入。
+    **`days` 實測被伺服器夾在 60**：要 90 或 400 都只回 60 筆，所以這裡不假設拿得到更多，
+    也不要把 need 調到 60 以上。
+
+    單位：`marginAmt` 仟元 → `bal` 十億元（與 `_margin_on()` 同一把尺）；
+    `marketValue` 億元。回傳依日期遞增。
+    """
+    j = http_get(f"{MARGN_TREND}?response=json&date={TODAY.strftime('%Y%m%d')}&days={days}",
+                 ua=UA_BROWSER).json()
+    if j.get("stat") != "OK":
+        raise RuntimeError(f"MI_MARGN_TREND stat={j.get('stat')}")
+    out = []
+    for r in j.get("data", []):
+        try:
+            d = str(r["date"])
+            out.append({"d": f"{d[:4]}-{d[4:6]}-{d[6:]}",
+                        "bal": round(float(r["marginAmt"]) / 1e6, 1),
+                        "mshr": float(r["marginShr"]),
+                        "sshr": float(r["shortShr"]),
+                        "mktval": float(r["marketValue"])})
+        except (KeyError, TypeError, ValueError):
+            continue          # 單日壞掉就跳過那一天，不要讓整批失敗
+    out.sort(key=lambda x: x["d"])
+    if not out:
+        raise RuntimeError("MI_MARGN_TREND: 解析後是空的")
+    return out
+
+
+def tw_credit_risk():
+    """整體融資維持率與追繳／處分戶數（TWSE BFIJ3U）。
+
+    **這支只保留約一個月**——2026-09-24 實測 09-08 之後可得、07-01 已無資料，
+    而且沒有可往回撈的參數。所以它跟 `margin_hist` 當初的處境不同：那條可以回補，
+    這條只能每天存一筆自己長。錨點因此**不是統計分位數而是制度常數**
+    （130% 追繳線、166% 市場慣用警戒線），見 brief §4.6。
+    """
+    for back in range(0, 10):
+        d = (TODAY - dt.timedelta(days=back)).strftime("%Y%m%d")
+        try:
+            j = http_get(f"{BFIJ3U}?response=json&date={d}", ua=UA_BROWSER).json()
+        except Exception:
+            continue
+        if j.get("stat") != "OK":
+            continue
+        try:
+            return (f"{d[:4]}-{d[4:6]}-{d[6:]}",
+                    float(j["keepRate"]),
+                    int(j.get("callAccNum") or 0),
+                    int(j.get("exeAccNum") or 0),
+                    int(j.get("belowAccNum") or 0))
+        except (KeyError, TypeError, ValueError):
+            continue
+    raise RuntimeError("BFIJ3U: 10 天內沒有可用資料")
+
+
+def tw_credit_turnover():
+    """信用交易占成交總值比重（%）——**直接取證交所公布的月頻官方值，不自己推導**。
+
+    2026-09-24 實測：用 BFIJ3U 的 `crdAmt` 除以 FMTQIK 的當日成交金額，得到的是 13.3%，
+    而證交所自己公布的 2026/08 是 6.09%——兩者差一倍，官方口徑應含雙邊計算。
+    自己算會在頁面上印出一個跟來源打架的數字，所以這一項刻意放棄日頻、改讀官方月值。
+    同一支端點也提供 2000 年以來的年度序列，是 §4.6 這兩根錨點的唯一校準來源。
+    """
+    j = http_get(f"{MARGN_HISTORY}?response=json", ua=UA_BROWSER).json()
+    if j.get("stat") != "OK":
+        raise RuntimeError(f"MI_MARGN_HISTORY stat={j.get('stat')}")
+    rows = [r for r in j.get("data", []) if r.get("creditRatio") is not None]
+    if not rows:
+        raise RuntimeError("MI_MARGN_HISTORY: 沒有 creditRatio")
+    last = rows[-1]
+    pe = str(last.get("periodEnd") or "")
+    asof = f"{pe[:4]}-{pe[4:6]}" if len(pe) >= 6 else str(last.get("year") or TODAY.year)
+    return asof, float(last["creditRatio"]), float(last.get("marginRatio") or 0), rows
+
+
 def backfill_margin_hist(hist, need=21, max_back=45):
     """把 margin_hist 往回補到至少 need 筆。
 
@@ -422,6 +505,21 @@ def backfill_margin_hist(hist, need=21, max_back=45):
     if len(hist) >= need:
         return 0
     have = {h["d"] for h in hist}
+
+    # v2.3.0（2026-09-24）：先試 MI_MARGN_TREND——一次呼叫拿 60 個交易日，
+    # 取代原本最多 45 次的逐日迴圈。逐日那條留著當備援：TREND 是儀表板端點，
+    # 比 MI_MARGN 新，壞掉的機率不見得比較低，而舊路徑已經驗證過兩年。
+    try:
+        rows = tw_margin_trend()
+        added = [{"d": r["d"], "bal": r["bal"]} for r in rows if r["d"] not in have]
+        if added:
+            hist.extend(added)
+            hist.sort(key=lambda h: h["d"])
+            log(f"[margin] TREND 一次回補 {len(added)} 筆")
+            return len(added)
+    except Exception as e:
+        log(f"[margin] TREND 回補失敗（改走逐日備援）：{e}")
+
     added = []
     for back in range(1, max_back + 1):
         if len(hist) + len(added) >= need + 4:      # 多補幾筆當緩衝，不無限往回抓
@@ -1092,6 +1190,10 @@ def main():
         "elec_rel":    ("TWSE 官方指數 MI_INDEX", "https://openapi.twse.com.tw/v1/exchangeReport/MI_INDEX"),
         "tw_margin":   ("TWSE 信用交易統計 MI_MARGN", "https://www.twse.com.tw/rwd/zh/marginTrading/MI_MARGN"),
         "tw_daytrade": ("TWSE 當日沖銷交易統計 TWTB4U", "https://www.twse.com.tw/rwd/zh/dayTrading/TWTB4U"),
+        "margin_mktcap":  ("TWSE 臺股儀表板 MI_MARGN_TREND", "https://www.twse.com.tw/dashboard/zh/credit/margin.html"),
+        "short_ratio":    ("TWSE 臺股儀表板 MI_MARGN_TREND", "https://www.twse.com.tw/dashboard/zh/credit/margin.html"),
+        "margin_keeprate":("TWSE 整體信用交易 BFIJ3U", "https://www.twse.com.tw/dashboard/zh/credit/margin.html"),
+        "credit_turnover":("TWSE 集中市場歷史概況 MI_MARGN_HISTORY", "https://www.twse.com.tw/dashboard/zh/credit/margin.html"),
         "tsmc_weight": ("TAIFEX 官方（每月人工更新）", "https://www.taifex.com.tw/cht/9/futuresQADetail"),
     }
     # 無條件套用，不放在 tupd 裡：tsmc_weight 是人工項、永遠不經過 tupd，
@@ -1209,6 +1311,59 @@ def main():
              pw(r, [[20, 0], [30, 30], [40, 60], [48, 85], [55, 100]]), dd)
     attempt("TW 當沖比重", f_twdaytrade)
 
+    # ---- v2.3.0（2026-09-24）證交所臺股儀表板端點帶進來的四項 ----
+    # 這四項全部落在台灣區塊，**不進三層、不影響 composite，也不動質化 28.9% 那個數字**。
+    def f_twmarginlevel():
+        """融資餘額占市值比重（日頻）＋券資比（日頻）。
+
+        錨點刻意**不用** 2000 年以來的全區間：融資占市值從 2000 年的 2.31% 單向衰減到
+        2025 年的 0.36%，那是法人化／ETF 化／借券取代融券的結構性變化，不是泡沫程度
+        降了六倍。拿全區間當尺，今天會永遠打個位數、指標從此不會動——一根看起來活著的
+        死指標比沒有更糟。所以用 2018 年以來的實際區間（0.36–0.54）訂錨，
+        2000 年那個數字只寫進 note 當對照。與 tw_daytrade 同一類：**錨點會漂，要定期回頭校準**。
+        """
+        rows = tw_margin_trend()
+        r = rows[-1]
+        # bal 十億元 → 億元 = bal*10；mktval 億元。實測 0.385% vs 官方月值 0.38%，對得上。
+        ratio = r["bal"] * 1000 / r["mktval"]
+        tupd("margin_mktcap", round(ratio, 3), f"{ratio:.2f}%（對照 2000 年 2.31%）",
+             pw(ratio, [[0.30, 0], [0.42, 33], [0.55, 67], [0.80, 100]]), r["d"])
+        if r["mshr"]:
+            sr = r["sshr"] / r["mshr"] * 100
+            # 取負：沒人放空＝一面倒看多＝熱。**這根的錨點信心最低**——BFIJ3U 與 TREND
+            # 都只給得出 60 個交易日，沒有長序列可校準，目前這組是依台股券資比長期
+            # 落在 1–8% 的認知訂的，屬待校準（brief §4.6 有標）。
+            tupd("short_ratio", round(sr, 2), f"{sr:.2f}%（融券張數／融資張數）",
+                 pw(-sr, [[-8, 0], [-5, 30], [-3, 60], [-1.8, 85], [-1.0, 100]]), r["d"])
+    attempt("TW 融資占市值", f_twmarginlevel)
+
+    def f_twkeeprate():
+        """整體融資維持率（取負）＋追繳／處分戶數。
+
+        錨點**不是統計分位數而是制度常數**：130% 是法定追繳線、166% 是市場慣用警戒水準。
+        這是刻意的——BFIJ3U 只保留約一個月，沒有分位數可算，而制度線不會隨年份漂移，
+        比一個用 12 天樣本估出來的分位數誠實得多。
+        維持率越低＝融資部位越脆弱＝越接近強制去槓桿，所以取負後餵錨點。
+        """
+        d, keep, call_n, exe_n, below_n = tw_credit_risk()
+        hist = tw.setdefault("keeprate_hist", [])
+        if not hist or hist[-1]["d"] != d:
+            hist.append({"d": d, "k": keep, "call": call_n, "exe": exe_n})
+        tw["keeprate_hist"] = hist[-250:]
+        tupd("margin_keeprate", round(keep, 2), f"{keep:.1f}%（追繳 {call_n} 戶・處分 {exe_n} 戶）",
+             pw(-keep, [[-210, 0], [-190, 25], [-166, 60], [-150, 85], [-140, 100]]), d,
+             sub=f"低於維持率 {below_n} 戶；130% 為追繳線")
+    attempt("TW 融資維持率", f_twkeeprate)
+
+    def f_twcreditturnover():
+        """信用交易占成交總值比重——官方月頻值，不自己推導（理由見 tw_credit_turnover()）。"""
+        asof, cr, mr, rows = tw_credit_turnover()
+        tw["creditHistory"] = [{"y": r.get("label"), "m": r.get("marginRatio"),
+                                "c": r.get("creditRatio")} for r in rows]
+        tupd("credit_turnover", round(cr, 2), f"{cr:.2f}%（對照 2000 年 40.98%）",
+             pw(cr, [[5.0, 0], [7.0, 33], [9.0, 67], [12.0, 100]]), asof)
+    attempt("TW 信用交易占比", f_twcreditturnover)
+
     def f_twweight():
         v = taifex_tsmc_weight()
         tupd("tsmc_weight", v, f"{v:.2f}%", pw(v, [[30, 20], [38, 50], [45, 80], [52, 100]]))
@@ -1222,14 +1377,19 @@ def main():
 
     subs_def = {"動能": ["tsmc_200dma", "tsmc_52w", "elec_rel", "twii_pos"],
                 "估值": ["tsmc_pe", "odm_pe"],
-                "籌碼": ["tw_margin", "tw_daytrade"],
+                "籌碼": ["tw_margin", "tw_daytrade", "short_ratio"],
+                "槓桿": ["margin_mktcap", "margin_keeprate", "credit_turnover"],
                 "基本面": ["tw_rev", "tw_export"]}
     subs = {}
     for k, ids in subs_def.items():
         ss = [TWI[i]["score"] for i in ids if i in TWI and TWI[i].get("score") is not None]
         subs[k] = round(sum(ss) / len(ss), 1) if ss else None
     tw["subs"] = subs
-    wmap = {"動能": 0.3, "估值": 0.3, "籌碼": 0.2, "基本面": 0.2}
+    # v2.3.0（2026-09-24）由四組改五組。籌碼量的是**行為**（融資變動、當沖、券資比），
+    # 槓桿量的是**水位**（融資占市值、維持率、信用交易占比）——兩者本週就在講相反的故事，
+    # 混在同一組會互相抵消。動能與估值各讓 5pp、籌碼讓 5pp 給新的槓桿組；
+    # 基本面維持 0.2（它是反證錨，不動）。
+    wmap = {"動能": 0.25, "估值": 0.25, "籌碼": 0.15, "槓桿": 0.15, "基本面": 0.2}
     # 寫進 data.json，讓前端讀同一份而不是自己抄一份（原本 index.html 的
     # 「動能30%・估值30%…」是寫死的第二份拷貝，改 wmap 不會動到它）。
     tw["subWeights"] = dict(wmap)

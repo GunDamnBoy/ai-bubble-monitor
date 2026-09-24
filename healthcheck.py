@@ -435,7 +435,9 @@ def check_data(repo):
     # 對帳讀的是引擎原始碼，查不到這一份）。加減子群成員時它也要改——2026-08-17 補
     # tw_daytrade 時就漏改了這一份，引擎一跑就 FAIL 2 條，正是 brief §6「第五處」講的事。
     subs_def = {"動能": ["tsmc_200dma", "tsmc_52w", "elec_rel", "twii_pos"],
-                "估值": ["tsmc_pe", "odm_pe"], "籌碼": ["tw_margin", "tw_daytrade"],
+                "估值": ["tsmc_pe", "odm_pe"],
+                "籌碼": ["tw_margin", "tw_daytrade", "short_ratio"],
+                "槓桿": ["margin_mktcap", "margin_keeprate", "credit_turnover"],
                 "基本面": ["tw_rev", "tw_export"]}
     missing = [i for ids in subs_def.values() for i in ids if i not in TWI]
     if missing:
@@ -451,14 +453,23 @@ def check_data(repo):
         bad("tw.subs 不一致：" + "；".join(sd))
     else:
         ok(f"tw.subs 一致：{subs}")
-    wmap = {"動能": .3, "估值": .3, "籌碼": .2, "基本面": .2}
-    valid = {k: v for k, v in subs.items() if v is not None}
+    # 權重**不在這裡寫死**（v2.3.0 之前這是第五份拷貝，2026-09-24 加「槓桿」子群時
+    # 它是唯一沒被改到的一份，於是 heat 用舊權重重算、報了一個假的不一致）。
+    # 改讀 data.json 的 tw.subWeights——它在下面會與引擎的 wmap 及 brief §4.6 三方對帳，
+    # 所以拿它當基準不是放水，是把唯一真相集中到一處。
+    wmap = {k: float(v) for k, v in (tw.get("subWeights") or {}).items()}
+    valid = {k: v for k, v in subs.items() if v is not None and k in wmap}
+    if not wmap:
+        warn("data.json 缺 tw.subWeights，tw.heat 無法對帳（引擎跑過一次就會有）")
+    missing_w = [k for k in subs if k not in wmap]
+    if wmap and missing_w:
+        bad(f"tw.subWeights 缺少子群 {missing_w}（subs 有、權重表沒有）")
     ws = sum(wmap[k] for k in valid)
-    if not ws:
-        # 四組全 null：分母為 0，heat 算不出來。以前這裡直接跳過，連 heat 一致性
+    if wmap and not ws:
+        # 全部子群都 null：分母為 0，heat 算不出來。以前這裡直接跳過，連 heat 一致性
         # 都不檢查，等於整塊靜默——正是 §4.5 批判過的「抓不到就跳過」。
-        bad("tw.subs 四組全為 null，tw.heat 無法計算（台股資料整批失效？）")
-    if ws:
+        bad("tw.subs 所有子群皆為 null，tw.heat 無法計算（台股資料整批失效？）")
+    if wmap and ws:
         h = round(sum(v * wmap[k] for k, v in valid.items()) / ws, 1)
         if not near(tw.get("heat"), h):
             bad(f"tw.heat 不一致：存 {tw.get('heat')} vs 算 {h}")
@@ -475,7 +486,7 @@ def check_data(repo):
                 g = gone[0]
                 sim = "，屆時約為 " + "／".join(
                     f"{g} {x} 分→heat {round(base + wmap[g] * x, 1)}" for x in (35, 50, 67))
-            warn(f"tw.heat 目前以 {len(valid)}/4 組歸一（分母 {ws:.1f}，缺：{'、'.join(gone)}）"
+            warn(f"tw.heat 目前以 {len(valid)}/{len(wmap)} 組歸一（分母 {ws:.2f}，缺：{'、'.join(gone)}）"
                  f"——補齊那天 heat 會不連續跳動（現值 {tw.get('heat')}）{sim}")
     if "tsmc_weight" in TWI:
         aw = TWI["tsmc_weight"].get("asof")
@@ -714,7 +725,9 @@ def check_brief(repo, d):
             eng_w = {k: float(v) for k, v in ast.literal_eval(msrc.group(1)).items()}
             bw = {}
             for line in txt.split("\n"):
-                m = re.match(r"\|\s*(動能|估值|籌碼|基本面)\s*\|\s*([\d.]+)\s*\|", line)
+                # 不寫死子群名：認的是 §4.6 那張表的**結構**——中文名 ∣ 小數權重 ∣
+                # 以反引號 id 開頭的成員欄。寫死名字的版本在新增子群時會安靜地漏掉那一列。
+                m = re.match(r"\|\s*([一-鿿]+)\s*\|\s*(0\.\d+)\s*\|\s*`\w+`", line)
                 if m:
                     bw[m.group(1)] = float(m.group(2))
             dw = {k: float(v) for k, v in (d.get("tw", {}).get("subWeights") or {}).items()}
@@ -744,7 +757,7 @@ def check_brief(repo, d):
             if eng_m:
                 bm = {}
                 for line in txt.split("\n"):
-                    m = re.match(r"\|\s*(動能|估值|籌碼|基本面)\s*\|\s*[\d.]+\s*\|(.+?)\|", line)
+                    m = re.match(r"\|\s*([一-鿿]+)\s*\|\s*0\.\d+\s*\|(\s*`\w+`.+?)\|", line)
                     if m:
                         bm[m.group(1)] = sorted(re.findall(r"`(\w+)`", m.group(2)))
                 if bm != eng_m:

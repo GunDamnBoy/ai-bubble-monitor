@@ -2,7 +2,7 @@
 
 > 這份是**現在的規格與判斷規則**，是本系統的唯一真相來源。
 > 每週質化覆核排程每次執行前完整讀一次。事故經過與被否決的選項寫在 `MAINTENANCE.md` 第 6 節，不要寫進這裡。
-> 版本：**v2.2.10（三層頻率架構）**｜最後修訂 2026-08-31
+> 版本：**v2.3.1（三層頻率架構）**｜最後修訂 2026-09-28
 
 ---
 
@@ -368,7 +368,7 @@ support = 100 − L3             ← 基本面還有多少支撐（L3 越高＝�
 
 `.github/workflows/update.yml`
 
-- 排程 `cron: '30 22 * * 1-5'`（UTC）＝ **台北 06:30 週二～週六**（美股收盤後）。另有 `workflow_dispatch` 手動觸發，以及 `push` 到 `main`（`paths-ignore: ['data.json', 'backtest/**']`）——推程式碼會跑一次，推資料或回測產出不會，避免自我觸發迴圈。
+- 排程 `cron: '30 22 * * 1-5'`（UTC）＝ **台北 06:30 週二～週六**（美股收盤後）。另有 `workflow_dispatch` 手動觸發，以及 `push` 到 `main`（`paths-ignore: ['data.json', 'backtest/**']`）——推程式碼會跑一次，只推 `data.json` 或回測產出不會，避免自我觸發迴圈。**但每週覆核的發布會觸發它**：`auto_publish.py` 每次都把 `index-<日期>.html` 一起套成 `index.html` 推上去，而 `index.html` 不在 `paths-ignore` 裡，所以覆核上線後約 1 分鐘 Actions 就會跑一輪（見 §8.3「覆核與當日自動更新的先後」）。
 - `permissions: contents: write, pages: write`
 - 步驟：checkout → Python 3.12 → `pip install "requests==2.34.2" "yfinance==1.6.0"`（**釘版本**，免得上游改版在無人看管的排程裡炸掉）→ 跑更新 → `scripts/gate.py`（擋發布）→ `healthcheck.py --repo .`（report only，寫進 step summary）→ commit **`data.json` 與 `index.html`**（後者因 `refresh_fallback_snapshot()` 可能被重灌）→ **明確要求 Pages 重建**
 - **最後一步不可刪**：
@@ -385,7 +385,18 @@ support = 100 − L3             ← 基本面還有多少支撐（L3 越高＝�
 
 ## 8. 每週質化覆核（人機分工）
 
-排程任務 `bubble-weekly-0900`（舊名「AI 泡沫監控：每週質化覆核與發布（v2）」），cron `0 9 * * 1`＝ **台北每週一 09:00**，開啟推播。**跑在 Mac 本機、建立時要夾帶資料夾**——沒夾帶就會被當成雲端任務丟進容器，而容器拿不到 `~/outbox`，草稿永遠送不到發布器。prompt 正本在 repo 的 `skills/bubble/SKILL.md`，排程裡那份是副本。
+排程任務「**Bubble weekly 0900**」（舊 id `bubble-weekly-0900`），cron `CRON_TZ=Asia/Taipei 0 9 * * 1`＝ **台北每週一 09:00**，開啟推播。
+
+**它是雲端排程任務，夾帶了資料夾 `/Users/macmini/outbox`**（2026-09-24 重建；2026-09-28 由排程 API 查證）。所以這一輪跑在**雲端容器**裡，而不是 Mac 本機：
+
+| 在哪 | 做什麼 | 用什麼 |
+|---|---|---|
+| 雲端容器（`Bash`） | clone、研究、改 `data.json`、跑 `healthcheck.py` | `/tmp/bubble-<日期>` |
+| 使用者的 Mac（經夾帶的資料夾） | 把兩個草稿寫進 `/Users/macmini/outbox/bubble/`、讀回執 | `mcp__remote-devices__device_commit_files`（寫）、`device_bash`（讀，路徑 `$HOME/mnt/outbox/bubble/`） |
+
+**容器自己的 `~/outbox` 不是 Mac 的 `~/outbox`。** 寫進前者，`wc -c` 照樣通過，但發布器永遠看不到——回執不會來、`publish.log` 不會動，形狀跟 2026-08-17 那次「摘要正常、網站沒更新」一模一樣。**唯一通往發布器的路是夾帶資料夾＋`device_commit_files`**；排程沒夾帶資料夾（或 Mac 的桌面 app 離線）時，`mcp__remote-devices__*` 不會出現，那一輪就交不出去：照樣做完研究與收尾，用 `SendUserFile` 把兩個檔送進對話當退路，並在推播開頭直接警示，而不是寫進容器了事。
+
+prompt 正本在 `~/kb-core/skills/bubble/SKILL.md`（不在本 repo），排程裡那份是副本。
 
 ### 8.1 機器負責（GitHub Actions，每交易日）
 
@@ -401,26 +412,26 @@ L1 除 `narrative` 外全部、L2 除三項質化外全部、L3 除 `cloudrev`�
 
 **`stage` 算改完的條件**：六項的 `state` 與 `evi` 都重新看過一次（沒有新證據就明講維持原判，`evi` 不必重寫）；`stage.note` 的「點亮 X／6」等於六項 `state` 的實算和（**半格算 0.5**）；`current`、`label`、`stages[]` 的 `active`／`done` 三者互相對得上，也對得上點亮數。三項全過才算完成。機器只檢查得到其中一部分：`healthcheck.py` 會驗「點亮 X／6」這句與實算相符，也會驗 `stages` 剛好四階、剛好一階 `active`、`int(current)` 等於 active 的 `n`、`done` 只在 `n <` active 時為真。**沒有機器看得到的是 `evi` 的內容與 `label` 的文字**——那兩樣只能靠你自己重讀一次。
 
-**改 `params` 不會立刻反映在頁面上。** `params.nvda_eps` 要等下一次引擎跑 `nvdape` 才會換算成新的本益比；`params.ngdp_nominal`／`megaipo_done` 要等下一次引擎重評 `triggers` 才會改變點亮狀態——而 `triggers` 不在 §8.3 的白名單裡，所以覆核當下**讓 `triggers` 保持引擎寫入的樣子**——為了讓畫面一致而手改 `state`，就是在製造假資料。正確做法是改完 `params` 就放著，在摘要裡註明「已更新 `params.X`，將於下一個交易日的自動更新生效」。唯一的例外是 `megaipo_done`：它同時要在 `stage.checklist` 反映，而 `stage` 本來就是人維護的。
+**改 `params` 不會立刻反映在頁面上。** `params.nvda_eps` 要等下一次引擎跑 `nvdape` 才會換算成新的本益比；`params.ngdp_nominal`／`megaipo_done` 要等下一次引擎重評 `triggers` 才會改變點亮狀態——而 `triggers` 不在 §8.3 的白名單裡，所以覆核當下**讓 `triggers` 保持引擎寫入的樣子**——為了讓畫面一致而手改 `state`，就是在製造假資料。正確做法是改完 `params` 就放著，在摘要裡註明「已更新 `params.X`，發布後觸發的自動更新會套用」——覆核上線約 1 分鐘後 push 觸發的 Actions 就會重評（§8.3「覆核與當日自動更新的先後」），不必等下一個交易日。唯一的例外是 `megaipo_done`：它同時要在 `stage.checklist` 反映，而 `stage` 本來就是人維護的。
 
-**上週的基準從哪裡來。** `history` 每筆存 `date`、`composite`、三個層分數、`quad` 與 `trig`（2026-08-10 起）——**沒有 `regime`**。所以：上週 `composite` 看 `history` 倒數第二筆；上週 `regime` 要拿倒數第二筆的 `quad`（`[support, heat]`）自己套 §3.3 的規則反推；觸發器點亮數在 2026-08-10 之後的筆直接讀 `trig`，更早的筆沒有這個欄位，只能在**動手前**先把當下的 `triggers` 記下來當基準（排程流程第 1 步就是為此存在）。改完再回頭數，差額才是「本週新點亮」。
+**上週的基準從哪裡來。** `history` 每筆存 `date`、`composite`、三個層分數、`quad` 與 `trig`（2026-08-10 起）——**沒有 `regime`**。**`history` 每個交易日都有一筆，所以「倒數第二筆」是前一個交易日、不是上週**（2026-09-28 查證：倒數第二筆是 09-26，上次覆核是 09-21）。拿它比，「溫度週變動 ≥5」與「觸發器新點亮」量到的都只是一兩天的變化，而在門檻附近閃爍的觸發器（例如 `gsy150`）會讓警示隨機亮滅。所以**基準一律取「日期 ≤ 今天−7 的最後一筆」**（即上一次週一覆核那天，當天若被自動更新同日去重覆寫過，就是那一筆）：上週 `composite` 讀它；上週 `regime` 拿它的 `quad`（`[support, heat]`）自己套 §3.3 的規則反推；觸發器點亮數在 2026-08-10 之後的筆直接讀 `trig`，更早的筆沒有這個欄位，只能在**動手前**先把當下的 `triggers` 記下來當基準（排程流程第 1 步就是為此存在）。改完再回頭數，差額才是「本週新點亮」。**「新點亮」的定義**：某項觸發器在基準那一筆時未亮、現在亮——這一週中間亮了又滅又亮的，只要基準時就亮著就不算新點亮，照樣在摘要裡寫一句它在門檻附近閃爍即可。
 
 ### 8.3 覆核只動 §8.2 那張清單
 
-> **人這一輪要碰的欄位，就是這兩份的聯集**：§8.2 那張清單（六項質化分數、`params`、`tsmc_weight`、`stage` 整塊），加上 §8.4 收尾七步會寫到的每一個欄位（`zone`、`dims`、`composite`、`quadrant`、`tw.subs`／`tw.heat`、`history` 附加一筆、`meta.built`／`meta.builtTime`）。
+> **人這一輪要碰的欄位，就是這兩份的聯集**：§8.2 那張清單（六項質化分數、`params`、`tsmc_weight`、`stage` 整塊），加上 §8.4 收尾八步會寫到的每一個欄位（`zone`、`dims`、`composite`、`quadrant`、`tw.subs`／`tw.heat`、`history` 附加一筆、`fresh`、`meta.built`／`meta.builtTime`）。
 > **這兩份以外的一律沿用引擎寫入的值**——`events`、`triggers`，以及 §8.1 所有自動指標的 `value`／`score`／`asof`。這是硬護欄：即興重抓它們，拿到的是空值或殘值，然後蓋掉每日管線的好資料。
 
-**這條禁令的理由不是「連不到網路」。** 覆核自 2026-08-23 起跑在 Mac 本機（見下方「發布」），FRED／Stooq／SEC EDGAR／TAIFEX **確實連得到**——本機甚至跑得動 `update_data.py` 本身。**能連得到，不代表該由你去連。**
+**這條禁令的理由不是「連不到網路」。** 覆核的執行環境換過兩次（雲端 → 2026-08-23 Mac 本機 → 2026-09-24 回到雲端＋夾帶資料夾），每一次網路能力都不一樣，**而禁令一次都沒變過**——所以它的理由不能掛在任何一個環境的網路描述上。2026-09-28 那輪的雲端容器實測連得到外網（WebSearch／WebFetch 都通）。**能連得到，不代表該由你去連。**
 
 真正的理由是：**一次即興抓取不是引擎那條管線。** 引擎帶重試、帶三層備援、帶 `attempt()` 降級；覆核手上的是一次性的 `curl` 或 `WebFetch`。兩者拿到的東西在 `data.json` 裡長得一模一樣，而**硬抓的結果是空值或殘值蓋掉好的舊值**，要等下一個交易日引擎跑完才會被改回來——中間那段時間網站上是錯的，而沒有任何東西會叫。
 
-> **這一段在 2026-08-23 之前寫的是雲端容器的網路限制**（「Bash 只通得到 github.com」「連 `gundamnboy.github.io` 都不通」）。覆核搬到本機之後那些描述每一條都不再成立，而**禁令本身仍然要留**——留錯理由比沒有理由更糟：下一輪只要實測發現連得到，就會把整條禁令一起丟掉。
+> **這一段在 2026-08-23 之前寫的是雲端容器的網路限制**（「Bash 只通得到 github.com」「連 `gundamnboy.github.io` 都不通」），之後又改寫成「本機連得到」。兩種描述都曾經為真、也都過期了，而**禁令本身仍然要留**——留錯理由比沒有理由更糟：下一輪只要實測發現連得到，就會把整條禁令一起丟掉。
 
 #### 發布：寫進 outbox，launchd 接手（v2.2.9 起，2026-08-23）
 
 **覆核的工作是把檔案放到那個目錄，不是把它送上線。**
 
-覆核把兩個檔寫進 `~/outbox/bubble/`，60 秒內由 launchd 自動發布，不需要人動手：
+覆核把兩個檔寫進 **Mac 的** `~/outbox/bubble/`（從雲端容器經 `device_commit_files` 寫入，見 §8 開頭），60 秒內由 launchd 自動發布，不需要人動手：
 
 ```
 ~/outbox/bubble/data-<日期>.json      ← /tmp clone 的 data.json
@@ -433,7 +444,7 @@ L1 除 `narrative` 外全部、L2 除三項質化外全部、L3 除 `cloudrev`�
 
 **`healthcheck.py` 是真的閘門，不是提醒。** 任何 FAIL 都會擋住發布（`auto_publish.py` 的 gate／healthcheck 迴圈，不過就 `return 5`、草稿改名 `.parked`）。所以 §8.4 的「FAIL 必須是 0」沒有例外——**包含 `fresh`**。改了 `asof` 就用引擎自己的 `set_fresh()` 重算，不要手改 `data.json` 的 `fresh`、也不要把 `asof` 蓋成今天去消音。
 
-> 2026-08-23 之前這裡寫著「`fresh` 的 FAIL 可以照常交付」。那條例外是雲端時代留下的——當時沒有閘門，交付訊息照樣送到人手上，所以「可以照常交付」是真的。**搬到本機之後閘門變成真的，那條例外就變成一個讀起來合理、做下去必定被 park 的指令。** 2026-08-23 那輪的第一次投遞就是這樣在 15:01 被 park（回執 exit 5）。
+> 2026-08-23 之前這裡寫著「`fresh` 的 FAIL 可以照常交付」。那條例外是人工發布年代留下的——當時交付後由人手動推送、沒有自動閘門，交付訊息照樣送到人手上，所以「可以照常交付」是真的。**改成 `auto_publish.py` 自動發布之後閘門變成真的（不論覆核跑在雲端或本機，閘門都在 Mac 上），那條例外就變成一個讀起來合理、做下去必定被 park 的指令。** 2026-08-23 那輪的第一次投遞就是這樣在 15:01 被 park（回執 exit 5）。
 
 **形狀比照另外四套 kbpublish，但跑的不是 kb-core 的 `tools/publish.py`。** 那支的核心是不可改寫守衛（`data/<date>.json` 已發布就不覆寫），而本專案的 `data.json` 每個交易日都被 Actions 覆寫，語意相反。**共用的是紀律不是程式碼。**
 
@@ -456,18 +467,20 @@ L1 除 `narrative` 外全部、L2 除三項質化外全部、L3 除 `cloudrev`�
 
 ##### 兩條路：資料走 outbox，程式與文件走 patch
 
-- **只改 `data.json` 的覆核走 outbox 那條**（上面那兩個檔）。
+- **只改 `data.json` 的覆核走 outbox 那條**（上面那兩個檔，經 `device_commit_files` 寫入 `/Users/macmini/outbox/bubble/`）。
 - **動到程式或文件的維護改動交 `.patch`**：在 `/tmp` 的 clone 內 commit（身分 `GunDamnBoy` / `haonung.chiang@gmail.com`），`git format-patch -1 --stdout` 產出，使用者 `git pull --rebase` 之後 `git am` 再推送。`auto_publish.py` 不認 patch，放進 outbox 不會有人理它。
 
-**覆核不要自己 `git push`。** 在 Mac 上你**推得動**——但兩道閘門（`gate.py` 與 `healthcheck.py`）在 `auto_publish.py` 裡，繞過它就是繞過閘門。**不索取、不使用、不顯示任何 token**（原本存放於排程 prompt 的 PAT 已於 2026-08-10 移除並應撤銷）。
+**覆核不要自己 `git push`。** 雲端容器本來就推不動（見下方引文）；就算哪天換回本機推得動，兩道閘門（`gate.py` 與 `healthcheck.py`）在 `auto_publish.py` 裡，繞過它就是繞過閘門。**不索取、不使用、不顯示任何 token**（原本存放於排程 prompt 的 PAT 已於 2026-08-10 移除並應撤銷）。
 
-> **雲端工作階段（若還有）仍然推不動這個 repo**：2026-07 起平台的 git proxy 擋掉授權清單外的推送，回 403「not in this session's authorized repository set」，自備 PAT 也無效（上游回報 anthropics/claude-code#76248，未修）。這不是故障，不要重試、不要找繞路。
+> **雲端工作階段（每週覆核自 2026-09-24 起就是）推不動這個 repo**：2026-07 起平台的 git proxy 擋掉授權清單外的推送，回 403「not in this session's authorized repository set」，自備 PAT 也無效（上游回報 anthropics/claude-code#76248，未修）。這不是故障，不要重試、不要找繞路。
 
 `bubble-publish`（zsh 函數，正本 `~/.bubble-publish.zsh`）保留為**手動覆寫**，抓 `~/Downloads` 的草稿。clone 在 `~/Projects/ai-bubble-monitor`，**刻意在 iCloud 之外**——iCloud 會同步 `.git` 底下的檔案，「最佳化儲存空間」會把物件抽成佔位符。**那個工作區歸發布器所有**（每 60 秒在裡面做 git 操作），覆核與維護一律在 `/tmp` 的複本上做；在別人的工作區裡改東西，症狀會出現在發布那一邊。
 
 ##### 覆核與當日自動更新的先後
 
-排程在台北週一 09:00，Actions 的 cron 是 `30 22 * * 1-5`（UTC）。**同一天稍後的自動更新會接手覆核的成果**：同日 `history` 去重，`meta.builtTime` 會由「每週質化覆核」被改寫成「GitHub Actions 自動更新」，改過的 `params` 也會在那一輪生效。這是設計，不是覆蓋事故——質化分數與 `stage` 都在引擎不碰的欄位裡。但**推播摘要引用的讀數會在幾十分鐘內過時**，摘要裡不要寫「將於下一個交易日生效」這種話。
+**接手的不是 cron，是 push 觸發。** Actions 的 cron `30 22 * * 1-5`（UTC）＝台北週二～週六 06:30，週一當天不會跑；但發布器推上去的 commit 含 `index.html`，會觸發 `update.yml` 的 `push` 事件，**覆核上線約 1 分鐘後 Actions 就跑一輪**（2026-09-28 實測：覆核 commit e449341 於 09:05 推上，自動更新 92976ae 於 09:07 落地）。那一輪會：同日 `history` 去重（覆核寫的那筆被引擎重算的同日筆取代，質化分數沿用）、`meta.builtTime` 改回「GitHub Actions 自動更新」、重評 `triggers`、套用改過的 `params`，自動指標也換成當下的新值。這是設計，不是覆蓋事故——質化分數與 `stage` 都在引擎不碰的欄位裡。
+
+**後果是推播摘要的讀數幾分鐘內就過時**（09-28 那次推播寫 composite 60.8、觸發器 1，兩分鐘後線上是 61.0、觸發器 2）。所以摘要裡的 `composite`／`regime`／觸發器點亮數要**標明是覆核當下、自動更新前的讀數**，並加一句「發布後約 1 分鐘的自動更新可能再動一兩分」；不要寫「將於下一個交易日生效」。
 
 **發布後的線上驗證不由覆核排程做**（它寫完檔、讀完回執就結束）。維護工作階段代使用者驗證時用 WebFetch 抓 `data.json` 回報 `meta.built`／`composite`／`quadrant.regime`——注意**沒有任何已驗證有效的 cache-buster**（`?t=` 與多斜線都實測無效），且**同一個工作階段內同一個 URL 一小時抓不了第二次**（擋在抓取工具，不是 Pages）；完整對策與「換檔名」技巧見 `MAINTENANCE.md` §4 與 §6.10；`raw.githubusercontent.com` 只證明 commit 進去了，證明不了 Pages 已重建。
 
@@ -477,7 +490,7 @@ L1 除 `narrative` 外全部、L2 除三項質化外全部、L3 除 `cloudrev`�
 
 ### 8.4 覆核收尾一定要做的重算
 
-改完質化分數後用 Python 重算並寫回，順序固定：
+改完質化分數後用 Python 重算並寫回，順序固定，共八步：
 
 1. 被改動指標的 `zone`（依 §3.4 的 `<33 / 33–67 / 67–84 / ≥84` 界，分數改了燈號沒改就是不一致，`healthcheck.py` 會抓）
 2. 層分數 `dims`（該層非 null 指標等權平均）
@@ -485,9 +498,10 @@ L1 除 `narrative` 外全部、L2 除三項質化外全部、L3 除 `cloudrev`�
 4. `quadrant` 的 `heat`／`support`／`regime`
 5. `tw.subs`／`tw.heat`（null 子群剔除後重新歸一）
 6. `history` 附加一筆（同日去重，含 `quad` 與 `trig`＝觸發器點亮數）
-7. **`meta.built` 改成今天、`meta.builtTime` 改成 `YYYY-MM-DD（每週質化覆核）`**
+7. **`fresh`**（改過 `asof` 的指標才需要）：用引擎自己的 `set_fresh()`（`scripts/update_data.py` 的 `def set_fresh`），不要手改
+8. **`meta.built` 改成今天、`meta.builtTime` 改成 `YYYY-MM-DD（每週質化覆核）`**
 
-第 7 步不能省。`healthcheck.py` 硬性要求 `history` 最後一筆的日期等於 `meta.built`；覆核在週一附加一筆今天的 `history`，而 `meta.built` 還停在上週五自動更新的日期，就會直接 FAIL 卡住交付。
+第 8 步不能省。`healthcheck.py` 硬性要求 `history` 最後一筆的日期等於 `meta.built`；覆核在週一附加一筆今天的 `history`，而 `meta.built` 還停在上週五自動更新的日期，就會直接 FAIL 卡住交付。
 
 **但 `meta.lastAutoRun` 絕對不要動。** 它描述的是「最後一次**自動**更新」的成敗，人工覆核不是自動更新；改了會讓 `AAII` 這類已知失效來源的追蹤斷掉。
 
@@ -495,11 +509,11 @@ L1 除 `narrative` 外全部、L2 除三項質化外全部、L3 除 `cloudrev`�
 
 **只改指標分數而不重算，頁面會顯示彼此矛盾的數字。** 收尾跑一次 `healthcheck.py`，它會把上面每一項重算後與存檔比對，**FAIL 必須是 0 才可以交付**。
 
-交付流程見 §8.3「發布」：把 `data-YYYY-MM-DD.json` 與 `index-YYYY-MM-DD.html`（內嵌快照的 `history` 裁到最後 60 筆，見 `INTERNALS.md` §6 的快照段）寫進 `~/outbox/bubble/`，然後**等回執**。`auto_publish.py` 自己 commit，訊息格式在它裡面，覆核不必也不該自己 commit。**不使用、不索取任何 token。**
+交付流程見 §8.3「發布」：把 `data-YYYY-MM-DD.json` 與 `index-YYYY-MM-DD.html`（內嵌快照的 `history` 裁到最後 60 筆，見 `INTERNALS.md` §6 的快照段）經 `device_commit_files` 寫進 Mac 的 `/Users/macmini/outbox/bubble/`，然後用 `device_bash` **等回執**。`auto_publish.py` 自己 commit，訊息格式在它裡面，覆核不必也不該自己 commit。**不使用、不索取任何 token。**
 
-推播摘要格式：綜合溫度與上週比較、`regime` 變化、觸發器點亮數變化、跨區指標、檢查清單變化、本週焦點 2–3 條、網站連結，**末行寫發布狀態**——回執 `exit 0` 就寫「已上線」並附 commit。
+推播摘要格式：綜合溫度與上週比較、`regime` 變化、觸發器點亮數變化、跨區指標、檢查清單變化、本週焦點 2–3 條、網站連結（讀數標明是自動更新前的，見 §8.3），**末行寫發布狀態**——回執 `exit 0` 就寫「已上線」並附 commit。
 
-開頭標「⚠ 警示」的條件分兩類。**資料面**：溫度週變動 ≥5、任一指標轉紅、或觸發器新點亮。**流程面**：`healthcheck.py` 的 FAIL 不是 0（收尾卡住），或**沒有回執**。
+開頭標「⚠ 警示」的條件分兩類。**資料面**（一律對「日期 ≤ 今天−7 的最後一筆」比，見 §8.2）：溫度週變動 ≥5、任一指標轉紅、或觸發器新點亮。**流程面**：`healthcheck.py` 的 FAIL 不是 0（收尾卡住）、**沒有回執**，或這一輪沒有 `mcp__remote-devices__*` 工具（排程沒夾帶資料夾或裝置離線，草稿交不出去）。
 
 > 舊版寫「『還沒發布』是流程常態，不算警示」——那在人工下載＋手動執行的年代是對的。**改成 60 秒自動發布之後，沒有回執已經不是常態而是異常訊號**，該去看 `.heartbeat` 與 `publish.log`（§8.3）。
 

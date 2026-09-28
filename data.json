@@ -2,11 +2,11 @@
  "meta": {
   "version": 2,
   "built": "2026-09-28",
-  "builtTime": "2026-09-28（每週質化覆核）",
+  "builtTime": "2026-09-28（GitHub Actions 自動更新）",
   "nextUpdate": "每交易日自動更新（GitHub Actions）｜質化指標每週覆核｜v2 三層架構",
   "artifactId": "ai-bubble-monitor",
   "lastAutoRun": {
-   "date": "2026-09-26",
+   "date": "2026-09-28",
    "ok": [
     "px SOXX",
     "px SPY",
@@ -52,48 +52,48 @@
    "streak": {
     "AAII": 0,
     "TW 台積電權重": 0,
-    "px SOXX": 11,
-    "px SPY": 65,
-    "px NVDA": 65,
-    "px 2330": 65,
-    "calc GSY": 11,
-    "calc soxmom": 11,
-    "calc nvdape": 65,
-    "multpl CAPE": 65,
-    "slickcharts Mag7": 65,
-    "CBOE putcall": 65,
-    "FRED VIX": 65,
-    "CNN FearGreed": 57,
-    "calc senti": 65,
-    "FRED HY": 65,
-    "FRED CCC": 65,
-    "ORCL bond": 21,
-    "FRED IG": 65,
-    "FRED FEDFUNDS 磚塊": 65,
-    "FRED USINFO 磚塊": 65,
-    "EDGAR RPO": 65,
-    "EDGAR quarterly": 65,
-    "TW 月營收": 11,
-    "TW 官方PE": 11,
-    "calc TW 2330": 65,
-    "TW 電子指數": 65,
-    "TW 融資餘額": 65,
-    "TW 當沖比重": 11,
-    "TW 融資占市值": 3,
-    "TW 融資維持率": 3,
-    "TW 信用交易占比": 3,
-    "TW 海關出口": 19,
-    "FRED CPI": 65,
-    "FRED FEDFUNDS": 65,
-    "FRED DGS10": 65,
-    "FRED Sahm": 40,
-    "Google News": 65
+    "px SOXX": 12,
+    "px SPY": 66,
+    "px NVDA": 66,
+    "px 2330": 66,
+    "calc GSY": 12,
+    "calc soxmom": 12,
+    "calc nvdape": 66,
+    "multpl CAPE": 66,
+    "slickcharts Mag7": 66,
+    "CBOE putcall": 66,
+    "FRED VIX": 66,
+    "CNN FearGreed": 58,
+    "calc senti": 66,
+    "FRED HY": 66,
+    "FRED CCC": 66,
+    "ORCL bond": 22,
+    "FRED IG": 66,
+    "FRED FEDFUNDS 磚塊": 66,
+    "FRED USINFO 磚塊": 66,
+    "EDGAR RPO": 66,
+    "EDGAR quarterly": 66,
+    "TW 月營收": 12,
+    "TW 官方PE": 12,
+    "calc TW 2330": 66,
+    "TW 電子指數": 66,
+    "TW 融資餘額": 66,
+    "TW 當沖比重": 12,
+    "TW 融資占市值": 4,
+    "TW 融資維持率": 4,
+    "TW 信用交易占比": 4,
+    "TW 海關出口": 20,
+    "FRED CPI": 66,
+    "FRED FEDFUNDS": 66,
+    "FRED DGS10": 66,
+    "FRED Sahm": 41,
+    "Google News": 66
    }
   }
  },
- "composite": 60.8,
+ "composite": 61.0,
  "dims": {
-  "L1": 62.1,
+  "L1": 62.5,
   "L2": 73.3,
   "L3": 44.8
  },
@@ -169,7 +169,7 @@
     ]
    ],
    "dir": "越高越熱",
-   "asof": "2026-09-26",
+   "asof": "2026-09-28",
    "fresh": "ok",
    "src": "multpl.com",
    "url": "https://www.multpl.com/shiller-pe",
@@ -203,7 +203,7 @@
     ]
    ],
    "dir": "越高越熱",
-   "asof": "2026-09-26",
+   "asof": "2026-09-28",
    "fresh": "ok",
    "src": "SlickCharts",
    "url": "https://www.slickcharts.com/sp500",
@@ -214,9 +214,9 @@
    "id": "nvdape",
    "dim": "L1",
    "name": "NVIDIA 本益比（即時價÷TTM EPS）",
-   "value": 28.39,
-   "disp": "28.4×",
-   "score": 18.5,
+   "value": 28.45,
+   "disp": "28.5×",
+   "score": 18.6,
    "zone": "green",
    "anchors": [
     [
@@ -237,21 +237,21 @@
     ]
    ],
    "dir": "越高越熱",
-   "asof": "2026-09-24",
+   "asof": "2026-09-25",
    "fresh": "ok",
    "src": "Yahoo/Stooq＋財報 EPS",
    "url": "https://stockanalysis.com/stocks/nvda/",
    "note": "對照 2000 年 Cisco 130×+。龍頭是否仍由盈利支撐的即時檢驗；GS 2026-08 改口「盈利泡沫」後，這裡要與 LTG 預期一起看。",
    "qual": false,
-   "sub": "距200日線 +12.7%"
+   "sub": "距200日線 +12.8%"
   },
   {
    "id": "gsy_runup",
    "dim": "L1",
    "name": "GSY 泡沫判準：24個月漲幅（SOXX）",
-   "value": 149.4,
-   "disp": "+149%（24個月）",
-   "score": 84.7,
+   "value": 156.0,
+   "disp": "+156%（24個月）",
+   "score": 85.9,
    "zone": "red",
    "anchors": [
     [
@@ -276,7 +276,7 @@
     ]
    ],
    "dir": "越高越熱",
-   "asof": "2026-09-24",
+   "asof": "2026-09-25",
    "fresh": "ok",
    "src": "Greenwood-Shleifer (JFE 2019)",
    "url": "https://www.nber.org/papers/w23191",
@@ -288,9 +288,9 @@
    "id": "gsy_accel",
    "dim": "L1",
    "name": "GSY 加速度（當下24月漲幅 − 一年前24月漲幅）",
-   "value": 81.9,
-   "disp": "+82pp",
-   "score": 90.3,
+   "value": 87.4,
+   "disp": "+87pp",
+   "score": 91.1,
    "zone": "red",
    "anchors": [
     [
@@ -315,7 +315,7 @@
     ]
    ],
    "dir": "凸性越強越熱",
-   "asof": "2026-09-24",
+   "asof": "2026-09-25",
    "fresh": "ok",
    "src": "Greenwood-Shleifer (JFE 2019)",
    "url": "https://www.nber.org/papers/w23191",
@@ -328,7 +328,7 @@
    "name": "已實現波動率一年變化（SOXX）",
    "value": 8.5,
    "disp": "+8.5pp（年化 46%）",
-   "score": 78.5,
+   "score": 78.6,
    "zone": "orange",
    "anchors": [
     [
@@ -349,7 +349,7 @@
     ]
    ],
    "dir": "上升越多越熱",
-   "asof": "2026-09-24",
+   "asof": "2026-09-25",
    "fresh": "ok",
    "src": "Greenwood-Shleifer / State Street",
    "url": "https://www.nber.org/papers/w23191",
@@ -360,8 +360,8 @@
    "id": "soxmom",
    "dim": "L1",
    "name": "半導體相對動能（SOXX−SPY，3個月）",
-   "value": -13.9,
-   "disp": "-14pp",
+   "value": -8.7,
+   "disp": "-9pp",
    "score": 0.0,
    "zone": "green",
    "anchors": [
@@ -383,7 +383,7 @@
     ]
    ],
    "dir": "越高越熱",
-   "asof": "2026-09-24",
+   "asof": "2026-09-25",
    "fresh": "ok",
    "src": "Yahoo/Stooq",
    "url": "https://stockanalysis.com/etf/soxx/",
@@ -394,13 +394,13 @@
    "id": "senti",
    "dim": "L1",
    "name": "情緒與投機溫度（合成）",
-   "value": 55.9,
-   "disp": "個股P/C 0.55｜VIX 14.2｜F&G 37",
-   "score": 55.9,
+   "value": 57.8,
+   "disp": "個股P/C 0.52｜VIX 14.2｜F&G 37",
+   "score": 57.8,
    "zone": "yellow",
    "anchors": null,
    "dir": "合成規則（本次：CBOE 個股 Put/Call＋VIX＋CNN F&G）",
-   "asof": "2026-09-26",
+   "asof": "2026-09-28",
    "fresh": "ok",
    "src": "CBOE 個股 Put/Call / VIX / CNN F&G",
    "url": "https://www.cboe.com/us/options/market_statistics/",
@@ -569,7 +569,7 @@
     ]
    ],
    "dir": "越高越熱",
-   "asof": "2026-09-26",
+   "asof": "2026-09-28",
    "fresh": "ok",
    "src": "Public.com 債券報價",
    "url": "https://public.com/bonds/corporate/oracle-corp/orcl-4.375-05-15-2055-68389xbg9",
@@ -1936,7 +1936,7 @@
    },
    "orclbond": {
     "now": 7.87,
-    "asof": "2026-09-26"
+    "asof": "2026-09-28"
    }
   }
  },
@@ -2006,14 +2006,19 @@
  },
  "events": [
   {
-   "d": "09-26",
-   "t": "Wall Street ends higher as investors buy AI stocks; Microsoft rallies｜Reuters",
-   "url": "https://news.google.com/rss/articles/CBMiwAFBVV95cUxOazZwSUsxTDltUG1palRCRG1iQnVRWFQxSGRoVFNKbnVoWExJYk13bVFFMEtkSndpTlh5eVNGYVJlTXpWSmtJZXpTVXRDazdBaUw1eFlUcjdob21NWF9hT2NNWDllOW1fc0lHdjBrQVBmeXY0ZWJLS25xdEJZMFJMUkVsa3NwRS0xSG1LUGVJVkVuSEVOVDlQR2pwWnZjRzliZXNQSTdyREhFVlBuQ185VEYxUWRab01zcThMWUtvOFI?oc=5"
+   "d": "09-27",
+   "t": "Debt-hungry AI companies face increased risk as bond yields spike｜CNBC",
+   "url": "https://news.google.com/rss/articles/CBMipgFBVV95cUxNdzNYWDdhN2lVRjBIZE9sdE92U1FQaDVXSDFmNm9SVEViZ3RIcEVkZnRCZGlFTmtpSUpOWHJmTF9URHQ3SWZGQ0FPcjV1cV9WQjFtZW14NUItaVBVZUJqM3BfcUNWU2pPc21hTUNWMnFBRTFmeVM0YjRoakZnSW14ZmwybkFQdW9XQmpKdC04NXNoekFmQ1NKMUxPZmhvRFJkY0F0Ni1B0gGrAUFVX3lxTE4wRTk3M2x2R04yRnc5MnVCWm9wZjNzSDRhX081cU5pRHItaEtKbExRT1RWeDZneEFTcmZlZ1l0VEpTdmpac181blNucXFQVlVZTm5oenJjbEc1QlVMQUZkNzFMV1l3V2llbEc3bnVYTUVnTlRfZjFXSkJjakY2ZWpnbXIwRVVfZ2JVREt4QmtoLVA5LXpabjNRblVBSzJkRVJubm5QblVJN2ZQTQ?oc=5"
   },
   {
    "d": "09-26",
-   "t": "ON Semiconductor Corp. stock outperforms competitors on strong trading day｜MarketWatch",
-   "url": "https://news.google.com/rss/articles/CBMizgFBVV95cUxPUTRpTE1FNVNVdWswaXBxNy1UZ1lLaWhxR3FjUDNWWHBzM1M3QXE3T0pjb3ZoQW11aVZZbjgybGYzVFJlMVlsUTBDbEszdFpkdnJWUU9ZUlV6MUhQM1hnU2xxWFVvVVcxeGpUMVNpN3BHUGFRWEd5QmdmbG9odGpCcG1rdkNPUGpWTjVYbERVQXlseTVib1VXNVpvTHMtMTh1TlRmREpQQ3BJeWNXaG9wX3ExbjQxakgtZWxzcGZpTU9xOVNTZ3gtWTM1XzU1QQ?oc=5"
+   "t": "He’s Completely Terrified of AI—and He’s About to Make Billions Off It｜WSJ",
+   "url": "https://news.google.com/rss/articles/CBMib0FVX3lxTE9zUEUweHctVl9pRnc0TzVDWEtNS29fZ3o3dDVYbkYyQkxNRzY2VmlGODZ3VzFWak1NeF9rVm5WT3Z1WFl1TzNMQy1INU9xejdmMV90bzV6emlpV3ltY1VDVGNZV09Ib1c3RTM2VlJMaw?oc=5"
+  },
+  {
+   "d": "09-26",
+   "t": "Oracle Notice to Weigh on Data Center Debt, Morgan Stanley Says｜Bloomberg",
+   "url": "https://news.google.com/rss/articles/CBMiswFBVV95cUxQNnJTbXFObkJYaWtxWE1vUjJaOVJfSU44U2RLdlJZOTFKMUZJcHFxUmpyMDBsbVNGcmhoNDRsak8zS3JQQXlOYmpTV0pyQ1E5d2xBZlNGRTZYTFdRbWhLR3EtTjF4ZU1mZ1dnSHZUcnB3UDJLVXVQcm5tSlBxbF9CazVha3R4X1g1bERHa1pnWHdJZ0paSmN6Szk4Z0ZWdlNOdG5ERWlsN3pxUTR1TjdxeGM2VQ?oc=5"
   },
   {
    "d": "09-26",
@@ -2021,29 +2026,19 @@
    "url": "https://news.google.com/rss/articles/CBMifEFVX3lxTE9VRUp4NUg4VFlISGt1Mk1HMTdzVjRMNTZ6enh4RTNBX21VSDdQYlJ0cWNlVWktellpSkc4YklhSVBnWTQxT3Y0dnlDUWZHaS04RHlEMVpENTg5ckRhNnkzV2FELTlhVE10dXJDb2lPWDFFVWQwcDNBeklCN1M?oc=5"
   },
   {
-   "d": "09-25",
-   "t": "Shares of Akamai surge after deal with Anthropic. What Wall Street is saying｜CNBC",
-   "url": "https://news.google.com/rss/articles/CBMisgFBVV95cUxQR2Q2T2FnN1VGeFlzMnlONFJCdjRfNDVNV0FTSzNsYkR1Yl94ZXJSbFhxVVB1VDBBdTg1MmNZZjlWc0lPSmREcS1YTDFyWFZEQlFHTzgxX2RLSHZaRW55UGxYWS1KT0xIdXFKb09FTWVFU0ZWN0RoRHo3emlESmFtSFZpSDIzc1ZGWnN5RzUxYkZmRXBzTXhwLU1BeDdZTm5zTmZDNk1GemEwM21nNG8xOG9n?oc=5"
+   "d": "09-26",
+   "t": "Anthropic Faces Court Setback on US Supply Chain Risk Label｜Bloomberg",
+   "url": "https://news.google.com/rss/articles/CBMisgFBVV95cUxNSTNHR2VoMmtMYlJBbm4xT1lSLV8zNTBLTlN2UWc1OUp4ZkhyWjNVSlhxTTd5bG5zVzRyVkJGRzUxTzRqQ0lhVkJ5dEd6THBDMzByZnZ5NGRIZWtsY1dYS2ZyVnlNbEtDa2Q4cHZVakhDcHRYV3RkdG1DbDBkZUdFcmxXWTJYYTZLZGc5dGpxZ0o2X0tvejJ6TlpkckNLemFsUk5zTm5CNmJQX1ZETEg4VmNB?oc=5"
   },
   {
    "d": "09-25",
-   "t": "AI data centers increasingly built on GPU collateral, other novel financing｜Nikkei Asia",
-   "url": "https://news.google.com/rss/articles/CBMi2gFBVV95cUxNSG9MbFVkZER3ZE92cjU0MmJESDFFSUxOWHRab3dnRUZVUVVkSGhibEtsYmNSWFVTNE5JLURNYnFpSWlkM1loSDFaTUg3Yy00OFMwengxUFRaS1NEMnoyYWV5dnl1QllkV2g3a0JxbjFubzQxQTFOM3RTT1AwU0JncmdWeFFjT2dWUy1zZTVSQ256anFjQzU0NWJYX3d3R3lyQzl4bVlxVklWbXlLemtnOURReUUtdVlkdEwxSjRlUGQwZl9ZRUtNUjFobTRMX00zUnNIWTlVaTA0dw?oc=5"
+   "t": "Watch Akamai Technologies Soars on Anthropic Deal; Costco Earnings Beat | Stock Movers｜Bloomberg",
+   "url": "https://news.google.com/rss/articles/CBMirwFBVV95cUxQRF9XakpsSWtTdFBaUlA4bEgxeHZ6OC1ueXJVV0dDR0hyb1BLNC13Sy12RVc5VzhMYWhUbElrclpXZnYzRVFDV3RsUWVPR091ejBlcE05UjVMTzBhcllhMlFMZW4tdFo0QlBERnBQY1NkS2pFczVCS3pPaW5MOEZRZzM2bDVqcU05X1d1V0VsckZIOF9idHVZZ3I2aDNvdmNqelc4V0sxWmtJWUNHdUgw?oc=5"
   },
   {
    "d": "09-25",
-   "t": "The AI borrowing binge is back in the spotlight｜Axios",
-   "url": "https://news.google.com/rss/articles/CBMiaEFVX3lxTE5BSXpIVWtIQ05XallfWVF6RG94bXRrQ0NmRXdwWHdFaW1ERGtITVhra0lFU2lFN1RWVXhVekZLZE5WcFpnd0xsN0NudWJ2eXVlTFJzN0U3UGFTeXFKZlpLRmFJN3FKMmlv?oc=5"
-  },
-  {
-   "d": "09-25",
-   "t": "Akamai’s stock is surging. A $12 billion Anthropic deal reveals its powerful edge over cloud providers.｜MarketWatch",
-   "url": "https://news.google.com/rss/articles/CBMi2AFBVV95cUxNNFVwQjRsNTlZSzN1ZEFZTXNVbUxwbTRlc3pPUWptZDJnbzBFbGM3aDZzYXJCejQ4U2gwYUl0SlNRN28wMDFtZkhndGF3Nk1pQWhDNmNDWFhOLUtNMTNJbVJDT1BLdG9HdExPQ2E5UGlYZmszRjJkR0RlaDVXMW1IUFBKeTNNSUxPTDVmSDA0dTh5YUptM3J0SXpseGhOZWQ5TjhsWmJzdXBkcXpqaEFKejI5ZDVNWHdqa0lqZHptM0p5R1pickM5a2wwallnQjdYTVMzRjNGOHE?oc=5"
-  },
-  {
-   "d": "09-25",
-   "t": "Akamai stock is surging. A $12 billion Anthropic deal reveals its powerful edge over cloud providers.｜MarketWatch",
-   "url": "https://news.google.com/rss/articles/CBMi8AFBVV95cUxQazJhdzVmbVYtWWtNcG1VeUhfRkRaeWpnMlVpVXdwc0ZUd1BtbnVDUnllNDBMYkFnZmlVNjlReTJrNzVRb2pkWU5VVVNUSnU5U3doNlh3S2ZwM3R6cUFmLUk5Y2puU0EydWpxU1RHVzFyZkpSU2tmYUdnR0tWY3UzTVpKYkVfeTdnWmtVd1JwamFoMk1ROHk1aDR2aGpSMGRPT2RtZDJiQTdCVzhsVEJkbE42djZKclp2MzRSeVp6U0N5dzBTM3gyOHlVbjU3RXJvU0xTR3JPZURTdktUbGhRZXFfN2QzbUxEVGV4OE4xT2o?oc=5"
+   "t": "Wall Street ends higher as investors buy AI stocks; Microsoft rallies｜Reuters",
+   "url": "https://news.google.com/rss/articles/CBMiwAFBVV95cUxOazZwSUsxTDltUG1palRCRG1iQnVRWFQxSGRoVFNKbnVoWExJYk13bVFFMEtkSndpTlh5eVNGYVJlTXpWSmtJZXpTVXRDazdBaUw1eFlUcjdob21NWF9hT2NNWDllOW1fc0lHdjBrQVBmeXY0ZWJLS25xdEJZMFJMUkVsa3NwRS0xSG1LUGVJVkVuSEVOVDlQR2pwWnZjRzliZXNQSTdyREhFVlBuQ185VEYxUWRab01zcThMWUtvOFI?oc=5"
   },
   {
    "d": "09-25",
@@ -2052,18 +2047,23 @@
   },
   {
    "d": "09-25",
+   "t": "Akamai signs $11.6 billion cloud deal with Anthropic, grants warrant for up to 5% stake｜Reuters",
+   "url": "https://news.google.com/rss/articles/CBMiogFBVV95cUxNanVpUjFYbXpXWHdEU1NlRFlfZnI5a0Y2OVlzYUkya2tBR3hOY05ZTk05ZVZrWUZqcmttYjV3b2x6d01iTUFIZ095a1lQbkFCbTZFVGJzd2tUM1NkcWtOV3B2X1VpMGpkSVlGOW13ZU0xd3BjUm1paldVNHpYVllpN0UwQ3ZkUGk0R3AtaWx3SDJFaXdEUkdmeHRlT3M0Tk10LWc?oc=5"
+  },
+  {
+   "d": "09-25",
    "t": "Anthropic to Pay Akamai Technologies $11.6 Billion Over Seven Years for Cloud Services｜WSJ",
    "url": "https://news.google.com/rss/articles/CBMiuwFBVV95cUxOVW0zbElYMzI3cUlNNWR0Rnp5Wk5FQTBJa3l4WFZ5RU01SjBJMWFCNWtWY01zcWl6TGlpalpDdjFmTGwtcUdQYVMzc1ZHOENwQ01LbmRPUS15T3lsY1JZSjgwTUxQLUNXZmhtT19KbUFLYnhZclF5SHNTNmVOUm1LTGlSNGhUTmVqdGNxQ3cyeXBoQ19NeHVsU09mY3VGbHZmVUtyVDAtdG1NancxTmdKUjIzcjh5aTViRGVn?oc=5"
   },
   {
    "d": "09-24",
-   "t": "Are Big Tech bonds crowding out the US Treasury?｜Financial Times",
-   "url": "https://news.google.com/rss/articles/CBMicEFVX3lxTE5QSWVWSmlVblkwbXJEOGhhcDhSMFg1anBXOWR4SWhTRXlMSFhrTlQxWTctUVRDdHZBQUs4MjZCbmhhVWNjbmNOUnpHSlhqS1lVWHJNWUEzbGNzMjZzU0VVcXlmTXluSy1odmdLd0dGWXc?oc=5"
+   "t": "SoftBank pays steep price for record bond sale to fund OpenAI bet｜Financial Times",
+   "url": "https://news.google.com/rss/articles/CBMihAFBVV95cUxOVjlidU5qLXBlVDNsbl9xUkJGVm1BTlZFMDVjTXdvemduRDk1cUhpQWNEQXRtdmctaExIVVZWQU50SHEzUHdpSU9OUGNIVjc4RWdERXZIMTVsVjd3akRxU0k1NHYzTXFxQkp4Q2hfQnh0dGtrRUhVZVdjZ0w3R1RkTlhiUXQ?oc=5"
   },
   {
    "d": "09-24",
-   "t": "SoftBank raises $11.1 billion in world's biggest high-yield corporate bond sale｜Reuters",
-   "url": "https://news.google.com/rss/articles/CBMitAFBVV95cUxNeldGcjFrNndNWHBkZ3ppV1hNSklkU3BNWGw5ZWFZQ1VyMWptRmJTN2pEMVBfUVFoLU0xOUhaUVN4VVR3RTNKeXNySkFGZ2tsRWVLRkY0SnhTdDUwcTZwWS1PYVBPdklXN0NLd1phMEt6Uzc3blZleGxGYUh0ZmhLY1RVREJxcE5VNFBsenVhcXpnV0R2WGVXWk9uUGdvT3BRSVRDVFFZSk1aZl92ZGxwSG1sbWg?oc=5"
+   "t": "Are Big Tech bonds crowding out the US Treasury?｜Financial Times",
+   "url": "https://news.google.com/rss/articles/CBMicEFVX3lxTE5QSWVWSmlVblkwbXJEOGhhcDhSMFg1anBXOWR4SWhTRXlMSFhrTlQxWTctUVRDdHZBQUs4MjZCbmhhVWNjbmNOUnpHSlhqS1lVWHJNWUEzbGNzMjZzU0VVcXlmTXluSy1odmdLd0dGWXc?oc=5"
   }
  ],
  "history": [
@@ -2964,18 +2964,18 @@
   },
   {
    "date": "2026-09-28",
-   "composite": 60.8,
+   "composite": 61.0,
    "dims": {
-    "L1": 62.1,
+    "L1": 62.5,
     "L2": 73.3,
     "L3": 44.8
    },
    "tw": 42.8,
    "quad": [
     55.2,
-    67.7
+    67.9
    ],
-   "trig": 1
+   "trig": 2
   }
  ],
  "params": {
@@ -3005,10 +3005,10 @@
   {
    "id": "gsy150",
    "name": "SOXX 24個月漲幅 ≥150%",
-   "state": 0,
-   "value": "+149%",
+   "state": 1,
+   "value": "+156%",
    "note": "產業 24 個月漲幅的極端值；論文機率是引用、非本標的校準（§4.1）",
-   "asof": "2026-09-24",
+   "asof": "2026-09-25",
    "prog": 100
   },
   {
@@ -3044,7 +3044,7 @@
    "state": 0,
    "value": "未發生",
    "note": "Hartnett：大頂前的最後供給事件（每週人工覆核）",
-   "asof": "2026-09-26",
+   "asof": "2026-09-28",
    "prog": null
   },
   {
@@ -3058,7 +3058,7 @@
   }
  ],
  "quadrant": {
-  "heat": 67.7,
+  "heat": 67.9,
   "support": 55.2,
   "regime": "過熱但有撐（melt-up 風險）"
  }

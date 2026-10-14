@@ -1,12 +1,12 @@
 {
  "meta": {
   "version": 2,
-  "built": "2026-10-13",
-  "builtTime": "2026-10-13（GitHub Actions 自動更新）",
+  "built": "2026-10-14",
+  "builtTime": "2026-10-14（GitHub Actions 自動更新）",
   "nextUpdate": "每交易日自動更新（GitHub Actions）｜質化指標每週覆核｜v2 三層架構",
   "artifactId": "ai-bubble-monitor",
   "lastAutoRun": {
-   "date": "2026-10-13",
+   "date": "2026-10-14",
    "ok": [
     "px SOXX",
     "px SPY",
@@ -42,59 +42,59 @@
     "FRED CPI",
     "FRED FEDFUNDS",
     "FRED DGS10",
-    "FRED Sahm"
+    "FRED Sahm",
+    "Google News"
    ],
    "fail": [
     "AAII",
-    "TW 台積電權重",
-    "Google News"
+    "TW 台積電權重"
    ],
    "streak": {
     "AAII": 0,
     "TW 台積電權重": 0,
-    "Google News": 0,
-    "px SOXX": 26,
-    "px SPY": 80,
-    "px NVDA": 80,
-    "px 2330": 80,
-    "calc GSY": 26,
-    "calc soxmom": 26,
-    "calc nvdape": 80,
-    "multpl CAPE": 80,
-    "slickcharts Mag7": 80,
-    "CBOE putcall": 80,
-    "FRED VIX": 80,
-    "CNN FearGreed": 72,
-    "calc senti": 80,
-    "FRED HY": 1,
-    "FRED CCC": 80,
-    "ORCL bond": 36,
-    "FRED IG": 80,
-    "FRED FEDFUNDS 磚塊": 80,
-    "FRED USINFO 磚塊": 80,
-    "EDGAR RPO": 80,
-    "EDGAR quarterly": 80,
-    "TW 月營收": 26,
-    "TW 官方PE": 26,
-    "calc TW 2330": 80,
-    "TW 電子指數": 80,
-    "TW 融資餘額": 80,
-    "TW 當沖比重": 26,
-    "TW 融資占市值": 18,
-    "TW 融資維持率": 18,
-    "TW 信用交易占比": 18,
-    "TW 海關出口": 34,
-    "FRED CPI": 80,
-    "FRED FEDFUNDS": 80,
-    "FRED DGS10": 80,
-    "FRED Sahm": 55
+    "px SOXX": 27,
+    "px SPY": 81,
+    "px NVDA": 81,
+    "px 2330": 81,
+    "calc GSY": 27,
+    "calc soxmom": 27,
+    "calc nvdape": 81,
+    "multpl CAPE": 81,
+    "slickcharts Mag7": 81,
+    "CBOE putcall": 81,
+    "FRED VIX": 81,
+    "CNN FearGreed": 73,
+    "calc senti": 81,
+    "FRED HY": 2,
+    "FRED CCC": 81,
+    "ORCL bond": 37,
+    "FRED IG": 81,
+    "FRED FEDFUNDS 磚塊": 81,
+    "FRED USINFO 磚塊": 81,
+    "EDGAR RPO": 81,
+    "EDGAR quarterly": 81,
+    "TW 月營收": 27,
+    "TW 官方PE": 27,
+    "calc TW 2330": 81,
+    "TW 電子指數": 81,
+    "TW 融資餘額": 81,
+    "TW 當沖比重": 27,
+    "TW 融資占市值": 19,
+    "TW 融資維持率": 19,
+    "TW 信用交易占比": 19,
+    "TW 海關出口": 35,
+    "FRED CPI": 81,
+    "FRED FEDFUNDS": 81,
+    "FRED DGS10": 81,
+    "FRED Sahm": 56,
+    "Google News": 1
    }
   }
  },
- "composite": 62.4,
+ "composite": 62.3,
  "dims": {
   "L1": 59.9,
-  "L2": 79.9,
+  "L2": 79.8,
   "L3": 44.8
  },
  "dimMeta": {
@@ -146,9 +146,9 @@
    "id": "cape",
    "dim": "L1",
    "name": "Shiller CAPE（標普500）",
-   "value": 41.85,
-   "disp": "41.9×",
-   "score": 81.6,
+   "value": 41.84,
+   "disp": "41.8×",
+   "score": 81.5,
    "zone": "orange",
    "anchors": [
     [
@@ -169,7 +169,7 @@
     ]
    ],
    "dir": "越高越熱",
-   "asof": "2026-10-13",
+   "asof": "2026-10-14",
    "fresh": "ok",
    "src": "multpl.com",
    "url": "https://www.multpl.com/shiller-pe",
@@ -180,10 +180,10 @@
    "id": "mag7",
    "dim": "L1",
    "name": "Mag7 佔標普500市值比重",
-   "value": 35.07,
-   "disp": "35.1%",
-   "score": 83.9,
-   "zone": "orange",
+   "value": 35.23,
+   "disp": "35.2%",
+   "score": 84.8,
+   "zone": "red",
    "anchors": [
     [
      20,
@@ -203,7 +203,7 @@
     ]
    ],
    "dir": "越高越熱",
-   "asof": "2026-10-13",
+   "asof": "2026-10-14",
    "fresh": "ok",
    "src": "SlickCharts",
    "url": "https://www.slickcharts.com/sp500",
@@ -394,13 +394,13 @@
    "id": "senti",
    "dim": "L1",
    "name": "情緒與投機溫度（合成）",
-   "value": 54.2,
-   "disp": "個股P/C 0.62｜VIX 14.8｜F&G 46",
-   "score": 54.2,
+   "value": 53.9,
+   "disp": "個股P/C 0.62｜VIX 15.2｜F&G 45",
+   "score": 53.9,
    "zone": "yellow",
    "anchors": null,
    "dir": "合成規則（本次：CBOE 個股 Put/Call＋VIX＋CNN F&G）",
-   "asof": "2026-10-13",
+   "asof": "2026-10-14",
    "fresh": "ok",
    "src": "CBOE 個股 Put/Call / VIX / CNN F&G",
    "url": "https://www.cboe.com/us/options/market_statistics/",
@@ -464,9 +464,9 @@
    "id": "hyoas",
    "dim": "L2",
    "name": "高收益債利差（3個月變化）",
-   "value": 3.15,
-   "disp": "3.15%（3個月 +45bp）",
-   "score": 57.5,
+   "value": 3.11,
+   "disp": "3.11%（3個月 +42bp）",
+   "score": 56.0,
    "zone": "yellow",
    "anchors": [
     [
@@ -491,7 +491,7 @@
     ]
    ],
    "dir": "走闊越多越熱",
-   "asof": "2026-10-08",
+   "asof": "2026-10-12",
    "fresh": "ok",
    "src": "FRED (ICE BofA)",
    "url": "https://fred.stlouisfed.org/series/BAMLH0A0HYM2",
@@ -503,8 +503,8 @@
    "id": "ccc",
    "dim": "L2",
    "name": "CCC 級利差（最弱信用層）",
-   "value": 12.52,
-   "disp": "12.52%（3個月 +278bp）",
+   "value": 12.53,
+   "disp": "12.53%（3個月 +281bp）",
    "score": 90.5,
    "zone": "red",
    "anchors": [
@@ -530,7 +530,7 @@
     ]
    ],
    "dir": "越高越熱",
-   "asof": "2026-10-08",
+   "asof": "2026-10-12",
    "fresh": "ok",
    "src": "FRED BAMLH0A3HYC",
    "url": "https://fred.stlouisfed.org/series/BAMLH0A3HYC",
@@ -542,9 +542,9 @@
    "id": "orclbond",
    "dim": "L2",
    "name": "Oracle 2055 長債殖利率",
-   "value": 8.06,
-   "disp": "8.06%",
-   "score": 80.6,
+   "value": 8.11,
+   "disp": "8.11%",
+   "score": 81.1,
    "zone": "orange",
    "anchors": [
     [
@@ -569,7 +569,7 @@
     ]
    ],
    "dir": "越高越熱",
-   "asof": "2026-10-13",
+   "asof": "2026-10-14",
    "fresh": "ok",
    "src": "Public.com 債券報價",
    "url": "https://public.com/bonds/corporate/oracle-corp/orcl-4.375-05-15-2055-68389xbg9",
@@ -802,14 +802,14 @@
   }
  ],
  "tw": {
-  "heat": 42.3,
+  "heat": 40.7,
   "items": [
    {
     "id": "tw_rev",
     "name": "AI 供應鏈月營收動能（10檔加權年增）",
-    "value": 58.1,
-    "disp": "加權年增 +58.1%",
-    "score": 15.6,
+    "value": 58.7,
+    "disp": "加權年增 +58.7%",
+    "score": 15.4,
     "note": "台灣是全球 AI 硬體的出貨速度計：台積電＋伺服器鏈月營收加權年增。成長極強＝基本面支撐（降溫）；轉弱＝需求裂縫最早的實體訊號。月頻、每月10日後更新。",
     "src": "TWSE 公開資訊觀測站月營收",
     "asof": "2026-09",
@@ -829,31 +829,31 @@
    {
     "id": "tsmc_pe",
     "name": "台積電本益比（TWSE 官方）",
-    "value": 29.44,
-    "disp": "29.4×（官方）",
-    "score": 73.8,
+    "value": 28.86,
+    "disp": "28.9×（官方）",
+    "score": 71.1,
     "note": "改用證交所官方 BWIBBU 日更本益比，不再自算（股價÷EPS 會跟官方口徑打架）。錨點見 AGENT_BRIEF §4.6。",
     "src": "TWSE 官方本益比（BWIBBU）",
-    "asof": "2026-10-12",
+    "asof": "2026-10-13",
     "url": "https://openapi.twse.com.tw/v1/exchangeReport/BWIBBU_ALL"
    },
    {
     "id": "odm_pe",
     "name": "AI 伺服器供應鏈本益比（官方）",
-    "value": 13.1,
-    "disp": "平均 13.1×（官方）",
-    "score": 20.6,
+    "value": 12.9,
+    "disp": "平均 12.9×（官方）",
+    "score": 19.4,
     "note": "鴻海/廣達/緯創/緯穎官方 PE 平均。",
     "src": "TWSE 官方本益比（BWIBBU）",
-    "asof": "2026-10-12",
+    "asof": "2026-10-13",
     "url": "https://openapi.twse.com.tw/v1/exchangeReport/BWIBBU_ALL"
    },
    {
     "id": "tsmc_200dma",
     "name": "台積電距 200 日均線",
-    "value": 17.3,
-    "disp": "+17.3%",
-    "score": 38.1,
+    "value": 16.7,
+    "disp": "+16.7%",
+    "score": 36.9,
     "note": "主升段乖離度。",
     "src": "2330.TW 價格序列（yfinance→Yahoo→Stooq 三層備援）",
     "asof": "2026-10-13",
@@ -863,9 +863,9 @@
    {
     "id": "tsmc_52w",
     "name": "台積電一年漲幅",
-    "value": 86.2,
-    "disp": "+86.2%",
-    "score": 63.8,
+    "value": 85.8,
+    "disp": "+85.8%",
+    "score": 63.4,
     "note": "GSY 式漲幅檢驗的台股版。",
     "src": "2330.TW 價格序列（yfinance→Yahoo→Stooq 三層備援）",
     "asof": "2026-10-13",
@@ -875,9 +875,9 @@
    {
     "id": "twii_pos",
     "name": "台積電 52 週區間位置",
-    "value": 93.0,
-    "disp": "93.0%",
-    "score": 76.9,
+    "value": 92.6,
+    "disp": "92.6%",
+    "score": 75.6,
     "note": "以台積電（佔大盤 44%+）取代加權指數作位置計。",
     "src": "2330.TW 價格序列（yfinance→Yahoo→Stooq 三層備援）",
     "asof": "2026-10-13",
@@ -887,35 +887,35 @@
    {
     "id": "elec_rel",
     "name": "電子類指數相對加權（20日）",
-    "value": -0.0,
-    "disp": "-0.0pp（20日）",
-    "score": 34.7,
+    "value": -0.7,
+    "disp": "-0.7pp（20日）",
+    "score": 30.5,
     "note": "電子 vs 大盤的相對動能（TWSE 官方指數，序列自動累積）。",
     "src": "TWSE 官方指數 MI_INDEX",
-    "asof": "2026-10-12",
+    "asof": "2026-10-13",
     "url": "https://openapi.twse.com.tw/v1/exchangeReport/MI_INDEX"
    },
    {
     "id": "tw_margin",
     "name": "融資餘額（20日變化）",
-    "value": 653.3,
-    "disp": "653 十億元（20日 +11.3%）",
-    "score": 96.5,
+    "value": 645.0,
+    "disp": "645 十億元（20日 +9.0%）",
+    "score": 85.7,
     "note": "散戶槓桿溫度計（TWSE 信用交易統計，日頻）。",
     "src": "TWSE 信用交易統計 MI_MARGN",
-    "asof": "2026-10-12",
+    "asof": "2026-10-13",
     "url": "https://www.twse.com.tw/rwd/zh/marginTrading/MI_MARGN"
    },
    {
     "id": "tw_daytrade",
     "name": "當沖占市場比重",
-    "value": 36.36,
-    "disp": "36.4%（買進金額占比）",
-    "score": 49.1,
+    "value": 33.85,
+    "disp": "33.9%（買進金額占比）",
+    "score": 41.6,
     "note": "當日沖銷買進金額占市場成交比重。量的是當日投機周轉強度，與融資餘額的「借錢做多存量」是不同面向。越高越熱。",
     "src": "TWSE 當日沖銷交易統計 TWTB4U",
     "url": "https://www.twse.com.tw/rwd/zh/dayTrading/TWTB4U",
-    "asof": "2026-10-12"
+    "asof": "2026-10-13"
    },
    {
     "id": "tsmc_weight",
@@ -931,25 +931,25 @@
    {
     "id": "margin_mktcap",
     "name": "融資餘額占市值比重",
-    "value": 0.405,
-    "disp": "0.40%（對照 2000 年 2.31%）",
-    "score": 28.9,
+    "value": 0.408,
+    "disp": "0.41%（對照 2000 年 2.31%）",
+    "score": 29.6,
     "note": "槓桿水位儀：融資餘額除以集中市場總市值，是跨年可比的散戶槓桿水位。錨點刻意用 2018 年以來的區間（0.36–0.54%）而不是 2000 年以來的全區間——該比重自 2000 年的 2.31% 單向衰減至 2025 年的 0.36%，是法人化、ETF 化與借券取代融券的結構性變化，不是泡沫程度降了六倍；拿全區間當尺，今天會永遠打個位數。與當沖占比同一類：錨點會漂，要定期回頭校準。",
     "src": "TWSE 臺股儀表板 MI_MARGN_TREND",
-    "asof": "2026-10-12",
+    "asof": "2026-10-13",
     "url": "https://www.twse.com.tw/dashboard/zh/credit/margin.html"
    },
    {
     "id": "margin_keeprate",
     "name": "整體融資維持率",
-    "value": 195.87,
-    "disp": "195.9%（追繳 20 戶・處分 28 戶）",
-    "score": 17.7,
+    "value": 189.95,
+    "disp": "189.9%（追繳 48 戶・處分 22 戶）",
+    "score": 25.1,
     "note": "去槓桿金絲雀：維持率越低，融資部位離強制回補越近，故取負後計分。錨點取制度常數而非統計分位數——130% 是法定追繳線、166% 是市場慣用警戒水準；來源 BFIJ3U 只保留約一個月，沒有足夠樣本算分位數，用制度線比用 12 天樣本估出來的分位數誠實。這是本監控唯一直接量到台股強制賣壓的一項。",
     "src": "TWSE 整體信用交易 BFIJ3U",
-    "asof": "2026-10-12",
+    "asof": "2026-10-13",
     "url": "https://www.twse.com.tw/dashboard/zh/credit/margin.html",
-    "sub": "低於維持率 133 戶；130% 為追繳線"
+    "sub": "低於維持率 166 戶；130% 為追繳線"
    },
    {
     "id": "credit_turnover",
@@ -965,20 +965,20 @@
    {
     "id": "short_ratio",
     "name": "券資比（融券／融資張數）",
-    "value": 2.29,
-    "disp": "2.29%（融券張數／融資張數）",
-    "score": 74.9,
+    "value": 2.39,
+    "disp": "2.39%（融券張數／融資張數）",
+    "score": 72.7,
     "note": "反向情緒項：沒人放空代表一面倒看多，故取負後計分。⚠ 錨點待校準——MI_MARGN_TREND 與 BFIJ3U 都只給得出 60 個交易日，沒有長序列可算分位數，目前這組是依台股券資比長期落在 1–8% 的認知訂的，是本表信心最低的一根，累積滿一年序列後應重訂。",
     "src": "TWSE 臺股儀表板 MI_MARGN_TREND",
-    "asof": "2026-10-12",
+    "asof": "2026-10-13",
     "url": "https://www.twse.com.tw/dashboard/zh/credit/margin.html"
    }
   ],
   "subs": {
-   "動能": 53.4,
-   "估值": 47.2,
-   "籌碼": 73.5,
-   "槓桿": 21.6,
+   "動能": 51.6,
+   "估值": 45.2,
+   "籌碼": 66.7,
+   "槓桿": 24.3,
    "基本面": 14.2
   },
   "subWeights": {
@@ -1038,6 +1038,22 @@
     "rev": 21.0
    },
    {
+    "code": "2308",
+    "name": "台達電",
+    "role": "電源/液冷",
+    "yoy": 14.6,
+    "mom": 1.3,
+    "rev": 65.4
+   },
+   {
+    "code": "3661",
+    "name": "世芯-KY",
+    "role": "ASIC",
+    "yoy": 496.0,
+    "mom": 13.7,
+    "rev": 10.0
+   },
+   {
     "code": "3443",
     "name": "創意",
     "role": "ASIC",
@@ -1057,44 +1073,44 @@
   "revMonth": "2026-09",
   "officialPE": {
    "2330": {
-    "pe": 29.44,
-    "pb": 10.24
+    "pe": 28.86,
+    "pb": 10.04
    },
    "2317": {
-    "pe": 16.12,
-    "pb": 1.8
+    "pe": 15.82,
+    "pb": 1.76
    },
    "2382": {
-    "pe": 14.03,
-    "pb": 5.09
+    "pe": 14.07,
+    "pb": 5.11
    },
    "3231": {
-    "pe": 15.05,
-    "pb": 3.11
+    "pe": 14.85,
+    "pb": 3.07
    },
    "6669": {
-    "pe": 7.29,
-    "pb": 3.1
+    "pe": 7.04,
+    "pb": 2.99
    },
    "3017": {
-    "pe": 45.12,
-    "pb": 24.08
+    "pe": 43.72,
+    "pb": 23.33
    },
    "2308": {
-    "pe": 60.47,
-    "pb": 16.8
+    "pe": 56.49,
+    "pb": 15.7
    },
    "3661": {
-    "pe": 64.46,
-    "pb": 6.28
+    "pe": 59.47,
+    "pb": 5.79
    },
    "3443": {
-    "pe": 207.64,
-    "pb": 80.61
+    "pe": 207.51,
+    "pb": 80.56
    },
    "2345": {
-    "pe": 33.46,
-    "pb": 17.24
+    "pe": 32.05,
+    "pb": 16.52
    }
   },
   "idx_hist": [
@@ -1382,6 +1398,11 @@
     "d": "2026-10-12",
     "taiex": 49301.96,
     "elec": 3122.93
+   },
+   {
+    "d": "2026-10-13",
+    "taiex": 48341.31,
+    "elec": 3040.72
    }
   ],
   "margin_hist": [
@@ -1632,6 +1653,10 @@
    {
     "d": "2026-10-12",
     "bal": 653.3
+   },
+   {
+    "d": "2026-10-13",
+    "bal": 645.0
    }
   ],
   "keeprate_hist": [
@@ -1700,6 +1725,12 @@
     "k": 195.87,
     "call": 20,
     "exe": 28
+   },
+   {
+    "d": "2026-10-13",
+    "k": 189.95,
+    "call": 48,
+    "exe": 22
    }
   ],
   "creditHistory": [
@@ -2019,24 +2050,24 @@
   },
   "spreads": {
    "hy": {
-    "now": 3.15,
-    "m3": 2.7,
-    "y1": 2.84,
-    "asof": "2026-10-08"
+    "now": 3.11,
+    "m3": 2.69,
+    "y1": 3.18,
+    "asof": "2026-10-12"
    },
    "ig": {
-    "now": 0.82,
-    "m3": 0.76,
-    "asof": "2026-10-08"
+    "now": 0.83,
+    "m3": 0.78,
+    "asof": "2026-10-12"
    },
    "us10y": {
-    "now": 5.22,
-    "m3": 4.54,
-    "asof": "2026-10-08"
+    "now": 5.24,
+    "m3": 4.56,
+    "asof": "2026-10-09"
    },
    "vix": {
-    "now": 14.84,
-    "asof": "2026-10-09"
+    "now": 15.21,
+    "asof": "2026-10-12"
    },
    "fedfunds": {
     "now": 3.75,
@@ -2049,13 +2080,13 @@
     "asof": "2026-09-01"
    },
    "ccc": {
-    "now": 12.52,
-    "m3": 9.74,
-    "asof": "2026-10-08"
+    "now": 12.53,
+    "m3": 9.72,
+    "asof": "2026-10-12"
    },
    "orclbond": {
-    "now": 8.06,
-    "asof": "2026-10-13"
+    "now": 8.11,
+    "asof": "2026-10-14"
    }
   }
  },
@@ -2125,64 +2156,64 @@
  },
  "events": [
   {
-   "d": "10-12",
-   "t": "Futures Rise Amid Trump Claims, Oil-Related News｜Investor's Business Daily",
-   "url": "https://news.google.com/rss/articles/CBMizgFBVV95cUxQREhqRW9yMTk2QWxZb0k1a19pUVZhNFF6WkRVRVVndFVCM05zTDlfdFg2dmlVNlY3bm1ydGswcWsxdWJwOHJWa1dFelhCNC1jTUdHdUE0QzJLUkUzMFZJckVMTWhiSVM1R0k2OGdINEJmSkxRMHFZYThJNWJLd0FwakV2LWJrYkV3Tzdta3R0MEZrYjFHaHRidEJwUzB3LXEzNmZJSC04alY1c2w1emdBcHhTc0xObW54bm0yckpTMVNzUUdNOW9hQ0pzRlNqUQ?oc=5"
+   "d": "10-14",
+   "t": "Jim Cramer isn't giving up on semiconductor stocks despite the sell off. Here's why｜CNBC",
+   "url": "https://news.google.com/rss/articles/CBMigwFBVV95cUxNUjVQaDlKV3pzemcta29makN6NExmVjdFWkx4Mm9faTktMHJOZXNXZzBtbHF0V3Jid3NLOHBEWXdTZV83NEdXX3FMbnZfQnpfOHZqYUI1Wk9yUVNXOUNJZTF2RG9VRGlIcjdsMTBDLXZMdzVZdE1PTVdPSVpsaHhzNm9na9IBiAFBVV95cUxNRzhhS3BiRVJtUEVSVXlhQ2ZjRF9EQThfWEpnbEdLY2RDRTRhNWxGZVNzNzJXZ3FxbDdoVW5iZFNHVXYtLXg2SzIwQUFEaUxGeFZLckRmSTQwMlJsaklJUDBXR2lNUllMd2tLNFczRWJCX2NDY1FGQUU0aTNFSWc1MFhsRldVTFFo?oc=5"
+  },
+  {
+   "d": "10-14",
+   "t": "Anthropic has a $2 Trillion IPO Planned But Keeps Listing New Risks｜Barron's",
+   "url": "https://news.google.com/rss/articles/CBMihgFBVV95cUxOcVdYbFhaYTFPWU9PcFBoc2JMOHZPVjVsaWZvRjV0VGl4TGcxNjBuYzh3VFdPUHpBTzVYTUhEWFhBQlZURHkyWFl2VTdFTmJmd2xnM1ZTWjBkc3JCWG9OUjI3TnkyMVZlcTRUeXkzbnpidTdTSkQ1LUYzLXVwdUNzMThjRXplQQ?oc=5"
+  },
+  {
+   "d": "10-14",
+   "t": "Treasury, Eurozone Yields Decline as Markets Look to U.S. Inflation Data｜WSJ",
+   "url": "https://news.google.com/rss/articles/CBMivAFBVV95cUxQaVJGTVRQcWlpaDNiZVFTYW1od1ZiMVNKRU14QWVocUs2SnlZLW1KNzFwTVliUHczVUZhMURPSEtiay01cXJ0cnZOMkllU3phWk8xWVlIT2lzQlZFOE5rRTBFNlJjRTJYb1JPT2h5aFhrX2M2MjllVGc2NHhuNGJoMFVnOFFoY05SRnRsUEkxX25ZM1JndThkVGZjMW9XZDBrVFYtWEVDdmxmVFNseFotZW5pOExsSTZHRVVVNg?oc=5"
+  },
+  {
+   "d": "10-13",
+   "t": "Anthropic to disclose new revenue numbers as AI lab financials become central to tech trade｜CNBC",
+   "url": "https://news.google.com/rss/articles/CBMickFVX3lxTE9iTFZ0YmNOLXFxS3pxWDdPSGx0bjBrdDE2OXFTZmJELThrSU5LWHZlYXcxQ2swUmZUWHhNRjc4Znh1bDZQVU4xMjQ4ZTAySHNQMWRSZjRlaVF3T3F0MDRIU2l4T3A3V3NNYy1pdGJqZWR3Z9IBd0FVX3lxTE9UQjBLY1Jza0hRNlRoYXdYYmN6QU9jT01YUlUwTllZWUp3bGxpTC1RWmJzSlREX09xR0lzdkJVejlpV2FFWVdYRVNJZFV6cXM0Y0hyQ0kxdGhlcmd0Y0pTRE1qVTZXUVNJeHpVUVQyVVcwbUNvTXRz?oc=5"
+  },
+  {
+   "d": "10-13",
+   "t": "US chip stocks extend slide as China memory report, AI spending jitters hit sector｜Reuters",
+   "url": "https://news.google.com/rss/articles/CBMixAFBVV95cUxQdjlLc0J0QjMyZmZRZWM1SldodnE0RV8xUWN0S0EzdUtWX1VjNXRiTVRKdDJQQVNkNkNadU50bGFueTItd3V0Zk43aFRiV2xsMVdCS1lFbFh3TVI3b05yd253VjBLSWdlYmwyb3VIOFBLQm5VbFRlR1ZQczRlekUyWHNOMjUwdmhvMXA2MWl1UUp6aDFydkZRZWdjUzZnRUR2NXAteDNMZS1zdDNUWm1HRVBxYlo3TXh6ZGZKT1lNOXFHUjBp?oc=5"
+  },
+  {
+   "d": "10-13",
+   "t": "Bank of America Survey Shows Investors Are Split on AI Bubble Risks｜Barron's",
+   "url": "https://news.google.com/rss/articles/CBMiggFBVV95cUxNZkdnSVptamc0VU5zcW91OURReFBOMTlGcWljbno1UmpFTlJSMXNXMnlCX3NrclMtY0NtQnpPdkVqUkdKNnpKVHM3cGhQZ2g5ZzRRaTlkRVBhTXJsVG5ET2FYV3JjSDBnb2tIVk5VdWNnU0NZSW5uQTRtWTczeW5wU1Jn?oc=5"
+  },
+  {
+   "d": "10-13",
+   "t": "Why this little known Chinese chipmaker has caused a global stock rout｜CNBC",
+   "url": "https://news.google.com/rss/articles/CBMickFVX3lxTFBER25wam92VXFxTzlFXzJhWWdYaFlUSjNrc2Vpb3Fhc29XQzkwdE4zd2lZWVEydENfa0RJOEVKdU9EZFB1all2SGZBVGp3ZHFtM2lIajZKY3RiMTFBUm1vX3NDTE9peGNnVzI5YlNjb2kwZ9IBd0FVX3lxTE0wc2d1T3Mzd3R5ODVBU0tOT0RUSHNrNF9jdVVSbGhmcjhuMXh1ajVubWl0WVNQTWdRV0FKWW01V0dhYkJURlVmcExTTllqSnRrWVhCNEFKdHJLZ05kQms1S0dlaWkyNW1rVk5OSUJGel9NNWZudkZV?oc=5"
+  },
+  {
+   "d": "10-13",
+   "t": "Nasdaq Futures Fall as Global AI Selloff Intensifies｜WSJ",
+   "url": "https://news.google.com/rss/articles/CBMinAFBVV95cUxNaV9QVFVsbXRmd3pZTmU1SjAtTnJNT2ZoZ1QyUUpJUWc2eG5YS1lDaTA1bEZoc21DWUxTWTBOd1UtWE5wcDgtNklJMzM5VWhhTkdyV3JCVVJrVU9YY1ExaklxLU9sOHFvX1pkT2o0cVJkZ3dTbnBtT1VfdnZ3Qm43VUF0dWR2OXY3X0RiTGNhWC0wV2JqdF9VazU1UDI?oc=5"
+  },
+  {
+   "d": "10-13",
+   "t": "Samsung Electronics chairman Lee to receive 2.6 trillion won worth of shares from mother, reports say｜Reuters",
+   "url": "https://news.google.com/rss/articles/CBMiywFBVV95cUxOODk3LTJfeXNsLXBuX0dQY3MxMVdmOVF5bDUzeHRoZktEX2NGQ3FyZVRIcFhIcXl0aWVNNXhhT29oOFQ2STdmN0NoaktFbVlXdHBwNm16TGV1aWppb2lzZjRqYWp6ZXU5cHVTbkpYWHhKaTVabWhPQkFOSXVmeDhzdHVEdVFmX3VsQnVXU3pKWk1lbHhfRDlOa0Z4andPZXFfT1RXTGNyM05WemMwNU15VHZJMjRObGc3MUoxMzRfdGRHZGUya3JaWVdWVQ?oc=5"
+  },
+  {
+   "d": "10-13",
+   "t": "Asia Stocks Battered as Semiconductor Stocks Dive｜WSJ",
+   "url": "https://news.google.com/rss/articles/CBMirAFBVV95cUxNVk5uUzN5NzdZNkh6U3AtRFNyMzQ3WU9vcTJNdmJCMW9FUVZJOVltaEFMS1FFUnduSHJOTUctYzlCVnJKdmF0WkY0ZEVyWFlpVzRrZDA4c0N4c0JVTFRJSUFJWVg5RWJialRCMXdOVlNIWWRQcW1WTmtWak5DcE4weGFqNnE1SFlPcVdlenMwM3VXdTUzQTFkczZtdTFZTnBrVnplVDhEVVZkajBw?oc=5"
+  },
+  {
+   "d": "10-13",
+   "t": "Chip stocks slide after ‘casino’ comment by Broadcom boss｜Financial Times",
+   "url": "https://news.google.com/rss/articles/CBMihAFBVV95cUxNUEdnZjlUNktHX2ViUVRqZHd4ZmhjaXdkd0NMR3BVLUp6akpVOUFabEljcHk4N0wzRDloZXhuQklwaVUwWjNYSFJnYkhzQ0RQNzZFZXh6VFh2U0hEZ1FybXhxNUQ0WTVLbXZydHM4REVRLXVVbHpsd2Rnc0M1MnVMMlVJTVc?oc=5"
   },
   {
    "d": "10-12",
-   "t": "Strip out AI stocks, and the US market lags Europe｜Yahoo Finance",
-   "url": "https://news.google.com/rss/articles/CBMiqgFBVV95cUxOS2VHXzZRd1hDWjNfamROOFpQZ3ItOG54T29HUVNVTEpEeGN5NVRaQzFkYllqdVlGak45R0t3VFAtMEVHR0MxYkJZeEhRSEs3TlltNHcwSGJxRi1IOFZOMF9ZZ1JYOVZpVUdkS1B1WDMwbkg2MXVBVnBSMnRVZzRzYkthSS0zb0hDUEN2U1VsbkhXdlp2YkJsOW9KRDFFY2hWT2piTXZTUDN1Zw?oc=5"
-  },
-  {
-   "d": "10-11",
-   "t": "Nvidia in talks to invest further in Reflection AI or buy it, FT reports｜Reuters",
-   "url": "https://news.google.com/rss/articles/CBMiqwFBVV95cUxQQXpmTnVsdlhWdUt0a0hnSUg1YUVoRWNhT2JSQ24yeHFvRWVPdG5SNzNsWkNLVS0zbng0UWZrMS1zaGtXRmNzRThMamRUNXJPUGRwX09vN2J0dXFSUW9ZSThFeGZ6bTg5bnFqVVktSk91RzBNMkN0MGFOX2FSSEFZMzZ4TXhMb1dsc1hpLUwtY1pmeERoMnE0M2llTEI0X1V2cGxRc1UtMnpYUmc?oc=5"
-  },
-  {
-   "d": "10-10",
-   "t": "‘What you don’t know is greater than anything you do know’: How Ray Dalio would build a portfolio to withstand a popping AI bubble｜MarketWatch",
-   "url": "https://news.google.com/rss/articles/CBMi_gFBVV95cUxQeEhENFlvODE4bXJPU3M0R2xaZE4xODZ4VFBJbkx0dlNrLTJRbjc0VUZJSGJySGVSMG96VG1JWEJMY3E0R081MHpUY1pNYURzZ0xibWoycUtjOGJQUWlvV1doWm1wTGlENGtiZ2xSUkh1cThTSXRjWDRSSV91ZGZQNjB6V2FibExDVXYyaThvMGs2eGJYVDRSRlR2SlA4Y0RCanVmQXZfUnVDbE1QMDhqVTJNczBsY0d4Q0Zxa2pDX0FPUy1waWpnelJmVDFqN1k4aWMtcUxVNXd0RkxlM2NmTWN4emJuQVBnZnQtSHpncnZzVEcxaEdDMk44eWpDQQ?oc=5"
-  },
-  {
-   "d": "10-10",
-   "t": "AI stocks lead market despite war, higher rates, says investor｜Reuters",
-   "url": "https://news.google.com/rss/articles/CBMiZ0FVX3lxTE10SEh6YTA2SWFJS2VrTllmaWNqcmxNZW5lbFZ6TDd2bGQzaGwzbENVUGVZbFlnWVhNQ0psbnJOTkktVTRFQVR0bm43dXhPNzc5TkhlUWVUMWtsVEtaOHZVT3VNTVVTa2M?oc=5"
-  },
-  {
-   "d": "10-10",
-   "t": "Taiwan Semi's report could control most semiconductor stocks if it's weak, says Jim Cramer｜CNBC",
-   "url": "https://news.google.com/rss/articles/CBMiygFBVV95cUxPOTl0bGduTG1VSVVXbTNGOFFZRTFuRnZGX3RtV3AxWmFwbHpyQUZzbC1lb0hpSkM4ckJmejRzZDd2YW9aUlFKVzBMYkRGTkhJNWhtUkpxZUdVdS1nR0x0QnpEdng2WjBTaDR5Z0tTajd5UTVNaUNEc1hEYnh4T05KQ2hfZkhYSURpRjQ3eElRS2tLT0hsamtYNll4dXhxVFFJek9yaVY2TF94S2k5bVJVbjY3RG5nRWVXNDVOT05KTWk2QW5NMjg5V3Fn?oc=5"
-  },
-  {
-   "d": "10-10",
-   "t": "Cramer’s week ahead: Earnings kick off as banks and chipmakers face big tests｜CNBC",
-   "url": "https://news.google.com/rss/articles/CBMiiAFBVV95cUxPcWpxNGFmUUppOTFNODljMXFLMlUxdnpvcUlqQU9zdVNBZU5qc3ctaUpNelBXdkQwSlFDYTRrRW9Nek85ejUzZlpZcGJLNF9KclJ4b3FWSzA1dlU4WXVBaVRtMW8xVTFsZXRGU2lKbEN3TlJWUlVkZTBNcE1EZHhDQ0RDN1hOYXB20gGOAUFVX3lxTE5WN0FzTkZ5akI2eEpiMHY4dkZqSHAzMHdIM3hZT09GdzROV1lNSXM3Wi1hanBwXzJzNUIwQmZBdTZicGpUTkFCcGFVeVF3d2Ytc2hDblNVS2lieGhhZXR4Y2hMZ2NTMTUtZGRSNFNJVjdtaENwcUwybmExRHhvRU9WY2o4dlo4UURzaFZKUlE?oc=5"
-  },
-  {
-   "d": "10-10",
-   "t": "Nvidia Stock Recovers but IPO Fears Feed AI Concerns. OpenAI, Firmus Red Flags.｜Barron's",
-   "url": "https://news.google.com/rss/articles/CBMiiAFBVV95cUxQakpOR1BJXzh6WGROMTRsVkRsS1ZZODZjMjZxVnNXVVNRV3dfQ1pCcFlBcXZIOGhUZ3pOblprNEVrMzl0OVBLWUtHRm5NS2tmaFpBLUxRdFI1OG1RdlZLRmw5ZFZObzljenRIUnV6a2FCMHBwRHJKQl95T0ZiYjZKVHFTT0hfakdI?oc=5"
-  },
-  {
-   "d": "10-09",
-   "t": "Bradley Tusk on Anthropic IPO: Why add public market pressure if safety is your top priority?｜CNBC",
-   "url": "https://news.google.com/rss/articles/CBMizwFBVV95cUxQRGFlaV9NcHhtcXp0WlNOOXFtcjVER3dlWGUta1lvaGZKTWJScmQwQ3liYXFHMEV6Q1BJVXR1WFlPemp0Zk54c2s3RDFGWUFFNDFWSTlXOHBHdGJrR2JuRk5zUVhpaV9UQks1eDVGdl9oTVZUWlYzSjViZldTbHE3cmNGWlR5alF4QkRlNnp2NWtDLTBOaGtES0FwTjJlLTZQUlVRWmdYWkZLVWk2Y2dsaTMyb3N1cGt0eVVtaDRQWHJ0aHRydHF6dFNSbFh6c0E?oc=5"
-  },
-  {
-   "d": "10-09",
-   "t": "AI Stocks Are Roaring Back but They’ve Rarely Looked So Vulnerable｜Barron's",
-   "url": "https://news.google.com/rss/articles/CBMikAFBVV95cUxPSUFmdFFVVC03TFREeXFqRjBfTEhicHlvT1dmSERiTTJSQ2dpVUNIeGFETzBuS1hJcVFNajFqSWNWUUg0bGRuUkxoSGN2YzFpdC03VWFBdWdUY2Y1cTVwMFRBVUxvWG5GNlg4TzNwWDFLRTJ3NldVMGFLTW5sWENDVWd3TTlNX3VISHJraHk4aFk?oc=5"
-  },
-  {
-   "d": "10-08",
-   "t": "TSMC Gives AI Trade Upbeat Signal—AMD and Other Chip Stocks Fall Anyway｜Barron's",
-   "url": "https://news.google.com/rss/articles/CBMihgFBVV95cUxOTHVndzN4QTlLRUg2ck5qMTBqRXpGRVlhX3owQXcxSGJTNVBlaWFtRGtBOHQ4d1BqNm50dHFKWjhJaFhlZlFTd09RUlZnN05xcVpmeFVOZ2FlUHhBMzVLNENSUHhackpmZENQRTNkUXRYcGowVVhVSnpQSlNTTDE2NFpFLU16Zw?oc=5"
-  },
-  {
-   "d": "10-08",
-   "t": "Breakingviews - COMMENTARY: Shaky $4 bln neocloud IPO pricks AI bubble｜Reuters",
-   "url": "https://news.google.com/rss/articles/CBMipAFBVV95cUxNS1dfX3QyOVNxYzM4bHpaQlFsN2lKZzdYS3FfMHl1ckYzN21DNXh0TVJTQmoxVjBDN3JKTUJPWWwxeHpUN0lndkZGeElubHd5c3NBN2hRS05XWHIwdFdZNzdGRmVnTFgtM2dycjdETTNhOGNmSmpWeFgybU1zZlI5OC00LWZXR21iYTQ5dWlKU1F2WHNhbl9hWU9OX1VqQTJkbVNOZw?oc=5"
+   "t": "The huge lurking leverage of AI hyperscalers｜Financial Times",
+   "url": "https://news.google.com/rss/articles/CBMihAFBVV95cUxNaHFkSlBubzdPS0Z4ZmlyV1lpOVZ0WkZ4bGJNMVNPQTctNnpJR3ZSSl9QNWpkUHU5YnJwZGFTb2NnNnVCVk9Ja1ZUcWFfVzY1RW82bFVMd09EdFJCU1JwdGFEQ0pHZ25YZF9MUFJFLUx6U0VwS1VLYzd3VHZmUUFkSWxlMks?oc=5"
   }
  ],
  "history": [
@@ -3290,6 +3321,21 @@
     69.9
    ],
    "trig": 2
+  },
+  {
+   "date": "2026-10-14",
+   "composite": 62.3,
+   "dims": {
+    "L1": 59.9,
+    "L2": 79.8,
+    "L3": 44.8
+   },
+   "tw": 40.7,
+   "quad": [
+    55.2,
+    69.8
+   ],
+   "trig": 2
   }
  ],
  "params": {
@@ -3302,18 +3348,18 @@
    "id": "hy80",
    "name": "HY 利差 3個月走闊 ≥80bp",
    "state": 0,
-   "value": "+45bp/3M",
+   "value": "+42bp/3M",
    "note": "信用市場確認轉向（GS／歷史典型）",
-   "asof": "2026-10-08",
-   "prog": 56
+   "asof": "2026-10-12",
+   "prog": 52
   },
   {
    "id": "ccc12",
    "name": "CCC 利差 ≥12%（2022 熊市水位）",
    "state": 1,
-   "value": "12.52%",
+   "value": "12.53%",
    "note": "最弱信用層壓力達 2022 熊市級",
-   "asof": "2026-10-08",
+   "asof": "2026-10-12",
    "prog": 100
   },
   {
@@ -3347,9 +3393,9 @@
    "id": "y10_5",
    "name": "美債10年 ≥5%",
    "state": 1,
-   "value": "5.22%",
+   "value": "5.24%",
    "note": "長久期 AI 資產的折現硬約束",
-   "asof": "2026-10-08",
+   "asof": "2026-10-09",
    "prog": 100
   },
   {
@@ -3358,7 +3404,7 @@
    "state": 0,
    "value": "未發生",
    "note": "Hartnett：大頂前的最後供給事件（每週人工覆核）",
-   "asof": "2026-10-13",
+   "asof": "2026-10-14",
    "prog": null
   },
   {
@@ -3372,7 +3418,7 @@
   }
  ],
  "quadrant": {
-  "heat": 69.9,
+  "heat": 69.8,
   "support": 55.2,
   "regime": "過熱但有撐（melt-up 風險）"
  }

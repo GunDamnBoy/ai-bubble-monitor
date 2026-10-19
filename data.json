@@ -2,11 +2,11 @@
  "meta": {
   "version": 2,
   "built": "2026-10-19",
-  "builtTime": "2026-10-19（每週質化覆核）",
+  "builtTime": "2026-10-19（GitHub Actions 自動更新）",
   "nextUpdate": "每交易日自動更新（GitHub Actions）｜質化指標每週覆核｜v2 三層架構",
   "artifactId": "ai-bubble-monitor",
   "lastAutoRun": {
-   "date": "2026-10-17",
+   "date": "2026-10-19",
    "ok": [
     "px SOXX",
     "px SPY",
@@ -42,58 +42,58 @@
     "FRED CPI",
     "FRED FEDFUNDS",
     "FRED DGS10",
-    "FRED Sahm",
-    "Google News"
+    "FRED Sahm"
    ],
    "fail": [
     "AAII",
-    "TW 台積電權重"
+    "TW 台積電權重",
+    "Google News"
    ],
    "streak": {
     "AAII": 0,
     "TW 台積電權重": 0,
-    "px SOXX": 30,
-    "px SPY": 84,
-    "px NVDA": 84,
-    "px 2330": 84,
-    "calc GSY": 30,
-    "calc soxmom": 30,
-    "calc nvdape": 84,
-    "multpl CAPE": 84,
-    "slickcharts Mag7": 84,
-    "CBOE putcall": 84,
-    "FRED VIX": 84,
-    "CNN FearGreed": 76,
-    "calc senti": 84,
-    "FRED HY": 5,
-    "FRED CCC": 84,
-    "ORCL bond": 40,
-    "FRED IG": 84,
-    "FRED FEDFUNDS 磚塊": 84,
-    "FRED USINFO 磚塊": 84,
-    "EDGAR RPO": 84,
-    "EDGAR quarterly": 84,
-    "TW 月營收": 30,
-    "TW 官方PE": 30,
-    "calc TW 2330": 84,
-    "TW 電子指數": 84,
-    "TW 融資餘額": 84,
-    "TW 當沖比重": 30,
-    "TW 融資占市值": 22,
-    "TW 融資維持率": 22,
-    "TW 信用交易占比": 22,
-    "TW 海關出口": 38,
-    "FRED CPI": 84,
-    "FRED FEDFUNDS": 84,
-    "FRED DGS10": 84,
-    "FRED Sahm": 59,
-    "Google News": 4
+    "Google News": 0,
+    "px SOXX": 31,
+    "px SPY": 85,
+    "px NVDA": 85,
+    "px 2330": 85,
+    "calc GSY": 31,
+    "calc soxmom": 31,
+    "calc nvdape": 85,
+    "multpl CAPE": 85,
+    "slickcharts Mag7": 85,
+    "CBOE putcall": 85,
+    "FRED VIX": 85,
+    "CNN FearGreed": 77,
+    "calc senti": 85,
+    "FRED HY": 6,
+    "FRED CCC": 85,
+    "ORCL bond": 41,
+    "FRED IG": 85,
+    "FRED FEDFUNDS 磚塊": 85,
+    "FRED USINFO 磚塊": 85,
+    "EDGAR RPO": 85,
+    "EDGAR quarterly": 85,
+    "TW 月營收": 31,
+    "TW 官方PE": 31,
+    "calc TW 2330": 85,
+    "TW 電子指數": 85,
+    "TW 融資餘額": 85,
+    "TW 當沖比重": 31,
+    "TW 融資占市值": 23,
+    "TW 融資維持率": 23,
+    "TW 信用交易占比": 23,
+    "TW 海關出口": 39,
+    "FRED CPI": 85,
+    "FRED FEDFUNDS": 85,
+    "FRED DGS10": 85,
+    "FRED Sahm": 60
    }
   }
  },
- "composite": 61.6,
+ "composite": 60.9,
  "dims": {
-  "L1": 56.5,
+  "L1": 54.6,
   "L2": 81.0,
   "L3": 44.8
  },
@@ -169,7 +169,7 @@
     ]
    ],
    "dir": "越高越熱",
-   "asof": "2026-10-17",
+   "asof": "2026-10-19",
    "fresh": "ok",
    "src": "multpl.com",
    "url": "https://www.multpl.com/shiller-pe",
@@ -203,7 +203,7 @@
     ]
    ],
    "dir": "越高越熱",
-   "asof": "2026-10-17",
+   "asof": "2026-10-19",
    "fresh": "ok",
    "src": "SlickCharts",
    "url": "https://www.slickcharts.com/sp500",
@@ -214,9 +214,9 @@
    "id": "nvdape",
    "dim": "L1",
    "name": "NVIDIA 本益比（即時價÷TTM EPS）",
-   "value": 27.46,
-   "disp": "27.5×",
-   "score": 16.4,
+   "value": 27.07,
+   "disp": "27.1×",
+   "score": 15.6,
    "zone": "green",
    "anchors": [
     [
@@ -237,22 +237,22 @@
     ]
    ],
    "dir": "越高越熱",
-   "asof": "2026-10-15",
+   "asof": "2026-10-16",
    "fresh": "ok",
    "src": "Yahoo/Stooq＋財報 EPS",
    "url": "https://stockanalysis.com/stocks/nvda/",
    "note": "對照 2000 年 Cisco 130×+。龍頭是否仍由盈利支撐的即時檢驗；GS 2026-08 改口「盈利泡沫」後，這裡要與 LTG 預期一起看。",
    "qual": false,
-   "sub": "距200日線 +7.1%"
+   "sub": "距200日線 +5.5%"
   },
   {
    "id": "gsy_runup",
    "dim": "L1",
    "name": "GSY 泡沫判準：24個月漲幅（SOXX）",
-   "value": 120.4,
-   "disp": "+120%（24個月）",
-   "score": 70.2,
-   "zone": "orange",
+   "value": 109.5,
+   "disp": "+110%（24個月）",
+   "score": 64.8,
+   "zone": "yellow",
    "anchors": [
     [
      25,
@@ -276,7 +276,7 @@
     ]
    ],
    "dir": "越高越熱",
-   "asof": "2026-10-15",
+   "asof": "2026-10-16",
    "fresh": "ok",
    "src": "Greenwood-Shleifer (JFE 2019)",
    "url": "https://www.nber.org/papers/w23191",
@@ -288,10 +288,10 @@
    "id": "gsy_accel",
    "dim": "L1",
    "name": "GSY 加速度（當下24月漲幅 − 一年前24月漲幅）",
-   "value": 45.7,
-   "disp": "+46pp",
-   "score": 69.4,
-   "zone": "orange",
+   "value": 31.7,
+   "disp": "+32pp",
+   "score": 61.0,
+   "zone": "yellow",
    "anchors": [
     [
      -30,
@@ -315,7 +315,7 @@
     ]
    ],
    "dir": "凸性越強越熱",
-   "asof": "2026-10-15",
+   "asof": "2026-10-16",
    "fresh": "ok",
    "src": "Greenwood-Shleifer (JFE 2019)",
    "url": "https://www.nber.org/papers/w23191",
@@ -328,7 +328,7 @@
    "name": "已實現波動率一年變化（SOXX）",
    "value": 7.2,
    "disp": "+7.2pp（年化 46%）",
-   "score": 74.2,
+   "score": 74.3,
    "zone": "orange",
    "anchors": [
     [
@@ -349,7 +349,7 @@
     ]
    ],
    "dir": "上升越多越熱",
-   "asof": "2026-10-15",
+   "asof": "2026-10-16",
    "fresh": "ok",
    "src": "Greenwood-Shleifer / State Street",
    "url": "https://www.nber.org/papers/w23191",
@@ -360,8 +360,8 @@
    "id": "soxmom",
    "dim": "L1",
    "name": "半導體相對動能（SOXX−SPY，3個月）",
-   "value": -5.2,
-   "disp": "-5pp",
+   "value": -8.7,
+   "disp": "-9pp",
    "score": 0.0,
    "zone": "green",
    "anchors": [
@@ -383,7 +383,7 @@
     ]
    ],
    "dir": "越高越熱",
-   "asof": "2026-10-15",
+   "asof": "2026-10-16",
    "fresh": "ok",
    "src": "Yahoo/Stooq",
    "url": "https://stockanalysis.com/etf/soxx/",
@@ -394,13 +394,13 @@
    "id": "senti",
    "dim": "L1",
    "name": "情緒與投機溫度（合成）",
-   "value": 45.0,
-   "disp": "個股P/C 0.62｜VIX 16.5｜F&G 18",
-   "score": 45.0,
+   "value": 43.1,
+   "disp": "個股P/C 0.65｜VIX 16.5｜F&G 18",
+   "score": 43.1,
    "zone": "yellow",
    "anchors": null,
    "dir": "合成規則（本次：CBOE 個股 Put/Call＋VIX＋CNN F&G）",
-   "asof": "2026-10-17",
+   "asof": "2026-10-19",
    "fresh": "ok",
    "src": "CBOE 個股 Put/Call / VIX / CNN F&G",
    "url": "https://www.cboe.com/us/options/market_statistics/",
@@ -569,7 +569,7 @@
     ]
    ],
    "dir": "越高越熱",
-   "asof": "2026-10-17",
+   "asof": "2026-10-19",
    "fresh": "ok",
    "src": "Public.com 債券報價",
    "url": "https://public.com/bonds/corporate/oracle-corp/orcl-4.375-05-15-2055-68389xbg9",
@@ -802,7 +802,7 @@
   }
  ],
  "tw": {
-  "heat": 39.8,
+  "heat": 39.5,
   "items": [
    {
     "id": "tw_rev",
@@ -818,12 +818,12 @@
    {
     "id": "tw_export",
     "name": "台灣海關出口年增",
-    "value": 45.6,
-    "disp": "+45.6%（2026-07）",
-    "score": 12.9,
+    "value": 52.6,
+    "disp": "+52.6%（2026-08）",
+    "score": 10.0,
     "note": "總體交叉驗證：關務署月度出口統計（月頻）。",
     "src": "財政部關務署 海關出口統計",
-    "asof": "2026-07",
+    "asof": "2026-08",
     "url": "https://opendata.customs.gov.tw/"
    },
    {
@@ -979,7 +979,7 @@
    "估值": 42.3,
    "籌碼": 73.5,
    "槓桿": 27.9,
-   "基本面": 14.2
+   "基本面": 12.7
   },
   "subWeights": {
    "動能": 0.25,
@@ -2131,7 +2131,7 @@
    },
    "orclbond": {
     "now": 8.32,
-    "asof": "2026-10-17"
+    "asof": "2026-10-19"
    }
   }
  },
@@ -3429,16 +3429,16 @@
   },
   {
    "date": "2026-10-19",
-   "composite": 61.6,
+   "composite": 60.9,
    "dims": {
-    "L1": 56.5,
+    "L1": 54.6,
     "L2": 81.0,
     "L3": 44.8
    },
-   "tw": 39.8,
+   "tw": 39.5,
    "quad": [
     55.2,
-    68.8
+    67.8
    ],
    "trig": 2
   }
@@ -3471,10 +3471,10 @@
    "id": "gsy150",
    "name": "SOXX 24個月漲幅 ≥150%",
    "state": 0,
-   "value": "+120%",
+   "value": "+110%",
    "note": "產業 24 個月漲幅的極端值；論文機率是引用、非本標的校準（§4.1）",
-   "asof": "2026-10-15",
-   "prog": 80
+   "asof": "2026-10-16",
+   "prog": 73
   },
   {
    "id": "cpi4",
@@ -3509,7 +3509,7 @@
    "state": 0,
    "value": "未發生",
    "note": "Hartnett：大頂前的最後供給事件（每週人工覆核）",
-   "asof": "2026-10-17",
+   "asof": "2026-10-19",
    "prog": null
   },
   {
@@ -3523,7 +3523,7 @@
   }
  ],
  "quadrant": {
-  "heat": 68.8,
+  "heat": 67.8,
   "support": 55.2,
   "regime": "過熱但有撐（melt-up 風險）"
  }

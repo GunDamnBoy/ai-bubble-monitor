@@ -1,8 +1,8 @@
 {
  "meta": {
   "version": 2,
-  "built": "2026-10-17",
-  "builtTime": "2026-10-17（GitHub Actions 自動更新）",
+  "built": "2026-10-19",
+  "builtTime": "2026-10-19（每週質化覆核）",
   "nextUpdate": "每交易日自動更新（GitHub Actions）｜質化指標每週覆核｜v2 三層架構",
   "artifactId": "ai-bubble-monitor",
   "lastAutoRun": {
@@ -91,9 +91,9 @@
    }
   }
  },
- "composite": 61.1,
+ "composite": 61.6,
  "dims": {
-  "L1": 55.3,
+  "L1": 56.5,
   "L2": 81.0,
   "L3": 44.8
  },
@@ -412,17 +412,17 @@
    "id": "narrative",
    "dim": "L1",
    "name": "泡沫敘事熱度",
-   "value": 4.0,
-   "disp": "第 4 級（維持）",
-   "score": 70,
+   "value": 4.5,
+   "disp": "第 4.5 級（上調半級）",
+   "score": 80,
    "zone": "orange",
    "anchors": null,
    "dir": "質化評分（1-5級→10/30/50/70/90）",
-   "asof": "2026-10-09",
+   "asof": "2026-10-16",
    "fresh": "ok",
    "src": "綜合媒體監測",
    "url": "https://finance.yahoo.com/markets/live/stock-market-today-friday-september-25-dow-sp-500-nasdaq-081738529.html",
-   "note": "維持第 4 級（score 70→70）：本週的泡沫論述從評論家擴散到大型機構的正式預測，市場也第一次對「AI 需求的數字」本身做出反應，但仍是單日回檔、不是恐慌。Bridgewater 創辦人 Ray Dalio 於 2026-10-07 在新加坡 Forbes Global CEO Conference 稱 AI 是「接近破裂點的典型泡沫」，觸媒是利率續升與把帳面財富變現（Bloomberg 2026-10-07；Business Standard 同日轉述）；Panmure Liberum 的 Joachim Klement 把 2027 年底 S&P 500 目標從 8,300 砍到 5,000、隱含下跌約 36%，以 2027–28 泡沫破裂為基本情境（Bloomberg 2026-10-09，Insurance Journal 轉載）。市場反應：FT 2026-10-08 報導 OpenAI 對投資人說明的年化營收「接近 $500 億」、比 9 月底流傳的約 $700 億少約 $200 億，當天 Nasdaq 跌 1.3%、SOXX 跌 3.5%、NVIDIA 跌近 3%（TechCrunch 2026-10-08；Yahoo Finance 2026-10-08）；同日 NVIDIA 支持的澳洲資料中心商 Firmus 以需求不足撤回約 $50 億 IPO（Reuters 2026-10-08）。反方向：同一週 S&P 500 與 Nasdaq 100 仍創歷史新高（Bloomberg 2026-10-07），Samsung 第三季獲利年增約九倍至約 $800 億、台積電給出正面訊號（FT、Barron's 2026-10-08）。討論廣泛、機構開始寫進目標價、單日有賣壓，但沒有形成恐慌共識，仍是第 4 級。升到第 5 級的觸媒仍是 Anthropic 掛牌受挫——公開版 S-1 截至 2026-10-04 仍未上 EDGAR（Yahoo Finance 2026-10-04）。",
+   "note": "上調半級（score 70 → 80）：泡沫論述本週從「機構寫進目標價」變成「市場直接用價格回答」，但還不是恐慌共識。費城半導體指數單週跌 11.4%、為 2025 年 4 月以來最弱，Nasdaq 單週跌約 4.5%、最大 AI 與晶片股市值單週蒸發近 $1 兆（Startup Fortune 2026-10-17）；晶片股連跌八個交易日、16 年來最長（Yahoo Finance／Barchart 2026-10-16）；WSJ 2026-10-17 以「AI 交易出現新裂縫，華爾街創 6 月來最差一週」下標，FT 2026-10-16 的節目標題是「The AI boom stumbles」。觸媒是信用面與利率面同時出事：9 月 CPI 年增 3.7% 高於預期、10-28 FOMC 升息機率升高（2026-10-14），CoreWeave 5 年 CDS 創 1,194.5bp 新高（Benzinga 引 Bloomberg／ICE 2026-10-16），BofA 的 Hartnett 建議未來 3–4 週「偏向避險」、Allianz 的 Subran 對 FT 說資料中心債正面臨「達爾文時刻」（Benzinga 2026-10-16）。不給第 5 級（90）的理由：S&P 500 單週跌幅仍溫和（10-16 收 7,659、當日 −1.09%，TheStreet 2026-10-16），UBS 稱之為「預期的重新校準而非 AI 投資故事的根本斷裂」、Barron's 2026-10-17 寫泡沫憂慮被誇大，Jensen Huang 2026-10-15 公開表示 CoreWeave 不需要 NVIDIA 兜底，Cathie Wood 連兩天加碼 CoreWeave（24/7 Wall St. 2026-10-16）——分歧仍大，沒有形成一面倒的恐慌。升到第 5 級的觸媒：Anthropic 掛牌受挫（部分投資人已把估值預期由約 $2 兆降到 $1.5 兆，Reuters 2026-10-15），或任何 AI 主體出現實質信用事件。",
    "qual": true
   },
   {
@@ -581,33 +581,33 @@
    "dim": "L2",
    "name": "循環融資強度（供應商融資）",
    "value": 108.5,
-   "disp": "Amazon $8B GPU 回租案研議中・NVIDIA 洽購／加碼 Reflection AI・NVIDIA 支持的 Firmus 撤回 IPO（10-02／10-08／10-11）",
+   "disp": "NVIDIA 持 CoreWeave 約 10%＋$63 億算力兜底・Huang 稱無需再兜底（10-15）・Bloomberg 盤點逾 $7,500 億融資網",
    "score": 83,
    "zone": "orange",
    "anchors": null,
    "dir": "質化評分（0-100）",
-   "asof": "2026-10-11",
+   "asof": "2026-10-15",
    "fresh": "ok",
    "src": "SEC S-1 / Bloomberg / Reuters / CNBC",
    "url": "https://techcrunch.com/2026/09/25/anthropic-to-pay-akamai-11-6-billion-over-seven-years-in-cloud-deal/",
-   "note": "維持橙燈 83（score 83→83）：本週沒有新的大型供應商融資成案，但結構仍在延伸，且第一次看到這條鏈在公開市場拿不到錢。NVIDIA 傳與 Reflection AI 進行初步洽談，選項包括收購或加碼投資（GuruFocus 2026-10-11）；Amazon 把約 $80 億在役 NVIDIA 設備移入外部載具再回租的方案仍在研議、未成案（FT 2026-10-02；24/7 Wall St. 2026-10-04 追蹤）。反向訊號：NVIDIA 支持的澳洲 AI 資料中心商 Firmus 於 2026-10-08 以需求不足撤回約 $50 億的 IPO、改走私募（Reuters 2026-10-08）——供應商背書不再保證公開市場買單。既有結構不變：Anthropic 招股書草稿揭露約 $5,180 億算力承諾、主要算力供應商同時是大股東（Fortune 2026-09-29）；Akamai 以認股權換 Anthropic 七年 $116 億承諾（TechCrunch 2026-09-25）；NVIDIA 對 AI 公司股權投資累計約 $990 億（CNBC 2026-09-04）、10-Q 表外擔保約 $1,085 億。不進紅區的理由不變：84+ 要求「供應商融資成為需求主要來源」，而終端付費需求仍在擴大（OpenAI 年化營收約 $500 億，FT 2026-10-08）。下一期最該盯：Amazon 回租案是否成案、Firmus 私募輪是否由 NVIDIA 接手。",
+   "note": "維持橙燈 83（score 83 → 83）：本週沒有新的大型供應商融資成案，壓力測試落在既有結構上。CoreWeave 信用急遽惡化時，市場第一個問的是 NVIDIA 會不會出手：NVIDIA 持有 CoreWeave 約 10% 股權（第二大股東）、2025-09 簽下至 2032-04 收購未售出算力的 $63 億協議、2026-01 再以每股 $87.20 加碼 $20 億；Jensen Huang 2026-10-15 在斯德哥爾摩表示 CoreWeave 財務體質「每天都在改善」、不認為需要 NVIDIA 兜底（BigGo Finance 2026-10-15；TheStreet 2026-10-16）。Bloomberg 2026-10-13 出版循環交易導覽，彙整串連 NVIDIA、晶片買家與其借款的融資網逾 $7,500 億，BIS 與 IMF 均已點名系統性風險（Startup Fortune 2026-10-17 轉述）。上週延續的案子：NVIDIA 與 Reflection AI 洽談收購或加碼（Business Standard 2026-10-11）、Amazon 約 $80 億在役 GPU 回租方案仍在研議（FT 2026-10-02）。既有結構不變：Anthropic 草稿揭露約 $5,180 億算力承諾、NVIDIA 對 AI 公司股權投資累計約 $990 億、10-Q 表外擔保約 $1,085 億、NVIDIA 牽頭的 $5,000 億第三方融資平台（Fortune 2026-10-18 回顧）。不進紅區的理由不變：84+ 要求「供應商融資成為需求主要來源」，而台積電 Q3 營收年增 41%、HPC 佔 68%（Crypto Briefing 2026-10-15），終端需求仍在擴大。",
    "qual": true
   },
   {
    "id": "weakcredit",
    "dim": "L2",
    "name": "弱資質信用單點（金絲雀）",
-   "value": 855,
-   "disp": "CCC 利差 12.5%（3 個月 +278bp）・Firmus 撤回 $5B IPO・CoreWeave 單日 −8%、Oracle −5.5%（10-08）",
+   "value": 1194.5,
+   "disp": "CoreWeave 5 年 CDS 1,194.5bp 創高・2031 債約 79 美分・Oracle CDS 288bp 創高（10-15）",
    "score": 83,
    "zone": "orange",
    "anchors": null,
    "dir": "質化評分（0-100）",
-   "asof": "2026-10-09",
+   "asof": "2026-10-16",
    "fresh": "ok",
    "src": "SEC S-1 / Bloomberg / CNBC / Moody's",
    "url": "https://www.brecorder.com/news/40440993/softbank-issues-111-billion-in-bonds-in-openai-financing-push",
-   "note": "維持橙燈 83（score 83→83）：整個低評等信用環境再轉差一格，AI 單點的股價先反應，但仍沒有任何信用事件。引擎讀數：CCC 利差 2026-10-08 為 12.52%、3 個月 +278bp（上週 12.15%、+244bp），HY 整體 3.15%、3 個月 +45bp；Oracle 2055 長債殖利率 8.11%（2026-10-10）。2026-10-08 FT 報導 OpenAI 年化營收比先前流傳的少約 $200 億後，CoreWeave 收 $81.58、單日跌近 8%，Oracle 跌近 5.5%、Broadcom 跌逾 4%（GuruFocus 2026-10-08）；同日 NVIDIA 支持的 Firmus 以需求不足撤回約 $50 億 IPO（Reuters 2026-10-08）。FT 報導自 9 月初以來美國科技公司相關 CDS 交易量增加約 90%、Amazon／Alphabet／Microsoft／Oracle／CoreWeave 的 CDS 同步走闊（Crypto Briefing 2026-10-09 轉述 FT，未附點位）。10 年期美債 2026-10-07 盤中近 5.37%、約 24 年高點（Yahoo Finance 2026-10-08）。既有單點不變：CRWV 5 年 CDS 約 855bp（2026-07-28）、Oracle 5 年 CDS 約 200–215bp 區間（2026-07 底）、CoreWeave 6 月底負債 $356 億。本週再以違約、跳票、契約違反、再融資失敗、發債撤回等關鍵字查核至 2026-10-11，未發現 AI 相關主體的實質信用事件；Firmus 撤回的是股權發行而非債務，84+ 要求的斷點仍未出現。下週最該盯 CoreWeave 與 Oracle 的二級市場債價，以及 10 月底 FOMC 是否再升息。",
+   "note": "維持橙燈 83（score 83 → 83）：本週是指標性弱資質主體的信用價格大幅惡化的一週，已把 67–84 的「指標性公司 CDS 創高」推到極限，但 84+ 要求的再融資失敗或違約仍沒有發生。CoreWeave 5 年 CDS 於 2026-10-15 盤中走闊 74.5bp 至 1,194.5bp 的紀錄（ICE Data Services，Bloomberg 引述；S&P Global Market Intelligence 推算五年累積違約機率約 64%，一年前約 30%），6 月時為 452bp；2031 年到期的 9.75% 債跌到約 78.65 美分、殖利率約 16.2%，9% 2031 債 79.9 美分（BigGo Finance 2026-10-15）；股價 10-14 單日跌 15.5%、單週約 −22%（Benzinga 2026-10-16）。Oracle 5 年 CDS 一夜走闊 26bp 至 288bp、同創紀錄，Amazon／Alphabet／Meta 的 CDS 也創高（TokenPost 2026-10-15）；Oracle 10-15 收 $130.55、單日跌 8.8%，最近一季 FCF 約 −$54 億（24/7 Wall St. 2026-10-15）。引擎讀數：CCC 利差 2026-10-15 為 12.78%、3 個月 +308bp，HY 整體 3.23%、+52bp；Oracle 長債殖利率 8.32%（2026-10-17）。表外端開始卡住：JPMorgan、MUFG 等銀行為一筆租給 Oracle 的德州／威斯康辛資料中心約 $380 億建設貸款找買家已逾六個月、部分願折價出售，並探詢重大風險轉移（Startup Fortune 2026-10-11 轉述 Bloomberg／FT）。不進紅區的理由：以違約、跳票、契約違反、再融資失敗、發債撤回等關鍵字查核至 2026-10-18，沒有 AI 相關主體的實質信用事件；CDS 隱含違約機率是模型推算，不是事件，Jensen Huang 2026-10-15 也表示 CoreWeave 的資金成本在下降、不需 NVIDIA 兜底。下週最該盯：CoreWeave 下一筆融資能否以可接受條件完成、上述 $380 億貸款是否被認列損失，以及 10-28 FOMC。",
    "qual": true
   },
   {
@@ -2179,25 +2179,25 @@
    {
     "item": "信用利差趨勢性走闊（HY 3個月 +80bp）",
     "state": 0.5,
-    "evi": "維持半格：最弱的一層繼續走闊，HY 整體仍未到門檻。引擎讀數：CCC 利差 2026-10-08 為 12.52%、3 個月 +278bp（10-01 為 12.15%、+244bp），ccc12 觸發器持續點亮；HY 整體 3.15%、3 個月 +45bp，約為 +80bp 門檻的 56%（hy80 未亮，且比上週的 +49bp 略收）。10 年期美債 10-07 盤中近 5.37%、約 24 年高點（Yahoo Finance 2026-10-08）。FT 報導 9 月初以來科技公司 CDS 交易量增加約 90%（Crypto Briefing 2026-10-09 轉述）。門檻寫的是 HY 整體，故維持半格"
+    "evi": "維持半格：最弱的一層急遽走闊，HY 整體仍未到門檻。引擎讀數：CCC 利差 2026-10-15 為 12.78%、3 個月 +308bp（10-08 為 12.52%、+278bp），ccc12 觸發器持續點亮；HY 整體 3.23%、3 個月 +52bp，約為 +80bp 門檻的 65%（hy80 未亮）。單點已到困境水位：CoreWeave 5 年 CDS 10-15 創 1,194.5bp、Oracle 288bp 同創紀錄（Benzinga、TokenPost 2026-10-15～16）。10 年期美債 10-16 為 5.12%（y10_5 點亮）。門檻寫的是 HY 整體，故維持半格"
    },
    {
     "item": "AI 巨頭 IPO 潮與首日暴漲",
     "state": 0.5,
-    "evi": "維持半格：管道仍在排隊，但本週公開市場對 AI 基建 IPO 的態度是往後退。NVIDIA 支持的澳洲資料中心商 Firmus 於 2026-10-08 以需求不足撤回約 $50 億 IPO、改走私募（Reuters 2026-10-08）；OpenAI IPO 延至 2027 年初（TechCrunch 2026-10-08）；Accelevation 9-30 低於區間定價（The Star 2026-09-30 引 Reuters）。Anthropic 的公開版 S-1 截至 2026-10-04 仍未上 EDGAR，報導指 11-09 當週開始行銷、需在 10 月底前公開遞件（Yahoo Finance 2026-10-04）。「IPO 潮」與「首日暴漲」兩件事都未成立，維持半格只因巨型 IPO 的時程仍具體到週；若 10 月底前 S-1 仍未公開，下週應考慮降為 0。SpaceX 2026-06-12 的掛牌依 §3.5 不計入本項（非 AI 標的）"
+    "evi": "維持半格，理由再變薄：Anthropic 據報於 2026-10-14 在舊金山總部邀機構投資人見面（financefeeds 2026-10-12 引 Bloomberg），但公開版 S-1 截至 10-11 仍未上 EDGAR，若要 11-09 當週路演，約需在 10-23 前公開遞件；部分投資人已把估值預期由約 $2 兆降到 $1.5 兆，理由是 Q3 營收 $168 億、季增 45%，成長較 Q2 的倍增放緩（Yahoo Finance／24/7 Wall St. 2026-10-16 引 Reuters 10-15）。OpenAI IPO 延至 2027 年初（TechCrunch 2026-10-08）；Firmus 10-08 撤回 IPO。「IPO 潮」與「首日暴漲」都未成立；若 10 月底前 S-1 仍未公開，下週降為 0。SpaceX 2026-06-12 的掛牌依 §3.5 不計入本項（非 AI 標的）"
    },
    {
     "item": "私募信貸/表外融資佔比激增",
     "state": 1,
-    "evi": "維持點亮，本週多了一種結構：把已在役的晶片搬出資產負債表。FT 2026-10-02 報導 Amazon 研議把約 $80 億在役的 NVIDIA Grace Blackwell 設備移入外部投資人出資的載具再回租，載具可出售至多 10% 股權並發債（AI Weekly 2026-10-02 轉述 FT）；Goldman 統計年內低評等 AI 相關借款約 $880 億（Benzinga 2026-10-02 轉述）。既有基準不變：Blue Owl 旗下 CoreWeave 租約園區 $11 億 BB− 債（Bloomberg 2026-09-23）；Morgan Stanley 盤點七家大廠合計逾 $3.1T 表外 AI 承諾（Axios 2026-08-27）；Broadcom AI XPV 首期 $350 億已定價（CNBC 2026-08-21）"
+    "evi": "維持點亮，本週的新訊號是表外債開始賣不掉：JPMorgan、MUFG 等銀行為一筆租給 Oracle 的資料中心約 $380 億建設貸款找買家逾六個月、部分願折價，並探詢重大風險轉移（SRT），相關 SPV 合計約 $1,200 億（Startup Fortune 2026-10-11 轉述 Bloomberg／FT）；FT 2026-10-15 報導投資人拋售資料中心債。既有基準不變：Amazon 約 $80 億在役 GPU 回租案研議中（FT 2026-10-02）、Goldman 統計年內低評等 AI 相關借款約 $880 億（Benzinga 2026-10-02）、Morgan Stanley 盤點逾 $3.1T 表外 AI 承諾（Axios 2026-08-27）。規模仍在、而且開始變成負擔"
    },
    {
     "item": "弱資質主體信用事件",
     "state": 0,
-    "evi": "維持 0：以違約、跳票、契約違反、再融資失敗、發債撤回等關鍵字交叉查核至 2026-10-04，未發現任何 AI 相關主體的實質信用事件。整體低評等市場轉差（CCC 利差破 1,000bp，TechTimes 2026-10-01），但被點名的壓力源是軟體業與再融資牆，不是 AI 基建主體；CoreWeave 於 2026-10-02 仍在宣布新的長租約與融資案。信用環境轉差讓本項的機率上升，但事件本身沒有發生"
+    "evi": "維持 0，但距離明顯縮短：以違約、跳票、契約違反、再融資失敗、發債撤回等關鍵字交叉查核至 2026-10-18，未發現 AI 相關主體的實質信用事件。CoreWeave 5 年 CDS 創 1,194.5bp、模型推算五年違約機率約 60–64%、2031 債約 79 美分（BigGo Finance 2026-10-15）——這是市場在定價事件，不是事件本身；$380 億 Oracle 租約建設貸款滯銷也還不是損失認列。CoreWeave 9 月才以 2.875% 票息完成 $37 億可轉債（pulse2 2026-09-18），尚無近期到期牆。出現第一筆真正的再融資失敗或違約才點亮"
    }
   ],
-  "note": "點亮 3.5／6（與上週相同；六項逐項重看後全部維持，證據延伸到 2026-10-11）。本週的新東西在 IPO 與股價、不在信用事件：FT 10-08 報導 OpenAI 年化營收約 $500 億、比先前流傳的少約 $200 億，當天 Nasdaq 跌 1.3%、CoreWeave 跌近 8%、Oracle 跌近 5.5%；NVIDIA 支持的 Firmus 同日撤回 $50 億 IPO，OpenAI IPO 延至 2027，Anthropic S-1 仍未公開——第 4 項半格的理由變薄。信用面延續上週的方向：CCC 利差 12.52%、3 個月 +278bp，HY 整體 +45bp 仍未到 +80bp，第 3 項維持半格；違約、再融資失敗等關鍵字查核仍無 AI 主體的信用事件，第 6 項維持 0。第 1、2、5 項沒有新證據改變判斷，維持原判。current 維持 2.8：仍在第二階段（外部融資主導）後段；要進第三階段，仍需要弱資質主體的大額融資變成不必談條件的常態，而本週的情況是連股權窗口都在挑人。"
+  "note": "點亮 3.5／6（與上週相同；六項逐項重看，第 3、4、5、6 項更新證據，全部維持原判，證據延伸到 2026-10-18）。本週是信用面急遽惡化的一週，但還停在價格、沒有變成事件：CoreWeave 5 年 CDS 10-15 創 1,194.5bp、Oracle 288bp 同創紀錄，CCC 利差 3 個月 +308bp，晶片股連跌八日、費半單週 −11.4%；HY 整體 +52bp 仍未到 +80bp，第 3 項維持半格；違約與再融資失敗查核仍無 AI 主體，第 6 項維持 0，但這是距離點亮最近的一次。表外端出現滯銷（約 $380 億 Oracle 租約建設貸款逾六個月賣不掉），第 5 項的性質由「規模」轉為「負擔」。Anthropic S-1 仍未公開、估值預期下修到約 $1.5 兆，第 4 項半格的期限是 10 月底。第 1、2 項沒有新證據改變判斷。current 維持 2.8：仍在第二階段（外部融資主導）後段。要注意的是，本週的壓力形狀比較像第四階段的前兆（最弱節點利差急闊）而不是第三階段的擴散——若下週出現第一筆 AI 主體的再融資失敗，判讀應直接跳過「第三階段」的融資氾濫敘事。"
  },
  "events": [
   {
@@ -3426,6 +3426,21 @@
     68.2
    ],
    "trig": 2
+  },
+  {
+   "date": "2026-10-19",
+   "composite": 61.6,
+   "dims": {
+    "L1": 56.5,
+    "L2": 81.0,
+    "L3": 44.8
+   },
+   "tw": 39.8,
+   "quad": [
+    55.2,
+    68.8
+   ],
+   "trig": 2
   }
  ],
  "params": {
@@ -3508,7 +3523,7 @@
   }
  ],
  "quadrant": {
-  "heat": 68.2,
+  "heat": 68.8,
   "support": 55.2,
   "regime": "過熱但有撐（melt-up 風險）"
  }

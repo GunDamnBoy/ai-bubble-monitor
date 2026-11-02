@@ -2,11 +2,11 @@
  "meta": {
   "version": 2,
   "built": "2026-11-02",
-  "builtTime": "2026-11-02（每週質化覆核）",
+  "builtTime": "2026-11-02（GitHub Actions 自動更新）",
   "nextUpdate": "每交易日自動更新（GitHub Actions）｜質化指標每週覆核｜v2 三層架構",
   "artifactId": "ai-bubble-monitor",
   "lastAutoRun": {
-   "date": "2026-10-31",
+   "date": "2026-11-02",
    "ok": [
     "px SOXX",
     "px SPY",
@@ -52,48 +52,48 @@
    "streak": {
     "AAII": 0,
     "TW 台積電權重": 0,
-    "px SOXX": 42,
-    "px SPY": 96,
-    "px NVDA": 96,
-    "px 2330": 96,
-    "calc GSY": 42,
-    "calc soxmom": 42,
-    "calc nvdape": 96,
-    "multpl CAPE": 96,
-    "slickcharts Mag7": 96,
-    "CBOE putcall": 96,
-    "FRED VIX": 96,
-    "CNN FearGreed": 88,
-    "calc senti": 96,
-    "FRED HY": 8,
-    "FRED CCC": 8,
-    "ORCL bond": 52,
-    "FRED IG": 8,
-    "FRED FEDFUNDS 磚塊": 8,
-    "FRED USINFO 磚塊": 8,
-    "EDGAR RPO": 96,
-    "EDGAR quarterly": 96,
-    "TW 月營收": 42,
-    "TW 官方PE": 42,
-    "calc TW 2330": 96,
-    "TW 電子指數": 96,
-    "TW 融資餘額": 96,
-    "TW 當沖比重": 42,
-    "TW 融資占市值": 34,
-    "TW 融資維持率": 34,
-    "TW 信用交易占比": 34,
-    "TW 海關出口": 50,
-    "FRED CPI": 8,
-    "FRED FEDFUNDS": 8,
-    "FRED DGS10": 8,
-    "FRED Sahm": 8,
-    "Google News": 11
+    "px SOXX": 43,
+    "px SPY": 97,
+    "px NVDA": 97,
+    "px 2330": 97,
+    "calc GSY": 43,
+    "calc soxmom": 43,
+    "calc nvdape": 97,
+    "multpl CAPE": 97,
+    "slickcharts Mag7": 97,
+    "CBOE putcall": 97,
+    "FRED VIX": 97,
+    "CNN FearGreed": 89,
+    "calc senti": 97,
+    "FRED HY": 9,
+    "FRED CCC": 9,
+    "ORCL bond": 53,
+    "FRED IG": 9,
+    "FRED FEDFUNDS 磚塊": 9,
+    "FRED USINFO 磚塊": 9,
+    "EDGAR RPO": 97,
+    "EDGAR quarterly": 97,
+    "TW 月營收": 43,
+    "TW 官方PE": 43,
+    "calc TW 2330": 97,
+    "TW 電子指數": 97,
+    "TW 融資餘額": 97,
+    "TW 當沖比重": 43,
+    "TW 融資占市值": 35,
+    "TW 融資維持率": 35,
+    "TW 信用交易占比": 35,
+    "TW 海關出口": 51,
+    "FRED CPI": 9,
+    "FRED FEDFUNDS": 9,
+    "FRED DGS10": 9,
+    "FRED Sahm": 9,
+    "Google News": 12
    }
   }
  },
- "composite": 62.0,
+ "composite": 61.8,
  "dims": {
-  "L1": 51.3,
+  "L1": 50.8,
   "L2": 80.3,
   "L3": 53.2
  },
@@ -169,7 +169,7 @@
     ]
    ],
    "dir": "越高越熱",
-   "asof": "2026-10-31",
+   "asof": "2026-11-02",
    "fresh": "ok",
    "src": "multpl.com",
    "url": "https://www.multpl.com/shiller-pe",
@@ -180,9 +180,9 @@
    "id": "mag7",
    "dim": "L1",
    "name": "Mag7 佔標普500市值比重",
-   "value": 33.4,
+   "value": 33.43,
    "disp": "33.4%",
-   "score": 74.7,
+   "score": 74.9,
    "zone": "orange",
    "anchors": [
     [
@@ -203,7 +203,7 @@
     ]
    ],
    "dir": "越高越熱",
-   "asof": "2026-10-31",
+   "asof": "2026-11-02",
    "fresh": "ok",
    "src": "SlickCharts",
    "url": "https://www.slickcharts.com/sp500",
@@ -394,13 +394,13 @@
    "id": "senti",
    "dim": "L1",
    "name": "情緒與投機溫度（合成）",
-   "value": 50.3,
-   "disp": "個股P/C 0.58｜VIX 17.2｜F&G 26",
-   "score": 50.3,
+   "value": 45.2,
+   "disp": "個股P/C 0.66｜VIX 17.2｜F&G 26",
+   "score": 45.2,
    "zone": "yellow",
    "anchors": null,
    "dir": "合成規則（本次：CBOE 個股 Put/Call＋VIX＋CNN F&G）",
-   "asof": "2026-10-31",
+   "asof": "2026-11-02",
    "fresh": "ok",
    "src": "CBOE 個股 Put/Call / VIX / CNN F&G",
    "url": "https://www.cboe.com/us/options/market_statistics/",
@@ -569,7 +569,7 @@
     ]
    ],
    "dir": "越高越熱",
-   "asof": "2026-10-31",
+   "asof": "2026-11-02",
    "fresh": "ok",
    "src": "Public.com 債券報價",
    "url": "https://public.com/bonds/corporate/oracle-corp/orcl-4.375-05-15-2055-68389xbg9",
@@ -2267,7 +2267,7 @@
    },
    "orclbond": {
     "now": 8.2,
-    "asof": "2026-10-31"
+    "asof": "2026-11-02"
    }
   }
  },
@@ -2337,8 +2337,18 @@
  },
  "events": [
   {
+   "d": "11-01",
+   "t": "We’re Living in the Age of the Imperial CEO｜WSJ",
+   "url": "https://news.google.com/rss/articles/CBMiiwFBVV95cUxPY3N0ZlF1dzhaZkYzV0RpanUyVDczaDFGWWh2dDJFbldQclhJSmdWUFNYaThpLTdQUkc0UGluZVQ1aXJmZ1FYblBWNVgyd1BsY0dfVmVPa0drRGlaZzV6THVNX3NDWmozVWhqM0pVd3pyOHd4RFNNM3BFcjdyUWRXcXhwT1FzampSYkgw?oc=5"
+  },
+  {
+   "d": "11-01",
+   "t": "OpenAI pares fundraising goal, now seeking up to $20 billion in latest round｜CNBC",
+   "url": "https://news.google.com/rss/articles/CBMiggFBVV95cUxOb2hwU1RZMjNaMVpkcW13aDRGb3M0UGlMb21CRTI4dDU5STc4eEJkZHNMc2VPQjVnYm80MEEzWm80RDFZdElReXNmbG1sS0xBYjNnNWNOZVJsSUhySmhIUTJfV0tEZjJncTFLSHJFbDVqU2FrdmlSVW1hNzdxZG8tbktn0gGHAUFVX3lxTFBEd2ZuVFNJR09vWjBBWUtDMF80c1luQkFnVWRkN2RWMG1DWmZJd3Z4clZwcjNIeEcwaExPcjc5MWt2MkZ1SW9KUHdZODhtV3NGanVTSVkzdFl0aTQtUmxZa1V6dHpDUkxacTNhTk1PWXFDbnVIR3NraVRJODh3MjFGdUhBNl9rTQ?oc=5"
+  },
+  {
    "d": "10-31",
-   "t": "Cracks in AI Trade Power Sharp Tech Selloff | What’s News for Oct. 30｜WSJ",
+   "t": "Cracks in AI Trade Power Sharp Tech Selloff｜WSJ",
    "url": "https://news.google.com/rss/articles/CBMikAFBVV95cUxPV29rRWtNckxsOUU2Z2l1OHc5NGplRXZyUVhSTkllQVhUdnNLSkotdHVhRWdUclVfZU5qVlc2V0pKR2Rzb25hZkd5RGk4M1gwczVOc3duZ0RNdi13Y3pJU2FydEQwb0tObVE1cUhidG9zb0JqMkMxdUp1UHFwb3V0MTVlR2p0UkpKQ1o1cGR4WHI?oc=5"
   },
   {
@@ -2348,23 +2358,18 @@
   },
   {
    "d": "10-31",
+   "t": "Watch Stocks Fall After Amazon and Intel Deal Another Blow to AI Trade｜Bloomberg",
+   "url": "https://news.google.com/rss/articles/CBMikgFBVV95cUxPRElkb2NtaGMwMWNtZElBWlc0UV9RalpvcGFwZ2dJenUyRDdKNTlKdUt1UmJpdTBvLXd3MG9lS1Rwb0Nxa0diMFZzV0UtLUxBaHRBbTVJY3I4UC1kVGl3OG9rRTJrZndOS1F0TWdKb3Y3SWM5eWN1aVZXVnBhenR6LTRXakJzaEZRWDB2RERZc1pQdw?oc=5"
+  },
+  {
+   "d": "10-31",
    "t": "Anthropic may not secure investment-grade rating after IPO, Blackstone tells investors｜Financial Times",
    "url": "https://news.google.com/rss/articles/CBMihAFBVV95cUxPcjg3X1I0NkVyZEpOZEh0cmZLdFpJYVFOOTJwdm9nNTBJSGJwcEF6T25KRFBBeDBpLWZtOWNKMjdKeHhxZF9zOUVyUmVjT2pSQm01YmgwS0dnZWFXa3ZVc2tfSW5aUE5sSFJtc2lUVUlQUjROZjRxU0M3MFBKVWg1alAyZUU?oc=5"
   },
   {
-   "d": "10-31",
-   "t": "Microsoft Is a Stock Wall Street Remains Comfortable With Even as AI Trade Skids｜Barron's",
-   "url": "https://news.google.com/rss/articles/CBMihgFBVV95cUxQQm83cDFsbEdqcE1sQUN1TmJjbW50dVp3UUlJZ3QyRzE5U3FBVzNtZGpmMkFRTVlNa0VvYVpnSFNheGp4bGNRakY3ZHZfSnViNmU1VHd4TTRuOU5qd3pOSVYzWlhQZU1qSVFJSGFvWnAxSHZ6MnJ5b1Ztd3ppb1l3M2RodUFNdw?oc=5"
-  },
-  {
    "d": "10-30",
-   "t": "What Will Anthropic’s IPO Do for Venture?｜WSJ",
-   "url": "https://news.google.com/rss/articles/CBMikgFBVV95cUxNN0tjUWJhVFBwOFFEZUJ4RjRwdlJFajlyQjFUdGJaWnh5SEtyWkV3ZDBPXzV6dmZGMGZLeGFYcGZ3dC01QUhKRGg5cGlNRG03a0ZpQnpfcUtXOXM1S1llbTVfLTQ3ZTJzTDVWRk15bHg2WWtvTkROYnR1bXRRaHg1LWViUnhjVFBMeWlUWTZYRUw1QQ?oc=5"
-  },
-  {
-   "d": "10-30",
-   "t": "The big questions remaining after Anthropic’s blockbuster IPO prospectus｜CNBC",
-   "url": "https://news.google.com/rss/articles/CBMieEFVX3lxTE9VYXRVZG52ZU8wZ183VXZkS192WXFoWm5uRm0wNE1PZFZBblEyTklTWnZodHhNVUIyZlNaZGI1Y2xRaGJqZ3FTSVplcjNaM2tZVzF6UlNpRTd4S0dlQzVrak5jOHFQN2tfdkpMalkzWXlvVjl5T0hpb9IBfkFVX3lxTFBsbUVyNW9GLVlJZ3dpSHl2MXVZa0pxdDRiN2FnakZCa3lwVDJFOXdiSW9iYTh3UnhOZ0xhYklQSnJXVmoxaGpwckIyNzkzWm9hTVhVOFBrZTFHbnV5LWVBcFdiRGFqMXUyRXZXNjM5Z1ZNVXdiR1E3eFlzLU04Zw?oc=5"
+   "t": "Indian Stocks Top Performers in Asia as Anti-AI Appeal Grows｜Bloomberg",
+   "url": "https://news.google.com/rss/articles/CBMisAFBVV95cUxNNzFfMkRKemo0Zzd3VWVlZnlXc2E5WHhnYXNsa1ZlUWtkZzY1NGlzbnZwdUxuMUlNVVpxenlyZnJGaGhvVEVXdl9SSnF3aDBkOG9zNHh4ZmZuSzE3aHZMU0xIS09IZXdwZ2llcGpXaUQyS3UyeF9QWHVQdWtzajdUMkk2OWFSbWp4SnZ6b3FZS083OGNSbHV4TGF6RVZUNkxKWkV4Ym54aXlZTmcwNUhkWA?oc=5"
   },
   {
    "d": "10-30",
@@ -2374,7 +2379,7 @@
   {
    "d": "10-30",
    "t": "Anthropic's IPO: the existential AI test｜Reuters",
-   "url": "https://news.google.com/rss/articles/CBMiZ0FVX3lxTE9JR1JPcEpPQ2VlWnFUWHNTc3E2SzRuLTVqT2hyV3MySDhlcGVIQXkzQlRQYVRiaWQ3amdqUzNTTW9sMEREWkxVeF9BUnE2OG95MjVxa05hbWNyaWtuQ1IxdDMtUjNPejQ?oc=5"
+   "url": "https://news.google.com/rss/articles/CBMifkFVX3lxTFBWMnZ3UTMyMWx3STBjbmJSQzVNTmY3ZFNud3hWckFjX1NETkFVckRBSEtGczhjWi1GY3BSRVQwdFRSSmZncUVhdkdWUWdsd19iUVNSTFN6R18ycmZKUXNJR3FTTXA5RFdwSDJWcXpOS1ZCSjVGaU10Z0VKNzJBZw?oc=5"
   },
   {
    "d": "10-30",
@@ -2382,19 +2387,14 @@
    "url": "https://news.google.com/rss/articles/CBMiswFBVV95cUxONzVucjcwZFNveGxHdm5KS1M5UEotQXQyVDJNNmNCY211QXpxNTJFc0ZQcXhkbzlXNTAySlZlQWFvRzl2bnBrd2d1UXZ2eXZCU0Q4WW1ZQVdWWXBaWkxvOV9zY0lYdkxaSU1kRWEtMHdEMXFpZ2ZSQ0xDYm5RUEg3cEhfT3NnTllHcU1ZRUtaNFZ5N042elFCYkoxNHk4NXJzVmRBOFloajNWd0Z4RjUzcnpvRQ?oc=5"
   },
   {
-   "d": "10-30",
-   "t": "Anthropic Is a Revolutionary Business, but Its IPO Is Still an Enormous Gamble｜Barron's",
-   "url": "https://news.google.com/rss/articles/CBMie0FVX3lxTE0zblNkSjA1M2N3Q0hrc0ZQWC1UMEluYXJrbXRUSnlSWENfTWdkUkZ0R3dCX3NhbTFFajZkQi1UdHZsdk1aZ3k2YTVmOTlfQlRWQ2pnT3VBMVIxcldpOE9TSFRHeGMwRFNRQ0QwTXZGUzZWMXk1RTQ5MEZ0SQ?oc=5"
-  },
-  {
-   "d": "10-30",
-   "t": "Jim Cramer says Wall Street is punishing the wrong tech stocks｜CNBC",
-   "url": "https://news.google.com/rss/articles/CBMigwFBVV95cUxPRmVnSjQ2MFV3UDBoRTVsTUIwWHJMa1pLX1FfTXR2Q184WVRoVW1MWFlWa05tT0hHYnJBLXJwTHVKb2oxZ2hRc1dBSE9UTTFJZDlObTh0SVpYT090d0syTW00RUNIdzU2djBFNXlLS0lkSzJURVJoVFdIME1HVmJVdDRqUdIBiAFBVV95cUxNNTgwQkZMTE5peTB2aGljMXFyWGVScDBLTmtMMGdEZkd3T2ZONnluejFlcHctRmNFcFJQOG1NcnNnYlNEVkZydHRYUmUwRGhOdWRpQ0t0Wi1BX2lPYVR0TDlFRHRlaHJsN0M0cnplQjhmZ2lSZFVrNHRPbUg4NjdWTUF0YnhzQW02?oc=5"
-  },
-  {
    "d": "10-29",
    "t": "Two fears will decide the fate of Anthropic’s giant IPO｜Financial Times",
    "url": "https://news.google.com/rss/articles/CBMihAFBVV95cUxQOWJKOFFnajkwNmlvWHlmMjh5WjZOdlRzZWFKaHpYSVN4aHpTbDVZY3FHYXBRUlgwVG4tQk50NTNBUjU3VmtocnNsMmJfbTBBT21OQm03WXRPbzRUZ1ZTUGwyLW9MY0MxVTJ0eW52YWdyTmEzMV81VzlPSXlSSUNPYWl4RE0?oc=5"
+  },
+  {
+   "d": "10-29",
+   "t": "Global Bond Sales Shatter Record, Fueled by AI Borrowing Binge｜Bloomberg",
+   "url": "https://news.google.com/rss/articles/CBMisgFBVV95cUxNYXd1dnM3SFp0WV9yTDlpNm9abU9WMG9EU1BRdU5FVUhUYW5VbzNKN21FR3V3amZrT2psazEwN3hlcUFGUGQ4dUNLQkRReV84SEdlUUIzTHRrYkdNQVJlV1JwUE0zNTZfX0d6YTdaVG42MnYxMndpcFdOeGlOMlZEQVp4RVlKUEg0cEtNcjE5VVE4Nk9qRGVnOEJTdkhiTVVNSkdCczJHajFFNld3Umc0M2Rn?oc=5"
   }
  ],
  "history": [
@@ -3745,16 +3745,16 @@
   },
   {
    "date": "2026-11-02",
-   "composite": 62.0,
+   "composite": 61.8,
    "dims": {
-    "L1": 51.3,
+    "L1": 50.8,
     "L2": 80.3,
     "L3": 53.2
    },
    "tw": 34.2,
    "quad": [
     46.8,
-    65.8
+    65.5
    ],
    "trig": 1
   }
@@ -3825,7 +3825,7 @@
    "state": 0,
    "value": "未發生",
    "note": "Hartnett：大頂前的最後供給事件（每週人工覆核）",
-   "asof": "2026-10-31",
+   "asof": "2026-11-02",
    "prog": null
   },
   {
@@ -3839,7 +3839,7 @@
   }
  ],
  "quadrant": {
-  "heat": 65.8,
+  "heat": 65.5,
   "support": 46.8,
   "regime": "過熱但有撐（melt-up 風險）"
  }

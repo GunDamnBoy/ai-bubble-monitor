@@ -2,7 +2,7 @@
  "meta": {
   "version": 2,
   "built": "2026-11-09",
-  "builtTime": "2026-11-09（GitHub Actions 自動更新）",
+  "builtTime": "2026-11-09（每週質化覆核）",
   "nextUpdate": "每交易日自動更新（GitHub Actions）｜質化指標每週覆核｜v2 三層架構",
   "artifactId": "ai-bubble-monitor",
   "lastAutoRun": {
@@ -91,10 +91,10 @@
    }
   }
  },
- "composite": 61.7,
+ "composite": 61.5,
  "dims": {
   "L1": 47.8,
-  "L2": 82.9,
+  "L2": 82.2,
   "L3": 53.2
  },
  "dimMeta": {
@@ -418,11 +418,11 @@
    "zone": "orange",
    "anchors": null,
    "dir": "質化評分（1-5級→10/30/50/70/90）",
-   "asof": "2026-10-30",
+   "asof": "2026-11-06",
    "fresh": "ok",
    "src": "綜合媒體監測",
-   "url": "https://finance.yahoo.com/markets/live/stock-market-today-friday-september-25-dow-sp-500-nasdaq-081738529.html",
-   "note": "維持第 4.5 級（score 80 → 80）：本週泡沫論述從「擔憂」升到「破裂論」的標題，但價格面仍未到恐慌共識。Alphabet 10-28 財報四年來首次營收不如預期、2027 資本開支續增，10-29 單日跌 12.6%、史上最大單日跌幅、蒸發逾 $5,000 億市值（Futurism 2026-10-30）；10-30 Intel 跌 28.6%（1974 年來最差）、費半跌 7.2%，Nasdaq 綜合跌 2.86%、S&P 500 跌 1.82%，皆為 6 月以來最差單日，Nasdaq 錄得逾一年來最差單月（StockTitan 2026-10-30 引 CNN）。NBC 以「Tech stocks wipe out $1 trillion」、Seeking Alpha 以「AI Bubble Burst: Confirmed」下標（2026-10-30）。不給第 5 級（90）的理由：S&P 500 10-30 收約 7,580，距年內高點仍只約 −3%；同一週 Anthropic 如期遞出公開版 S-1（2026-10-26）、三大雲營收全面加速，市場仍在分歧而非一致恐慌。升到第 5 級的觸媒：Anthropic 定價受挫或延後、或 AI 基礎設施主體出現實質信用事件；下一個檢驗點是 11 月中下旬 NVIDIA 財報與 Anthropic 路演（最快 11-09 當週）。",
+   "url": "https://aiera.blog/did-ai-bubble-just-pop-november-2026/",
+   "note": "維持第 4.5 級（score 80 → 80）：本週是今年最重的一次「泡沫破裂」敘事衝擊，但仍不是恐慌共識。2026-11-05 期中選舉民主黨大勝引發資料中心暫停令疑慮，Nasdaq 綜合單日跌 5.52%、Nasdaq 100 跌 6.36%（2020 年 3 月來最差）、費半跌 12.25%（史上第二大跌幅）、NVIDIA 跌 9.26% 抹去全年漲幅（aiera.blog 2026-11-06 彙整 Reuters／CNBC）；11-06 Kospi 開盤跌近 9% 熔斷、日經跌逾 6%，Le Monde 以民主黨勝選「刺破 AI 泡沫」下標，「did the ai bubble just pop」搜尋量七天升 1,400%。不給第 5 級（90）的理由：11-06 即反彈（Nasdaq +1.1%、NVIDIA +2.8%），S&P 500 週跌 2.7%、距高點約 −5.7%（AP 2026-11-06），Jefferies 等主流聲音稱「反應過度而非基本面重置」，分歧仍在。升級觸媒沿用：Anthropic 定價受挫或延後（Bloomberg 11-06 報導投資人討論估值已降到 $1.1–1.3 兆，低於先前 $1.5–2 兆）、或 AI 基礎設施主體出現實質信用事件；下週盯 CoreWeave 11-10 財報與 Anthropic 路演。",
    "qual": true
   },
   {
@@ -597,34 +597,34 @@
    "id": "weakcredit",
    "dim": "L2",
    "name": "弱資質信用單點（金絲雀）",
-   "value": 1115,
-   "disp": "CoreWeave 2031 債殖利率 15.76%（10-22 高點）・Meta CDS 114.8bp 創紀錄（10-22）・Alphabet／Meta／Amazon FCF 轉負",
+   "value": 1289,
+   "disp": "CoreWeave 5 年 CDS 1,289bp 創高（11-05）・2032 債殖利率逾 16%（11-06）・NVIDIA CDS 139bp 月增 76%",
    "score": 83,
    "zone": "orange",
    "anchors": null,
    "dir": "質化評分（0-100）",
-   "asof": "2026-10-29",
+   "asof": "2026-11-06",
    "fresh": "ok",
-   "src": "SEC S-1 / Bloomberg / CNBC / Moody's",
-   "url": "https://www.brecorder.com/news/40440993/softbank-issues-111-billion-in-bonds-in-openai-financing-push",
-   "note": "維持橙燈 83（score 83 → 83）：壓力從 neocloud 擴散到超大型雲端的現金流，但 84+ 要求的再融資失敗或違約仍未發生。本週財報把「FCF 大幅轉負」這條 67–84 的條件從單點擴散到龍頭：Alphabet Q3 自由現金流 −$91 億、連續第二季為負（TechTimes 2026-10-30）；Amazon 近四季 FCF −$424 億（StockTitan 2026-10-30）；Meta Q3 FCF −$21.2 億為 2012 年來首見，5 年 CDS 10-22 創 114.79bp 紀錄、Oracle CDS 仍近紀錄、Amazon CDS 為 2020-03 以來最高（KuCoin 2026-10-22 引 Reuters／Markit）。neocloud 端：CoreWeave 2031 債殖利率 10-22 創 15.76%、5 年 CDS 10-15 高點 1,194.5bp（Yahoo Finance 2026-10-19），之後無新高報導。引擎讀數：CCC 利差 13.25%、3 個月 +319bp，HY 3.26%、+42bp（2026-10-29），Oracle 長債 8.20%（10-31），HY 整體反而較上週收斂。以違約、跳票、再融資失敗查核至 2026-11-01，未發現 AI 資料中心或 neocloud 主體的實質信用事件；Character.AI 10 月聲請 Chapter 11（Disney $2,000 萬 stalking horse），起因是著作權訴訟、主體是應用端，不計入。下週盯：CoreWeave Q3 財報與融資條件、Anthropic 路演、Nscale IPO。",
+   "src": "Bloomberg / CNBC / 24/7 Wall St.",
+   "url": "https://247wallst.com/investing/2026/11/07/coreweaves-bonds-now-yield-more-than-16-days-before-earnings/",
+   "note": "維持橙燈 83（score 83 → 83）：最弱一層再創壓力新高，CDS 走闊也擴散到 NVIDIA，但 84+ 要求的再融資失敗或違約仍未發生。CoreWeave 5 年 CDS 2026-11-05 升破 1,289bp（10-15 前高 1,194.5bp）、11-06 回落約 8% 至 1,155bp；2032 債 11-06 殖利率逾 16%，Bloomberg 11-04 報導其債券因德州資料中心政策風險創新低；Q2 利息支出 $6.4 億、Q3 指引 $8.6–9.4 億，Q2 FCF −$57 億（24/7 Wall St. 2026-11-07）。擴散：NVIDIA CDS 約 139bp、一個月升 76%，Amazon CDS 月升 44%，Oracle 約 298bp；10-29 以來五筆 AI 債合計 $670 億仍順利定價（同上），市場是加價而不是關門。引擎讀數：CCC 13.20%、3 個月 +303bp，HY 3.48%、+77bp（2026-11-05），HY 一週內由 +42bp 跳到門檻的 96%。以違約、再融資失敗查核至 2026-11-08，未發現 AI 基礎設施主體的實質信用事件。下週盯：CoreWeave 11-10 盤後財報與融資條件。",
    "qual": true
   },
   {
    "id": "vc",
    "dim": "L2",
    "name": "VC／IPO 熱度與集中度",
-   "value": 65,
-   "disp": "Q3 AI 佔全球 VC 64%（自高點回落）・27 筆十億級輪次創紀錄・Firmus 撤回 $5B IPO・OpenAI IPO 延至 2027",
-   "score": 65,
+   "value": 60,
+   "disp": "Q3 AI 佔全球 VC 64%・OpenAI 首批僅募 $110 億（目標 $300 億）・Anthropic IPO 估值討論降至 $1.1–1.3 兆",
+   "score": 60,
    "zone": "yellow",
    "anchors": null,
    "dir": "質化評分（0-100）＋巨型IPO旗標",
-   "asof": "2026-10-26",
+   "asof": "2026-11-06",
    "fresh": "ok",
-   "src": "Crunchbase News / Bloomberg / CNBC",
-   "url": "https://news.crunchbase.com/venture/biggest-funding-rounds-ai-infrastructure-space-fintech-temporal/",
-   "note": "維持黃燈上緣 65（score 65 → 65）：季度基準仍是 Crunchbase 2026 Q3——全球創投 $1,590 億、AI 佔 64%、最大輪次 $50 億，兩個 67–84 條件都不成立（Crunchbase News 2026-10-05）。本週新訊號雙向：OpenAI 洽募約 $300 億、估值目標自 $1.4 兆下修到 $1.25 兆，FT 報導投資人反彈、Bloomberg 稱砍 $1,500 億，UAE 資金與 Coatue 領投（TNW 2026-10-25）——成案即滿足 33–67 的「單輪逾 $200 億」，但估值被砍是降溫訊號；Anthropic 2026-10-26 遞出公開版 S-1，Nasdaq 代號 ANT，路演最快 11-09 當週、目標感恩節前掛牌，討論估值 $1.5–2 兆（XTB 2026-10-26）。IPO 尚未完成，megaipo 觸發器未點亮、params.megaipo_done 維持 false（§3.5 條件是 OpenAI／SpaceX 巨型 IPO 完成；SpaceX 2026-06-12 掛牌不計入）。Q4 季報出爐前維持 65。",
+   "src": "Crunchbase News / Bloomberg / FT",
+   "url": "https://theaiinsider.tech/2026/11/07/openai-secures-11b-at-1-25t-valuation-as-funding-round-falls-short-of-earlier-target/",
+   "note": "下修 5 分（score 65 → 60），仍在黃燈：最大兩筆私募／IPO 交易同時遇到買方退縮。OpenAI 以 $1.25 兆估值完成首批 $110 億，整輪預計約 $200 億，低於 9 月底傳出的 $300 億目標與最初 $1.4 兆估值（Bloomberg 2026-11-06，AI Insider 2026-11-07 轉述）——單輪未達 33–67 的「逾 $200 億」門檻。Anthropic 路演前，Bloomberg 11-06 報導潛在投資人討論估值約 $1.2–1.3 兆、部分低至 $1.1 兆，低於 FT 先前報導的 $1.5 兆目標（Tech Insider 2026-11-08 彙整），定價與日期均未公布。季度基準不變：Crunchbase 2026 Q3 全球創投 $1,590 億、AI 佔 64%。IPO 尚未完成，megaipo 觸發器未點亮、params.megaipo_done 維持 false（SpaceX 2026-06-12 掛牌依 §3.5 不計入）。",
    "qual": true
   },
   {
@@ -787,17 +787,17 @@
    "id": "tokens",
    "dim": "L3",
    "name": "Token 經濟（用量×單價）",
-   "value": 0.89,
-   "disp": "企業推理均價 $0.89／百萬 token（10-31，問世以來新低）・Anthropic S-1：Q2 營業獲利 $9.74 億",
+   "value": 0.83,
+   "disp": "企業推理均價 $0.83／百萬 token（11-07，問世以來新低）・Anthropic S-1：Q2 營業獲利 $9.74 億",
    "score": 35,
    "zone": "yellow",
    "anchors": null,
    "dir": "質化評分（0-100）",
-   "asof": "2026-10-31",
+   "asof": "2026-11-07",
    "fresh": "ok",
    "src": "Silicon Data SDLLMTK（官方產品頁）",
    "url": "https://www.silicondata.com/products/silicon-index/llm-token-expenditure-index",
-   "note": "維持黃燈偏冷端 35（score 35 → 35）：單價續跌、但主要供應商的公開財報首度證實推理端可以賺錢，兩者相抵。Silicon Data SDLLMTK 2026-10-31 報 $0.89／百萬 token，低於 10-24 的 $0.94、週跌約 5%，再創指數問世以來新低（silicondata.com 產品頁 2026-11-02 查核）。Anthropic 2026-10-26 公開 S-1：上半年營收 $163 億（2025 全年 $46 億），Q2 營收 $116 億、營業獲利 $9.74 億（Q1 營業虧損 $17 億），算力成本 $56 億（Yahoo Finance 2026-10-26 直播稿）；上半年淨損 $807 億主要不是營運面。67+ 要求「推理毛利轉負的報導」，目前看到的是相反方向：用量與營收增速仍大於單價跌幅，屬 rubric 33–67 偏冷那一端。待驗證：S-1 未單列推理毛利率。",
+   "note": "維持黃燈偏冷端 35（score 35 → 35）：單價跌速加快，但仍沒有「推理毛利轉負」的報導。Silicon Data SDLLMTK 2026-11-07 報 $0.83／百萬 token，較 10-31 的 $0.89 一週跌約 6.7%（上週約 5%），逐日新低（silicondata.com 產品頁 2026-11-09 查核）。反面證據不變：Anthropic S-1（2026-10-26）Q2 營收 $116 億、營業獲利 $9.74 億，用量與營收增速仍大於單價跌幅，屬 rubric 33–67 偏冷那一端。待驗證：S-1 未單列推理毛利率；若單價週跌持續擴大而供應商開始調價，才往 67 移動。",
    "qual": true
   }
  ],
@@ -2385,35 +2385,35 @@
    {
     "item": "負現金流主體大額發債常態化",
     "state": 0.5,
-    "evi": "維持半格：本週弱資質端沒有新的大額公開發債，但「負現金流」的範圍擴大到超大型雲端，而它們靠的是發債與表外結構。Alphabet Q3 FCF −$91 億、Meta Q3 FCF −$21 億（2012 年來首見）、Amazon 近四季 FCF −$424 億（TechTimes 2026-10-30；KuCoin 2026-10-22；StockTitan 2026-10-30）；Anthropic 的 $630 億 Broadcom 晶片 SPV 由銀行團與 Blackstone 分層承作（Broadcom IR 2026-10-26）。反面：CoreWeave 2031 債殖利率仍在 15% 上下（10-22 高點 15.76%），公開市場對最弱主體的再發債實際上是關的——9 月 SoftBank $111 億、CoreWeave 園區 $11 億 9.25% 票息後，沒有看到同級弱資質主體的新案。龍頭發債是常態、弱資質主體則在談條件甚至發不出去，合起來仍是半格"
+    "evi": "維持半格（2026-11-08 重看）：龍頭負現金流靠發債續行，10-29 以來五筆 AI 債合計 $670 億順利定價（24/7 Wall St. 2026-11-07）；弱資質端仍是加價而非新增大額發債——CoreWeave 2032 債殖利率逾 16%、5 年 CDS 11-05 破 1,289bp，Q3 利息支出指引 $8.6–9.4 億（同上）。既有基準不變：Alphabet Q3 FCF −$91 億、Meta Q3 FCF −$21 億、Amazon 近四季 FCF −$424 億（10-30 財報季）。龍頭發債是常態、弱資質主體融資成本持續升高，合起來仍是半格"
    },
    {
     "item": "供應商融資（循環交易）規模化",
     "state": 1,
-    "evi": "維持點亮，本週新增最大的一筆供應商兜底結構：Broadcom 2026-10-26 公告為 Anthropic 成立 $630 億 SPV（BofA／Citi／MS 第一順位、Blackstone 第二順位），購買 Broadcom XPU 後租給 Anthropic，Broadcom 提供相當於第一順位金額的殘值支撐（Let's Data Science 2026-10-27 引 Broadcom IR）。Anthropic S-1（2026-10-26）揭露約 $2,450 億未來最低付款承諾、經 SpaceXAI 至 2029 年最高 $1,205 億（XTB；Yahoo Finance 2026-10-26）。既有結構不變：Akamai 以認股權換 Anthropic $116 億承諾（TechCrunch 2026-09-25）、NVIDIA 認購 Nscale $10 億可轉債、NVIDIA 對 AI 公司股權投資累計約 $990 億、10-Q 表外擔保約 $1,085 億。規模化與制度化都仍成立"
+    "evi": "維持點亮（2026-11-08 重看，本週無新的大型供應商融資結構，原證據有效）：Broadcom 為 Anthropic 的 $630 億晶片 SPV 提供殘值支撐（Broadcom IR 2026-10-26）、Anthropic S-1 約 $2,450 億最低付款承諾（2026-10-26）、Akamai 以認股權換 $116 億承諾（TechCrunch 2026-09-25）、NVIDIA 對 AI 公司股權投資累計約 $990 億、10-Q 表外擔保約 $1,085 億。規模化與制度化都仍成立"
    },
    {
     "item": "信用利差趨勢性走闊（HY 3個月 +80bp）",
     "state": 0.5,
-    "evi": "維持半格：最弱的一層仍在困境水位，HY 整體本週反而收斂、離門檻更遠。引擎讀數：CCC 利差 2026-10-29 為 13.25%、3 個月 +319bp（上週 13.40%、+349bp），ccc12 觸發器持續點亮；HY 整體 3.26%、3 個月 +42bp，約為 +80bp 門檻的 52%（上週 79%），hy80 未亮。單點：Meta 5 年 CDS 10-22 創 114.79bp 紀錄、Oracle 近紀錄（KuCoin 2026-10-22 引 Reuters／Markit），CoreWeave 2031 債殖利率 10-22 創 15.76%。門檻寫的是 HY 整體，故維持半格；若 HY 3 個月走闊破 +80bp 即點亮"
+    "evi": "維持半格，但一週內逼近門檻：引擎讀數 HY 3 個月走闊由上週 +42bp 跳到 +77bp（2026-11-05，3.48%），為 +80bp 門檻的 96%，hy80 未亮；CCC 13.20%、+303bp，ccc12 持續點亮。單點：CoreWeave 5 年 CDS 11-05 破 1,289bp、NVIDIA CDS 約 139bp 月升 76%、Oracle 約 298bp（24/7 Wall St. 2026-11-07）。門檻寫的是 HY 整體，故維持半格；HY 3 個月走闊破 +80bp 即點亮"
    },
    {
     "item": "AI 巨頭 IPO 潮與首日暴漲",
     "state": 0.5,
-    "evi": "維持半格，期限條件解除：Anthropic 於 2026-10-26 遞出公開版 S-1，Nasdaq 代號 ANT，Goldman Sachs 與 Morgan Stanley 主辦；Bloomberg 報導路演最快 11-09 當週、目標感恩節（11-26）前掛牌，規模預期不小於 SpaceX，討論估值 $1.5–2 兆（XTB 2026-10-26；Yahoo Finance 2026-10-26）。上週訂的「10 月底前 S-1 未公開即降為 0」未觸發。OpenAI 洽募約 $300 億、估值目標自 $1.4 兆下修到 $1.25 兆，IPO 延至 2027（TNW 2026-10-25）；Firmus 已撤回、Nscale 遭壓價。「IPO 潮」只有 Anthropic 一檔、「首日暴漲」尚未發生，維持半格；Anthropic 掛牌且首日大漲即點亮，延後或定價受挫則降為 0。SpaceX 2026-06-12 的掛牌依 §3.5 不計入本項（非 AI 標的）"
+    "evi": "維持半格，降級風險升高：Anthropic 已遞公開版 S-1（2026-10-26，Nasdaq 代號 ANT），Bloomberg 11-06 報導正式路演最快下週開始、尚無價格區間，潛在投資人討論估值約 $1.2–1.3 兆、部分低至 $1.1 兆，低於 FT 先前報導的 $1.5 兆（Tech Insider 2026-11-08 彙整）。OpenAI 首批僅募 $110 億、IPO 延至 2027（Bloomberg 2026-11-06）。估值討論下修發生在定價前，尚不構成「定價受挫」；Anthropic 掛牌且首日大漲即點亮，延後或以低於區間定價則降為 0。SpaceX 2026-06-12 的掛牌依 §3.5 不計入本項（非 AI 標的）"
    },
    {
     "item": "私募信貸/表外融資佔比激增",
     "state": 1,
-    "evi": "維持點亮，本週規模再上一階：Broadcom 2026-10-26 公告的 Anthropic 晶片 SPV 合計 $630 億、第二順位由 Blackstone 獨家承作，是目前最大的單筆 AI 表外／私募信貸結構（Let's Data Science 2026-10-27 引 Broadcom IR）。既有基準不變：銀行團為租給 Oracle 的約 $380 億資料中心建設貸款找買家逾六個月、相關 SPV 合計約 $1,200 億（Startup Fortune 2026-10-11）、FT 2026-10-19 報導多檔 AI 建設債跌破面值、Amazon 約 $80 億在役 GPU 回租案（FT 2026-10-02）、Morgan Stanley 盤點逾 $3.1T 表外 AI 承諾（Axios 2026-08-27）。規模仍在擴大、且已開始變成負擔"
+    "evi": "維持點亮（2026-11-08 重看，本週無新增大型表外結構，原證據有效）：Anthropic 晶片 SPV 合計 $630 億、第二順位由 Blackstone 承作（Broadcom IR 2026-10-26）；租給 Oracle 的約 $380 億資料中心建設貸款找買家逾六個月、相關 SPV 合計約 $1,200 億（Startup Fortune 2026-10-11）、FT 2026-10-19 報導多檔 AI 建設債跌破面值、Morgan Stanley 盤點逾 $3.1T 表外 AI 承諾（Axios 2026-08-27）"
    },
    {
     "item": "弱資質主體信用事件",
     "state": 0,
-    "evi": "維持 0：以違約、跳票、契約違反、再融資失敗、發債撤回等關鍵字交叉查核至 2026-11-01，未發現 AI 資料中心或 neocloud 主體的實質信用事件（amcompute 違約彙整頁 2026-11-02 查核亦載明截至 10 月無 neocloud 對 GPU 擔保貸款違約）。Character.AI 10 月聲請 Chapter 11 並由 Disney 以 $2,000 萬為 stalking horse（technobezz 2026-10），起因是著作權訴訟與營運壓力、主體是應用端而非以資本開支融資的基礎設施，不計入；Zetrix AI 的條款違反上週已判讀不計入。出現第一筆 AI 基礎設施主體的再融資失敗或違約才點亮"
+    "evi": "維持 0：以違約、跳票、契約違反、再融資失敗等關鍵字查核至 2026-11-08，未發現 AI 資料中心或 neocloud 主體的實質信用事件。最接近的是 CoreWeave：5 年 CDS 11-05 破 1,289bp、2032 債殖利率逾 16%（24/7 Wall St. 2026-11-07），但仍按期付息、無再融資失敗報導；Character.AI 10 月 Chapter 11 屬應用端、起因是訴訟，不計入。出現第一筆 AI 基礎設施主體的再融資失敗或違約才點亮；11-10 CoreWeave 財報是下一個檢驗點"
    }
   ],
-  "note": "點亮 3.5／6（與上週相同；六項逐項重看，全部更新證據、全部維持原判，證據延伸到 2026-11-01）。本週主軸是超大型雲端的「營收加速、現金流轉負」同時出現：三大雲 Q3 營收年增 39–103% 創新高，但 Alphabet、Meta 的季度 FCF 與 Amazon 的近四季 FCF 全部為負，引擎的 fcf 與 capexocf 於 10-31 轉紅；股市以 Alphabet 史上最大單日跌幅、Nasdaq 逾一年最差單月回應。第 4 項：Anthropic 10-26 遞出公開 S-1，上週設的降級期限未觸發，維持半格，下一步看 11 月中下旬的定價與首日表現。第 2、5 項：Broadcom 為 Anthropic 安排的 $630 億晶片 SPV 帶殘值支撐，強化既有點亮。第 3 項：HY 3 個月走闊回落到 +42bp，離門檻更遠；第 6 項：查核仍無 AI 基礎設施主體違約。current 維持 2.8：仍在第二階段（外部融資主導）後段；龍頭現金流轉負、改靠發債與表外結構，是往第三階段推進的方向，但弱資質主體的融資管道是收緊而非氾濫，不構成升階。"
+  "note": "點亮 3.5／6（與上週相同；六項逐項重看，證據延伸到 2026-11-08，全部維持原判）。本週主軸是 11-05 期中選舉後的 AI 股全球急殺：Nasdaq 100 單日 −6.36%、費半 −12.25%，S&P 500 週跌 2.7%（2025 年 4 月來最差週），隔日反彈。信用面同步惡化：HY 3 個月走闊一週由 +42bp 跳到 +77bp（門檻 96%，第 3 項最接近翻格），CoreWeave CDS 創 1,289bp 新高；但第 6 項仍查無違約。第 4 項：Anthropic 路演前估值討論由 $1.5 兆以上降到 $1.1–1.3 兆、OpenAI 募資只達目標約三分之一，降級風險升高、尚未觸發。current 維持 2.8：仍在第二階段（外部融資主導）後段；融資成本上升是往第四階段的信號，但尚無信用事件，不升階。"
  },
  "events": [
   {
@@ -3915,16 +3915,16 @@
   },
   {
    "date": "2026-11-09",
-   "composite": 61.7,
+   "composite": 61.5,
    "dims": {
     "L1": 47.8,
-    "L2": 82.9,
+    "L2": 82.2,
     "L3": 53.2
    },
    "tw": 28.1,
    "quad": [
     46.8,
-    65.3
+    65.0
    ],
    "trig": 1
   }
@@ -4009,7 +4009,7 @@
   }
  ],
  "quadrant": {
-  "heat": 65.3,
+  "heat": 65.0,
   "support": 46.8,
   "regime": "過熱但有撐（melt-up 風險）"
  }

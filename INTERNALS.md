@@ -48,10 +48,10 @@ def attempt(name, fn):
 | 總經 | `fred(series, days=620)` `fred_back(obs, back_days)` `fred_latest_and_back(series, back_days, days=620)` | `fredgraph.csv`；要同時取多個回看期時用 `fred()` 抓一次再 `fred_back()` 取值，不要重複抓（`fred_latest_and_back` 現在也只是這兩者的組合）。**`BAMLH0A0HYM2` 與 `BAMLH0A3HYC` 自 2026-04 起在 FRED 只保留 3 年觀測值**（2026-08-17 實測 metadata：`2023-08-15` 起）——620 天的預設回看期還在範圍內，但**任何想拉長回看期或做歷史校準的念頭都會在這裡撞牆**，要更長的歷史得回 ICE 原始來源（付費） |
 | 價格 | `px_rows(ysym, ssym=None, rng="4y")` → **三層備援** `yf_chart`(yfinance) → `yahoo_chart`(raw API) → `stooq` | Stooq 在 Actions runner 被擋，只當最後備援。命中哪一層記進模組層的 `PX_HIT`，供台股卡片的 `sub` 顯示當次來源 |
 | 統計 | `series_stats` `gsy_stats` | `gsy_stats` 需 ≥505 筆算 `ret24`、≥758 筆算 `accel`、≥505 筆算 `vol1y`（`volchg` 用） |
-| 估值/情緒 | `multpl_cape` `slickcharts_mag7` `aaii_sentiment` `cboe_putcall` `cnn_fear_greed` | `aaii_sentiment` 持續在 Actions 端被擋；`cboe_putcall` 時好時壞；`cnn_fear_greed` 2026-08-10 新接入、Actions 端成敗未實測（皆見 §9）|
+| 估值/情緒 | `multpl_cape` `slickcharts_mag7` `aaii_sentiment` `cboe_putcall` `cnn_fear_greed` | `aaii_sentiment` 持續在 Actions 端被擋（§9 白名單）；`cboe_putcall` 2026-08-17、`cnn_fear_greed` 2026-08-22 已達 streak 門檻退出白名單，現在是正常來源、壞掉會照 §9 的失敗分級處理 |
 | 信用 | `orcl_bond_yield` | Public.com 報價頁。`hyoas`／`ccc` 取不到 91 天基期時**直接 fail 沿用舊值**，不用 0bp 的假變化計分 |
 | 季報 | `edgar_rows` `to_quarters` `bucket` `refresh_edgar` `rpo_backlog` | 見 5.3。另有幾個藏在實作裡的門檻：`rpo_backlog` 若前期端點與目標日相差 >75 天就跳過該公司；`debt` 年增要求回看 ≥330 天；**`fcf` 的 YoY 在基期 TTM FCF ≤0 時沿用舊值**（負基期會把 −10B→+5B 這種改善算成 −150% 的滿熱分） |
-| 台灣 | `tw_monthly_rev` `tw_bwibbu` `_margin_on` `tw_margin_balance` `backfill_margin_hist` `tw_day_trade_ratio` `tw_index_today` `taifex_tsmc_weight` `tw_customs_export_yoy` | 見 5.4 |
+| 台灣 | `tw_monthly_rev` `tw_bwibbu` `_margin_on` `tw_margin_balance` `tw_margin_trend` `tw_credit_risk` `tw_credit_turnover` `backfill_margin_hist` `tw_day_trade_ratio` `tw_index_on` `tw_index_today` `backfill_idx_hist` `taifex_tsmc_weight` `tw_customs_export_yoy` | 見 5.4。`tw_margin_trend` 與 `tw_credit_risk` 都會往回找最近一個有資料的日期（前者 v2.3.2 起、最多回看 10 天以涵蓋農曆年長假，只對 `stat` 非 OK／空資料往回退，連線例外直接往上丟）；**`tw_margin_trend` 一次餵兩項**（`margin_mktcap` 與 `short_ratio` 同在 `attempt("TW 融資占市值")` 裡），它失敗時兩項一起沿用舊值 |
 | 新聞 | `_parse_news_items` `fetch_news` | 見 5.5 |
 | 主流程 | `main()` `selftest()` | `python3 scripts/update_data.py --selftest`。`data.json` 走**原子寫檔**（`.tmp` → rename），半寫檔會讓之後每次執行在 `json.loads` 就死 |
 
@@ -72,6 +72,9 @@ def attempt(name, fn):
 | 月營收 | `https://openapi.twse.com.tw/v1/opendata/t187ap05_L` |
 | 官方本益比／殖利率 | `https://openapi.twse.com.tw/v1/exchangeReport/BWIBBU_ALL` |
 | 融資餘額 | `https://www.twse.com.tw/rwd/zh/marginTrading/MI_MARGN` |
+| 融資趨勢（餘額、張數、融券、市值，近 60 日） | `https://www.twse.com.tw/rwd/zh/marginTrading/MI_MARGN_TREND` ← `days` 被伺服器夾在 60；`margin_mktcap`／`short_ratio` 用 |
+| 整體融資維持率＋追繳／處分戶數 | `https://www.twse.com.tw/rwd/zh/marginTrading/BFIJ3U` ← 只保留約一個月、無法回撈；`margin_keeprate` 用 |
+| 信用交易占成交值（月） | `https://www.twse.com.tw/rwd/zh/marginTrading/MI_MARGN_HISTORY` ← 官方月值、不自行推導；`credit_turnover` 用 |
 | 當沖交易統計 | `https://www.twse.com.tw/rwd/zh/dayTrading/TWTB4U` ← 回應第一張表是市場統計，第二張是逐檔明細；**欄位位置不寫死**，照 `fields` 找「買進成交金額占市場比重」的索引 |
 | 大盤／電子指數 | `https://openapi.twse.com.tw/v1/exchangeReport/MI_INDEX` |
 | 台積電指數權重 | `https://www.taifex.com.tw/cht/9/futuresQADetail` ← **擋機器人，只能人工每月更新** |
@@ -97,7 +100,11 @@ def attempt(name, fn):
 
 ```
 meta      { version:2, built, builtTime, nextUpdate, artifactId,
-            lastAutoRun:{date, ok:[...], fail:[...], streak:{來源:連續成功次數}} }
+            lastAutoRun:{date, ok:[...], fail:[...], streak:{來源:連續成功次數},
+                         failrun:{來源:連續失敗次數}} }
+             failrun（v2.3.2）只列本次失敗的來源：上次的值 +1；成功過一次就從表裡消失。
+             healthcheck 用它把白名單外的新失敗分級（1 次 WARN、≥2 次 FAIL，§9）；
+             舊版引擎寫的檔沒有這個欄位，healthcheck 一律從嚴當 FAIL。
              streak 由引擎累計：成功 +1、失敗歸零、**本次沒跑到的來源整個消失**
              （鍵集合永遠等於 ok ∪ fail）。單位是「引擎執行次數」不是天數——
              workflow_dispatch 與推程式碼觸發的那幾次也會 +1，所以它是下限而非日曆週。
@@ -176,6 +183,7 @@ params     { nvda_eps, ngdp_nominal, megaipo_done }
 
 | 版本 | 日期 | 改了什麼 | 為什麼／事故經過 |
 |---|---|---|---|
+| **v2.3.2** | 2026-11-11 | **一次性抓取失敗不再擋住每週覆核**＋文件對齊：① 引擎在 `meta.lastAutoRun` 加 `failrun`（連續失敗次數），`healthcheck.py` 對白名單外的新失敗改為分級——連續 1 次 WARN、≥2 次（`NEW_FAIL_HARD`）FAIL；② `tw_margin_trend()` 往回找最近一個有資料的日期（原本只送台北執行日）；③ `megaipo` 口徑由 OpenAI／SpaceX 改為 OpenAI／Anthropic，名稱改由引擎 `TRIG_NAME` 寫入（brief §3.5）；④ brief §8 補「FAIL 來自引擎端」的覆核分支；⑤ 文件漂移：brief 的五組子群、台積電權重、推播設定、`history` 欄位，`index.html` 一句寫死的 OpenAI ARR 敘述，本檔 §5.2／§5.4／§6，`MAINTENANCE.md` §5 兩條已結案待辦 | `MAINTENANCE.md` §6.26 |
 | **v2.3.1** | 2026-09-28 | **規格追上排程的真實執行環境**（文件改動，不動程式）：① §8 開頭改寫——每週覆核是**雲端**排程任務、夾帶 `/Users/macmini/outbox`，草稿經 `device_commit_files` 寫進 Mac 的 outbox、回執用 `device_bash` 讀；② §8.2「上週基準」由「`history` 倒數第二筆」（其實是前一個交易日）改為「日期 ≤ 今天−7 的最後一筆」，並定義「觸發器新點亮」；③ §7／§8.3 更正接手時序：覆核上線約 1 分鐘後由 `push` 觸發的 Actions 接手，不是 cron，摘要讀數要標明是自動更新前的；④ §8.4 收尾由七步補成八步（`fresh`）；⑤ §8.2 與 §8.3 對 `params` 生效時機的自相矛盾、prompt 正本位置、排程名稱 | `MAINTENANCE.md` §6.25 |
 | **v2.3.0** | 2026-09-24 | **接入證交所臺股儀表板端點，台股 11 項 → 15 項、四子群 → 五子群**：① 新增 `margin_mktcap`（融資占市值，日頻 `MI_MARGN_TREND`）、`margin_keeprate`（整體融資維持率＋追繳／處分戶數，`BFIJ3U`）、`credit_turnover`（信用交易占成交總值，官方月頻 `MI_MARGN_HISTORY`）、`short_ratio`（券資比）；② 新開「槓桿」子群（水位）與既有「籌碼」（行為）分家，權重改為 動能.25／估值.25／籌碼.15／槓桿.15／基本面.20；③ `backfill_margin_hist()` 改用 `MI_MARGN_TREND` 單次取 60 個交易日，取代最多 45 次的逐日迴圈（逐日留作備援）；④ `credit_turnover` **刻意不自算**——自算得 13.3%、官方 6.09%，口徑含雙邊計算，自算會與來源打架；⑤ `margin_mktcap`／`credit_turnover` 的錨點刻意只用近段區間，不用 2000 年以來全區間（該序列是結構性單向衰減，全區間當尺會讓指標永遠打個位數、變成一根看起來活著的死指標）；⑥ 順手拆掉 `healthcheck.py` 的第五份子群權重拷貝與兩個寫死子群名的 regex | `MAINTENANCE.md` §4 |
 | **v2.2.10** | 2026-08-31 | **把三類「沒有守衛的敘述」收回引擎，並讓規格追上本機發布制**：① `triggers[].note` 改由引擎的 `TRIG_NOTE` 無條件覆寫——它過去是種子值，v2.2.1 把 `indicators[].note` 交給引擎時漏了這一份，`gsy150` 因此繼續對使用者宣稱「歷史崩盤機率 80% 區」，而 §4.1 早已禁止這句話——同時在 `healthcheck.py` 補上`TRIG_NOTE` ⊇ `TRIG` 的 FAIL 級守衛，比照 `IND_MAXAGE` 的做法，免得同型漏洞原地重生；② `rpo` 的 `asof` 改填申報期別（取三家最舊），`IND_MAXAGE` 由 10 天改回 130 天——先前不帶 `asof` 落成執行日，既謊報新鮮度也讓過期門檻永遠不觸發；③ `AGENT_BRIEF` §8.3／§8.4、`MAINTENANCE` §2／§3 由雲端交付制改寫為 outbox＋launchd，補進 `.heartbeat` 與 exit 13、把「沒有回執」由常態改判為異常；④ 頁面兩句寫死敘述（觸發器出處、申報時滯）與 §5 四條已完成的待辦一併更正 | `MAINTENANCE.md` §6.24 |

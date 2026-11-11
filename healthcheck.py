@@ -98,6 +98,15 @@ KNOWN_FAIL = {
 # 提醒把該來源從 §9 與本名單一起移除。15 次自動更新 ≈ 三週（每週五個交易日）。
 OK_STREAK_RETIRE = 15
 
+# 白名單外的新失敗來源，連續失敗幾次才判 FAIL（v2.3.2，2026-11-11）。
+# 以前是「出現一次就 FAIL」，而 healthcheck 是 auto_publish.py 的發布閘門——
+# 2026-11-07 「TW 融資占市值」失敗一次（引擎已降級沿用 11-05 的值），就把 11-09 的
+# 每週覆核整份擋下，直到手動 workflow_dispatch 重跑才放行（MAINTENANCE §6.26）。
+# 連續 1 次 → WARN（引擎本來就會沿用舊值，頁面沒有錯）；≥ 此值 → FAIL。
+# 代價：真的壞掉要晚一次引擎執行才擋。沒有 failrun 欄位（舊版引擎寫的 data.json）
+# 一律當作 FAIL，不猜。已退場的來源（CBOE、CNN F&G）同樣走這條分級。
+NEW_FAIL_HARD = 2
+
 # 「今天」一律用台北日——引擎的 TODAY 是 UTC+8（update_data.py:13），asof 蓋的是台北日期。
 # 本檔若用容器本地的 date.today()（Actions／覆核容器都是 UTC），在 UTC 16:00–24:00 的
 # 窗口（台北隔日 00:00–08:00）會把引擎當天的戳記全判成「未來日期」而 FAIL 擋住流程。
@@ -607,7 +616,20 @@ def check_data(repo):
     fails = set(lar.get("fail", []))
     newf = fails - KNOWN
     if newf:
-        bad(f"出現新的失敗來源（非已知清單）：{sorted(newf)}")
+        fr = lar.get("failrun")
+        if isinstance(fr, dict):
+            hard = {k for k in newf if int(fr.get(k, NEW_FAIL_HARD)) >= NEW_FAIL_HARD}
+        else:
+            hard = set(newf)      # 舊版引擎沒寫 failrun：分不出第幾次，從嚴
+        soft = newf - hard
+        if hard and isinstance(fr, dict):
+            bad(f"新的失敗來源已連續失敗 ≥{NEW_FAIL_HARD} 次（非已知清單）：{sorted(hard)}")
+        elif hard:
+            bad(f"出現新的失敗來源（非已知清單；meta.lastAutoRun 沒有 failrun、分不出第幾次，從嚴判定）："
+                f"{sorted(hard)}")
+        if soft:
+            warn(f"新的失敗來源首次失敗（非已知清單，引擎已沿用舊值；下一次自動更新再失敗就是 FAIL）："
+                 f"{sorted(soft)}")
     if fails & KNOWN:
         warn(f"已知失敗來源（設計上可降級）：{sorted(fails & KNOWN)}")
     # §9 的反向規則：白名單裡的來源若已連續成功夠久，就該退場，否則它會安靜地留著，

@@ -423,25 +423,35 @@ def tw_margin_trend(days=60):
     單位：`marginAmt` 仟元 → `bal` 十億元（與 `_margin_on()` 同一把尺）；
     `marketValue` 億元。回傳依日期遞增。
     """
-    j = http_get(f"{MARGN_TREND}?response=json&date={TODAY.strftime('%Y%m%d')}&days={days}",
-                 ua=UA_BROWSER).json()
-    if j.get("stat") != "OK":
-        raise RuntimeError(f"MI_MARGN_TREND stat={j.get('stat')}")
-    out = []
-    for r in j.get("data", []):
-        try:
-            d = str(r["date"])
-            out.append({"d": f"{d[:4]}-{d[4:6]}-{d[6:]}",
-                        "bal": round(float(r["marginAmt"]) / 1e6, 1),
-                        "mshr": float(r["marginShr"]),
-                        "sshr": float(r["shortShr"]),
-                        "mktval": float(r["marketValue"])})
-        except (KeyError, TypeError, ValueError):
-            continue          # 單日壞掉就跳過那一天，不要讓整批失敗
-    out.sort(key=lambda x: x["d"])
-    if not out:
-        raise RuntimeError("MI_MARGN_TREND: 解析後是空的")
-    return out
+    # v2.3.2（2026-11-11）：往回找最近一個有資料的日期，比照 tw_credit_risk()。
+    # 原本只送 TODAY——那是**台北的執行日**，排程落在週二～週六 06:30，週六送的是非交易日。
+    # 2026-11-07（週六）這一支第一次失敗，連帶擋住 11-09 的每週覆核（MAINTENANCE §6.26）。
+    # 只對「stat 不是 OK／解析後是空的」往回退；連線例外直接往上丟——http_get 已重試三次，
+    # 換日期救不了連不上的端點，只會把一次逾時放大成五次。
+    why = None
+    for back in range(0, 10):
+        dstr = (TODAY - dt.timedelta(days=back)).strftime("%Y%m%d")
+        j = http_get(f"{MARGN_TREND}?response=json&date={dstr}&days={days}",
+                     ua=UA_BROWSER).json()
+        if j.get("stat") != "OK":
+            why = f"MI_MARGN_TREND stat={j.get('stat')}（date={dstr}）"
+            continue
+        out = []
+        for r in j.get("data", []):
+            try:
+                d = str(r["date"])
+                out.append({"d": f"{d[:4]}-{d[4:6]}-{d[6:]}",
+                            "bal": round(float(r["marginAmt"]) / 1e6, 1),
+                            "mshr": float(r["marginShr"]),
+                            "sshr": float(r["shortShr"]),
+                            "mktval": float(r["marketValue"])})
+            except (KeyError, TypeError, ValueError):
+                continue          # 單日壞掉就跳過那一天，不要讓整批失敗
+        out.sort(key=lambda x: x["d"])
+        if out:
+            return out
+        why = f"MI_MARGN_TREND: 解析後是空的（date={dstr}）"
+    raise RuntimeError(f"{why}；往回 10 天都沒有可用資料")
 
 
 def tw_credit_risk():
@@ -1430,6 +1440,13 @@ def main():
         "megaipo": "Hartnett：大頂前的最後供給事件（每週人工覆核）",
         "sahm05": "唯一量實體經濟的一項：三月失業率均較前 12 個月低點升 ≥0.50pp",
     }
+    # 觸發器名稱過去是 data.json 的種子值、引擎從不覆寫——跟 v2.2.10 之前的 note 同一種失效。
+    # v2.3.2 把 megaipo 的口徑由「OpenAI／SpaceX」改為「OpenAI／Anthropic」（SpaceX 2026-06-12
+    # 已掛牌、非 AI 標的，覆核一向不計入；brief §3.5），名稱因此交給引擎寫，下一次執行即生效。
+    # 只列改過的那一項；其餘仍沿用種子值。
+    TRIG_NAME = {
+        "megaipo": "OpenAI／Anthropic 巨型 IPO 完成",
+    }
 
     def set_trig(tid, state, val, asof=None, prog=None):
         """asof 要填「這個判斷所依據的資料」的日期，不是今天。
@@ -1457,6 +1474,7 @@ def main():
                 t["asof"] = str(asof or TODAY)
                 t["prog"] = None if prog is None else max(0, min(100, round(prog)))
                 if tid in TRIG_NOTE: t["note"] = TRIG_NOTE[tid]
+                if tid in TRIG_NAME: t["name"] = TRIG_NAME[tid]
     hy = sp.get("hy", {})
     if hy.get("now") is not None and hy.get("m3") is not None:
         d3 = (hy["now"] - hy["m3"]) * 100
@@ -1534,7 +1552,13 @@ def main():
     streak = {n: 0 for n in fail}
     for n in ok:
         streak[n] = int(_prev.get(n, 0)) + 1
-    data["meta"]["lastAutoRun"] = {"date": str(TODAY), "ok": ok, "fail": fail, "streak": streak}
+    # 每個來源的「連續失敗次數」（v2.3.2，2026-11-11）。streak 只記成功、失敗一律歸零，
+    # 所以分不出「剛壞一次」與「壞了一週」。healthcheck 靠這個欄位把白名單外的新失敗分級：
+    # 連續 1 次 WARN、≥2 次 FAIL（NEW_FAIL_HARD）。理由見 MAINTENANCE §6.26。
+    _pfr = (data["meta"].get("lastAutoRun") or {}).get("failrun") or {}
+    failrun = {n: int(_pfr.get(n, 0)) + 1 for n in fail}
+    data["meta"]["lastAutoRun"] = {"date": str(TODAY), "ok": ok, "fail": fail,
+                                   "streak": streak, "failrun": failrun}
 
     set_fresh(data["indicators"])
 

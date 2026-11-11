@@ -346,7 +346,7 @@ ul.tight{padding-left:18px;font-size:13px} ul.tight li{margin:4px 0}
       <h3 style="margin-top:14px">誠實聲明（已知局限）</h3>
       <ul class="tight">
         <li>市場報價來自公開網頁快照，可能延遲一至數個交易日；財報數據（EDGAR XBRL）為精確值但存在申報時滯（季報後常態 6–10 週）。</li>
-        <li>OpenRouter 為樣本平台數據，方向可參考、水平不可與全市場直接類比（Ramp 自 2026-06 停發整體付費率，v2 已不再採用該來源）；OpenAI ARR 自 S-1 保密申請後無新披露（截至 2026-08）——停更指標以最後可得值評分並標註「資料延遲」。</li>
+        <li>OpenRouter 為樣本平台數據，方向可參考、水平不可與全市場直接類比（Ramp 自 2026-06 停發整體付費率，v2 已不再採用該來源）；質化與季頻指標的資料停更時，以最後可得值評分並標註「資料延遲」（各卡的資料日期一律是資料本身的日期，不是覆核日）。</li>
         <li>CDS、私募信貸、未上市公司財務屬付費/非公開數據，以新聞報導與質化評分替代，信度低於量化指標。</li>
         <li><span id="mQualCount">—</span> 項質化指標（約佔綜合權重 <span id="mQualPct">—</span>%）含人工判斷；評分準則公開於卡片說明，歡迎挑戰。防漂移的做法是每次改分都要在說明裡留下「上週分數 → 本週分數＋理由」。</li>
         <li>泡沫無法被精準預測。本儀表板的目標是「監測結構惡化的速度與順序」，不是擇時工具。</li>
@@ -857,7 +857,7 @@ $("indTable").innerHTML = `<tr><th>維度</th><th>指標</th><th>目前值</th><
     <td>${esc(i.asof)}${i.fresh==="stale"?" ⚠":""}</td><td><a href="${esc(i.url)}" target="_blank" rel="noopener">${esc(i.src)}</a></td></tr>`).join("");
 
 /* ---------- TW tab ---------- */
-$("twHero").innerHTML = `${DATA.tw.heat ?? "—"}<small>／100</small>`;   /* 四組子群全 null 時 heat 就是 null，別印出「null／100」 */
+$("twHero").innerHTML = `${DATA.tw.heat ?? "—"}<small>／100</small>`;   /* 子群全 null 時 heat 就是 null，別印出「null／100」 */
 $("twChip").innerHTML = chip(zoneOf(DATA.tw.heat),
   DATA.tw.heat == null ? "待數據"
     : (DATA.zones.find(z => DATA.tw.heat<=z.max) || {}).label || "待數據");
